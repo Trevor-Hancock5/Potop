@@ -15,7 +15,12 @@ public class FirstScreen implements Screen {
     ShapeRenderer shapeRenderer;
     float x,y;
     float velocityY;
+    float velocityX;
     boolean onGround = false;
+
+    int accelerationX = 1500;
+    int maxSpeedX = 350;
+    float friction = 0.93f;
 
     OrthographicCamera camera;
     Viewport viewport;
@@ -31,21 +36,39 @@ public class FirstScreen implements Screen {
         viewport = new FitViewport(800, 480, camera);
     }
 
+    //REMEMBER: Everything in here is made 60 times a second!
     @Override
     public void render(float delta) {
-
         // Draw your screen here. "delta" is the time since last render in seconds.
         Gdx.gl.glClearColor(0,0,0,1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        //make it so that it gradually slows down (not dead stop! especially in air!)
-        if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) x -= 200*delta;
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) x += 200*delta;
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && onGround) velocityX -= accelerationX * delta;
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && onGround) velocityX += accelerationX * delta;
+
+        //friction
+        if(onGround) {
+            velocityX *= friction;
+        }
+        //cap speed
+        velocityX = Math.max(-maxSpeedX, Math.min(maxSpeedX, velocityX));
+
+        x += velocityX * delta;
+
 
         if(y <= 0) { onGround = true; y=0; velocityY = 0; }
-        if(Gdx.input.isKeyPressed(Input.Keys.UP) && onGround) { velocityY = 300; onGround = false; }
+        if(Gdx.input.isKeyPressed(Input.Keys.UP) && onGround) { velocityY = 400; onGround = false; }
         velocityY -= 600*delta; //gravity
         y += velocityY*delta;
+
+        //+25 is to be centered on the box!
+//        camera.position.set(x + 25, y + 150, 0);
+//        camera.update();
+
+        //TODO - figure out which camera following method to use!
+
+        camera.position.set(400, Math.max(y + 25, 240), 0);
+        camera.update();
 
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
