@@ -110,6 +110,29 @@ public class FirstScreen implements Screen {
     }
 
     private void updatePhysics(float delta){
+        //reset onGround so can't jump in midair
+        onGround = false;
+
+        //floor collision
+        if (y <= 0) {
+            onGround = true;
+            y = 0;
+            velocityY = 0;
+        }
+
+        //platform collision
+        Rectangle playerRect = new Rectangle(x, y, playerWidth, playerHeight);
+
+        for (Platform p : platforms) {
+            Rectangle platformRect = new Rectangle(p.x, p.y, p.width, p.height);
+
+            if (playerRect.overlaps(platformRect) && velocityY < 0 && y > p.y + ((float) p.height / 2)) {
+                y = p.y + p.height;
+                velocityY = 0;
+                onGround = true;
+            }
+        }
+
         //horizontal movement
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && onGround){
             velocityX -= accelerationX * delta;
@@ -137,25 +160,6 @@ public class FirstScreen implements Screen {
         //gravity
         velocityY -= gravity * delta; //gravity
         y += velocityY * delta;
-
-        //floor collision
-        if (y <= 0) {
-            onGround = true;
-            y = 0;
-            velocityY = 0;
-        }
-
-        //platform collision
-        Rectangle playerRect = new Rectangle(x, y, playerWidth, playerHeight);
-        for (Platform p : platforms) {
-            Rectangle platformRect = new Rectangle(p.x, p.y, p.width, p.height);
-
-            if (playerRect.overlaps(platformRect) && velocityY < 0 && y > p.y + ((float) p.height / 2)) {
-                y = p.y + p.height;
-                velocityY = 0;
-                onGround = true;
-            }
-        }
 
         //rising water
         waterLevel += water_rise_speed * delta;
