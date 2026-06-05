@@ -16,10 +16,13 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import java.util.ArrayList;
 import java.util.List;
 
+//TODO - restart on death - click r
+//TODO - when restart, keep all the lol on the surface of the water haha
+//TODO - height tracking score
 //TODO - make an initial small level!
+//TODO - level design
 //TODO - death screen
 //TODO - menu screen
-//TODO - when restart, keep all the lol on the surface of the water haha
 
 /** First screen of the application. Displayed after the application is created. */
 public class FirstScreen implements Screen {
@@ -49,7 +52,7 @@ public class FirstScreen implements Screen {
     int playerHeight = 50;
 
     //water
-    float waterLevel = -100f;
+    float waterLevel = -50f;
     float water_rise_speed = 5f;
 
     List<Platform> platforms;
@@ -148,7 +151,7 @@ public class FirstScreen implements Screen {
 
 
         //Jumping
-        if (Gdx.input.isKeyPressed(Input.Keys.UP) && onGround) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && onGround) {
             velocityY = jump_force;
             onGround = false;
         }
