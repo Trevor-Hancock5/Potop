@@ -1,0 +1,30 @@
+//TODO - make an initial small level!
+//TODO - level design
+//TODO - death screen
+//TODO - menu screen
+
+//todo - jump buffer!!
+//todo - other common QoL platformer stuff
+ - tune current mechanics too!
+
+//Todo - closer to water, faster and higher player moves/jump.
+
+
+
+better mechanic:
+
+So you are stick man and you are trying to avoid the rising water, going up and up and up.
+- eventually, the water (probably) catches you and you turn into 'lol' and look like youre sinking.
+  you need to take a breath and hold it before you get dragged under. You hit, turn to lol, float for a second
+  then a shark or something drags you under the water. And now you have to float back to the surface (which is
+  still rising) to continue the level. But the floating part is hard. There are air gaps you have to stop at and use
+  but if you knock into anything you lose air. The less air, the slower you float; the more air, the fast you float
+  up. Once on surface, you have a short time to reach a platform before you are dragged back down, also if you float up
+  too slowly, the sharks drag you further down (where you already used the air).
+- You have a hold breath, breath in, breath out keys. You want to breathe out then in, and hold before going under
+  the water. Then you hold your breath the whole time and let it out to slow down if you need to navigate to an
+  air pocket, then breathe in and hold. If you accidently stop holding your breath, you slowly leak air out.
+  If you accidently breathe in while under water, you cough it out along with all your air. very short time to get
+  air.
+- After being in the water for the first time, you move slower and jump not as high. Why? Because you are soaking wet
+  and exhausted. so falling into the water, makes it all harder!
