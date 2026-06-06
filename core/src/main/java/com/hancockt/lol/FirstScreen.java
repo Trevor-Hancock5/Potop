@@ -128,41 +128,43 @@ public class FirstScreen implements Screen {
             velocityY = 0;
         }
 
+        float distanceFromWater = y - waterLevel;
+        float dangerBoost = Math.max (0, 1 - (distanceFromWater / 300f));
+        dangerBoost = 1 + (dangerBoost / 4);
+
         //platform collision
         Rectangle playerRect = new Rectangle(x, y, playerWidth, playerHeight);
 
         for (Platform p : platforms) {
             Rectangle platformRect = new Rectangle(p.x, p.y, p.width, p.height);
 
-            if (playerRect.overlaps(platformRect) && velocityY < 0 && y > p.y + ((float) p.height / 10)) {
+            if (playerRect.overlaps(platformRect) && velocityY < 0 && y + ((float) playerHeight / 5) >= p.y) {
                 y = p.y + p.height;
                 velocityY = 0;
                 onGround = true;
             }
         }
 
-
         //horizontal movement
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && onGround){
-            velocityX -= accelerationX * delta;
+            velocityX -= accelerationX * delta * (1.25f * dangerBoost);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && onGround) {
-            velocityX += accelerationX * delta;
+            velocityX += accelerationX * delta * (1.25f * dangerBoost);
         }
 
         //friction & velocity updates
         velocityX *= onGround ? groundFriction : airFriction;
-        velocityX = Math.max (-maxSpeedX, Math.min(maxSpeedX, velocityX));
+        velocityX = Math.max(-maxSpeedX, Math.min(maxSpeedX, velocityX));
         x += velocityX*delta;
 
 
         //Jumping
         if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && onGround) {
-            velocityY = jump_force;
+            velocityY = jump_force * dangerBoost;
             onGround = false;
 
             // Form of dash when you jump
-//            float sign = Math.signum(velocityX);
             float speedRatio = Math.abs(velocityX) / maxSpeedX; // 0 to 1
             velocityX *= (1f + speedRatio * 0.5f);
         }
