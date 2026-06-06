@@ -10,19 +10,12 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.ArrayList;
 import java.util.List;
-
-//TODO - restart on death - click r
-//TODO - when restart, keep all the lol on the surface of the water haha
-//TODO - height tracking score
-//TODO - make an initial small level!
-//TODO - level design
-//TODO - death screen
-//TODO - menu screen
 
 /** First screen of the application. Displayed after the application is created. */
 public class FirstScreen implements Screen {
@@ -32,6 +25,9 @@ public class FirstScreen implements Screen {
     BitmapFont font;
     OrthographicCamera camera;
     Viewport viewport;
+    OrthographicCamera hudCam;
+    float viewportWidth = 800f;
+    float viewportHeight = 480f;
 
     //Player
     float x,y;
@@ -39,23 +35,25 @@ public class FirstScreen implements Screen {
     float velocityX;
     boolean onGround = false;
     boolean isDead = false;
+    float score;
 
     //PLAYER TUNING!
     int accelerationX = 1500;
     int maxSpeedX = 350;
     float groundFriction = 0.93f;
     float airFriction = 0.999f;
-    float gravity = 600f;
-    float jump_force = 325f;
-    float jump_hold_force = 200f;
+    float gravity = 900f;
+    float jump_force = 400f;
+    float jump_hold_force = 225f;
     int playerWidth = 50;
     int playerHeight = 50;
 
     //water
-    float waterLevel = -50f;
-    float water_rise_speed = 5f;
+    float waterLevel;
+    float water_rise_speed;
 
     List<Platform> platforms;
+    List<Float> deathXValues;
 
     //game reference
     lol game;
@@ -72,15 +70,18 @@ public class FirstScreen implements Screen {
         font = new BitmapFont();
 
         camera = new OrthographicCamera();
-        viewport = new ExtendViewport(800, 480, camera);
+        viewport = new ExtendViewport(viewportWidth, viewportHeight, camera);
+        hudCam = new OrthographicCamera();
+        hudCam.setToOrtho(false, viewportWidth, viewportHeight);
 
-        x = 100;
-        y = 150;
+        restart();
 
         platforms = new ArrayList<>();
         platforms.add(new Platform(100, 100, 50, 10));
         platforms.add(new Platform(300, 75, 50, 10));
         platforms.add(new Platform(600, 30, 50, 10));
+
+        deathXValues = new ArrayList<>();
     }
 
     //REMEMBER: Everything in here is made 60 times a second!
@@ -98,12 +99,16 @@ public class FirstScreen implements Screen {
             waterLevel += water_rise_speed * 5 * delta;
         }
 
-        if(isDead){
+        if(isDead || !deathXValues.isEmpty()){
             drawDeathText(delta);
+            if(Gdx.input.isKeyJustPressed(Input.Keys.R) && isDead){
+                restart();
+            }
         }
 
         drawShapes();
         updateCamera();
+        drawHUD();
     }
 
     private void clearScreen(){
@@ -129,12 +134,13 @@ public class FirstScreen implements Screen {
         for (Platform p : platforms) {
             Rectangle platformRect = new Rectangle(p.x, p.y, p.width, p.height);
 
-            if (playerRect.overlaps(platformRect) && velocityY < 0 && y > p.y + ((float) p.height / 2)) {
+            if (playerRect.overlaps(platformRect) && velocityY < 0 && y > p.y + ((float) p.height / 10)) {
                 y = p.y + p.height;
                 velocityY = 0;
                 onGround = true;
             }
         }
+
 
         //horizontal movement
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && onGround){
@@ -154,6 +160,11 @@ public class FirstScreen implements Screen {
         if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && onGround) {
             velocityY = jump_force;
             onGround = false;
+
+            // Form of dash when you jump
+//            float sign = Math.signum(velocityX);
+            float speedRatio = Math.abs(velocityX) / maxSpeedX; // 0 to 1
+            velocityX *= (1f + speedRatio * 0.5f);
         }
         //Holding jump
         if (Gdx.input.isKeyPressed(Input.Keys.UP) && !onGround && velocityY > 0) {
@@ -161,7 +172,8 @@ public class FirstScreen implements Screen {
         }
 
         //gravity
-        velocityY -= gravity * delta; //gravity
+        float currGravity = velocityY < 0 ? gravity * 1.1f : gravity;
+        velocityY -= currGravity * delta;
         y += velocityY * delta;
 
         //rising water
@@ -172,12 +184,18 @@ public class FirstScreen implements Screen {
         Rectangle waterRect = new Rectangle (-1000, 0, 10000, waterLevel);
 
         if(waterRect.overlaps(playerRectFinal)){
+            if(!isDead){
+                deathXValues.add(x);
+            }
             isDead = true;
         }
+
+        score = Math.max(score, y);
     }
 
     private void updateCamera() {
-        camera.position.set(400, Math.max(y+25, 240), 0);
+        float targetY = isDead ? Math.max(waterLevel, 240) : Math.max(y+25, 240);
+        camera.position.set(400, targetY, 0);
         camera.update();
     }
 
@@ -207,14 +225,32 @@ public class FirstScreen implements Screen {
     }
 
     private void drawDeathText(float delta) {
-        float bob = 0f; // how much to bob
-        if(Math.random() > 0.8){
-            bob = (float) ((5*Math.random()) - 1);
-        }
+        float bob = (float) Math.sin(TimeUtils.millis() / 300.0) * 2.5f;
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
 
-        font.draw(batch, "lol", x, waterLevel + 10 + bob);
+        for(Float f : deathXValues) {
+            font.draw(batch, "lol", f, waterLevel + 10 + bob);
+        }
+        batch.end();
+    }
+
+    private void restart(){
+        x = 25;
+        y = 10;
+        velocityY = 0;
+        velocityX = 0;
+        waterLevel = -50f;
+        water_rise_speed = 5f;
+        onGround = false;
+        isDead = false;
+        score = 0;
+    }
+
+    private void drawHUD(){
+        batch.setProjectionMatrix(hudCam.combined);
+        batch.begin();
+        font.draw(batch, "Score: " + Math.round(score), viewportWidth - 100, viewportHeight - 10);
         batch.end();
     }
 
