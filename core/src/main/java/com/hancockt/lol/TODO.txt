@@ -1,17 +1,62 @@
-//TODO - make an initial small level!
-//TODO - level design
-//TODO - death screen
-//TODO - menu screen
+V1 - AW section ONLY!
+V2 - build the UW section
+V3 - Into space
+(This is to avoid scope creep and not releasing/polishing anything until my entire idea is fleshed out. Instead
+polish/release often and frequently)
 
-//todo - jump buffer!!
-//todo - other common QoL platformer stuff
- - tune current mechanics too!
+1. Make camera follow player sideways and up!
+1a. Change player to stickman shape (like 20 wide, 50 tall)
+2. make an initial small level! - this can be used for tuning the values
+    a. long flat section
+    b. small jump gap
+    c. large jump gap
+    d. tall vertical section with lots of platforms and some sparse sections
+    e. wall jumping area - different widths, maybe only one wall, ...
+    f. Varying platform widths to test platform difficulty
+    g. Varying hard sections to test difficulty
+    - Does everything feel right. Horizontal and vertical speed; speed/jump buffs; danger boost; water rise speed;
+    gravity and friction; platforms too wide/narrow
+3. Add common QoL platformer stuff - like jump buffer, coyote timer, jump_cancel(? maybe, game is focused on jump
+   committing, not on control!), screen shake on landing, landing lag (bigger fall, bigger drop in momentum), max fall
+   speed (no max up/sideway speed!), faster fall when holding down?
+4. Add new platformer mechanics? - wall jumping, no friction when landing from jump for x, somehow convert horizontal
+   speed to vertical speed (like faster moving, higher jump?)
+5. Tune the values - ensure that it doesn't feel too floaty or too fast - you want the player not waiting in the air.
+   Also adjust the variable jump height.
 
-//Todo - closer to water, faster and higher player moves/jump.
+6. Get a friend to play it to 'tune' it and see if they find any issues
+
+V1 Polishing - add art, sound effects, and stickman dialogue
+ - make a big deal out of the first time the player hits the water Like the stickman being like 'seriously, HELP! I'm
+ drowning!!!!" etc. lol is massive, he's 'cussing' but with ***, and then the jaws music comes on. And he goes quiet.
+ - add typos to his dialogue
+ - His legal name is Mr. Stick Man, but he calls himself MC for Main Character because he knows he is. Why wouldn't he
+ be?
+
+Start UW mechanics!
+7. Change death condition - isCaught, then dead with the breath
+8. Let lol float, then get dragged under (a variable amount, maybe depending how high or ...)
+9. shark drag you down or something - whirl pool
+10. breath mechanic! - air bar?
+11. underwater state - physics for floating and variable float speed based on breath held
+12. surface escape and water debuff (slower and worse)
+
+
+
+
+wayyy later:
+- TUTORIAL!!!!
+- level design: or random generated?
+- death screen
+- menu screen
+- settings
 
 
 
 better mechanic:
+
+AW = above water stuff
+BW = below water stuff
 
 So you are stick man and you are trying to avoid the rising water, going up and up and up.
 - eventually, the water (probably) catches you and you turn into 'lol' and look like youre sinking.
@@ -28,3 +73,6 @@ So you are stick man and you are trying to avoid the rising water, going up and 
   air.
 - After being in the water for the first time, you move slower and jump not as high. Why? Because you are soaking wet
   and exhausted. so falling into the water, makes it all harder!
+- !!! - But this does mean, that after you fall, the only way to get past a section may be to fall into the water and
+  rise above it! Some levels should be impossible without going under water (with maybe one like expert jump or play or
+  smth - like super hard or the water)
