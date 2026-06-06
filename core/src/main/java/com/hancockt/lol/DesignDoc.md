@@ -57,6 +57,8 @@ Drown completely = checkpoint, not full restart.
 Early levels: no water mechanic. Learn to climb.
 Mid game: water introduced via 4th wall break.
 Late game: some sections only passable via UW. Some only passable dry.
+- could make a level that has a frame perfect jump, so it basically forces underwater. But theoretically, you can do it.
+  Use the speed forces and everything to get max speed and max distance you can possibly jump. - physics ... yay
 Always your fault. Never unfair.
 
 ---

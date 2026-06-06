@@ -4,8 +4,12 @@ V3 - Into space
 (This is to avoid scope creep and not releasing/polishing anything until my entire idea is fleshed out. Instead
 polish/release often and frequently)
 
-1. Make camera follow player sideways and up!
-1a. Change player to stickman shape (like 20 wide, 50 tall)
+3. Add common QoL platformer stuff
+ - screen shake on landing - make it variable  strength. Further fall, bigger shake
+ - landing lag (bigger fall, bigger drop in momentum)
+ - boundary walls
+4. Add new platformer mechanics?
+ - wall jumping
 2. make an initial small level! - this can be used for tuning the values
     a. long flat section
     b. small jump gap
@@ -16,13 +20,10 @@ polish/release often and frequently)
     g. Varying hard sections to test difficulty
     - Does everything feel right. Horizontal and vertical speed; speed/jump buffs; danger boost; water rise speed;
     gravity and friction; platforms too wide/narrow
-3. Add common QoL platformer stuff - like jump buffer, coyote timer, jump_cancel(? maybe, game is focused on jump
-   committing, not on control!), screen shake on landing, landing lag (bigger fall, bigger drop in momentum), max fall
-   speed (no max up/sideway speed!), faster fall when holding down?
-4. Add new platformer mechanics? - wall jumping, no friction when landing from jump for x, somehow convert horizontal
-   speed to vertical speed (like faster moving, higher jump?)
 5. Tune the values - ensure that it doesn't feel too floaty or too fast - you want the player not waiting in the air.
    Also adjust the variable jump height.
+   - Look at making or using a tuning dashboard and maybe sliders for tuning. Look up imgui-java libgdx. Could also just
+    use a config file.
 
 6. Get a friend to play it to 'tune' it and see if they find any issues
 

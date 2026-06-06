@@ -28,6 +28,7 @@ public class FirstScreen implements Screen {
     OrthographicCamera hudCam;
     float viewportWidth = 800f;
     float viewportHeight = 480f;
+    float screenShakeAccumulation;
 
     //Player
     float x,y;
@@ -36,17 +37,28 @@ public class FirstScreen implements Screen {
     boolean onGround = false;
     boolean isDead = false;
     float score;
+    float coyoteSeconds; //number of seconds off ground
+    float jumpBuffer; // number of seconds since pressed jump
+    boolean justLanded = false; //for screen shake
 
     //PLAYER TUNING!
     int accelerationX = 1500;
-    int maxSpeedX = 350;
+    int maxSpeedX = 400;
+    int maxFallSpeed = -1200;
     float groundFriction = 0.93f;
     float airFriction = 0.999f;
     float gravity = 900f;
     float jump_force = 400f;
     float jump_hold_force = 225f;
-    int playerWidth = 50;
+    int playerWidth = 20;
     int playerHeight = 50;
+    float cameraLerpSpeed = .1f;
+    float cameraDeadZoneDivisor = 5;
+    float coyoteThreshold = 0.1f; //Can be off platform for x seconds and still jump
+    float jumpBufferThreshold = 0.1f;
+    float downforceFallAcceleration = -250f;
+    float screenShake = 0.2f; //time of shaking
+    float screenShakeIntensity = 5f;
 
     //water
     float waterLevel;
@@ -77,9 +89,9 @@ public class FirstScreen implements Screen {
         restart();
 
         platforms = new ArrayList<>();
-        platforms.add(new Platform(100, 100, 50, 10));
-        platforms.add(new Platform(300, 75, 50, 10));
-        platforms.add(new Platform(600, 30, 50, 10));
+        platforms.add(new Platform(100, 100, 80, 10));
+        platforms.add(new Platform(300, 75, 80, 10));
+        platforms.add(new Platform(600, 30, 80, 10));
 
         deathXValues = new ArrayList<>();
     }
@@ -107,7 +119,7 @@ public class FirstScreen implements Screen {
         }
 
         drawShapes();
-        updateCamera();
+        updateCamera(delta);
         drawHUD();
     }
 
@@ -118,7 +130,33 @@ public class FirstScreen implements Screen {
     }
 
     private void updatePhysics(float delta){
-        //reset onGround so can't jump in midair
+        //gravity
+        float currGravity = velocityY < 0 ? gravity * 1.1f : gravity;
+        velocityY -= currGravity * delta;
+
+        //Holding jump
+        if (Gdx.input.isKeyPressed(Input.Keys.UP) && !onGround && velocityY > 0) {
+            velocityY += jump_hold_force * delta;
+        }
+
+        //Or holding down
+        float currFriction = groundFriction;
+        if(Gdx.input.isKeyPressed(Input.Keys.DOWN)){
+            if(!onGround) {
+                velocityY += downforceFallAcceleration * delta;
+            } else{
+                currFriction = (float) Math.pow(groundFriction, 2);
+            }
+        }
+
+        //falling cap speed
+        velocityY = Math.max(maxFallSpeed, velocityY);
+
+        //update x and y
+        y += velocityY * delta;
+        x += velocityX * delta;
+
+        //Reset to avoid jumping mid-air
         onGround = false;
 
         //floor collision
@@ -126,11 +164,8 @@ public class FirstScreen implements Screen {
             onGround = true;
             y = 0;
             velocityY = 0;
+            justLanded = true;
         }
-
-        float distanceFromWater = y - waterLevel;
-        float dangerBoost = Math.max (0, 1 - (distanceFromWater / 300f));
-        dangerBoost = 1 + (dangerBoost / 4);
 
         //platform collision
         Rectangle playerRect = new Rectangle(x, y, playerWidth, playerHeight);
@@ -142,41 +177,53 @@ public class FirstScreen implements Screen {
                 y = p.y + p.height;
                 velocityY = 0;
                 onGround = true;
+                justLanded = true;
             }
         }
 
+        //Coyote timer
+        if(!onGround){
+            coyoteSeconds += delta;
+        } else{
+            coyoteSeconds = 0;
+        }
+
+        //danger boost
+        float distanceFromWater = y - waterLevel;
+        float dangerBoost = Math.max (0, 1 - (distanceFromWater / 300f));
+        dangerBoost = 1 + (dangerBoost / 4);
+
         //horizontal movement
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && onGround){
-            velocityX -= accelerationX * delta * (1.25f * dangerBoost);
+            velocityX -= accelerationX * delta * dangerBoost;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && onGround) {
-            velocityX += accelerationX * delta * (1.25f * dangerBoost);
+            velocityX += accelerationX * delta * dangerBoost;
         }
 
-        //friction & velocity updates
-        velocityX *= onGround ? groundFriction : airFriction;
+        //friction & velocity cap
+        velocityX *= onGround ? currFriction : airFriction;
         velocityX = Math.max(-maxSpeedX, Math.min(maxSpeedX, velocityX));
-        x += velocityX*delta;
 
+        jumpBuffer += delta;
+        if(Gdx.input.isKeyJustPressed(Input.Keys.UP)){
+            jumpBuffer = 0; //just tried to jump
+        }
 
         //Jumping
-        if (Gdx.input.isKeyJustPressed(Input.Keys.UP) && onGround) {
+        if ((Gdx.input.isKeyJustPressed(Input.Keys.UP) || jumpBuffer < jumpBufferThreshold)
+                && (onGround || coyoteSeconds <= coyoteThreshold)) {
+            coyoteSeconds = 100; //reset so can't double jump
+            jumpBuffer = 100; //reset so can't double jump!
             velocityY = jump_force * dangerBoost;
             onGround = false;
+            justLanded = false;
+            screenShakeAccumulation = 0;
 
             // Form of dash when you jump
             float speedRatio = Math.abs(velocityX) / maxSpeedX; // 0 to 1
             velocityX *= (1f + speedRatio * 0.5f);
         }
-        //Holding jump
-        if (Gdx.input.isKeyPressed(Input.Keys.UP) && !onGround && velocityY > 0) {
-            velocityY += jump_hold_force * delta;
-        }
-
-        //gravity
-        float currGravity = velocityY < 0 ? gravity * 1.1f : gravity;
-        velocityY -= currGravity * delta;
-        y += velocityY * delta;
 
         //rising water
         waterLevel += water_rise_speed * delta;
@@ -192,12 +239,34 @@ public class FirstScreen implements Screen {
             isDead = true;
         }
 
+        //update score LAST
         score = Math.max(score, y);
     }
 
-    private void updateCamera() {
-        float targetY = isDead ? Math.max(waterLevel, 240) : Math.max(y+25, 240);
-        camera.position.set(400, targetY, 0);
+    private void updateCamera(float delta) {
+        float deadzone = camera.viewportWidth / cameraDeadZoneDivisor;
+        float deadzoneRight = camera.position.x + (deadzone / 2);
+        float deadzoneLeft = camera.position.x - (deadzone / 2);
+
+        float targetX = camera.position.x; //default is to stay put
+
+        if(x < deadzoneLeft){
+            targetX = x + (deadzone / 2);
+        } else if (x > deadzoneRight){
+            targetX = x - (deadzone / 2);
+        }
+
+        float vertLookAhead = velocityY * 0.1f;
+        float targetY = isDead ? Math.max(waterLevel, 240) : Math.max(y+25+vertLookAhead, 240);
+
+        camera.position.x += (targetX - camera.position.x) * cameraLerpSpeed;
+        camera.position.y += (targetY - camera.position.y) * cameraLerpSpeed;
+
+        if(justLanded && screenShakeAccumulation < screenShake){
+            screenShakeAccumulation += delta;
+            camera.position.x += (Math.random() - 0.5) * screenShakeIntensity;
+            camera.position.y += (Math.random() - 0.5) * screenShakeIntensity;
+        }
         camera.update();
     }
 
@@ -208,7 +277,7 @@ public class FirstScreen implements Screen {
 
         if(!isDead){
             shapeRenderer.setColor(Color.WHITE);
-            shapeRenderer.rect(x, y, 50, 50);
+            shapeRenderer.rect(x, y, playerWidth, playerHeight);
         }
 
         //platforms
@@ -247,6 +316,10 @@ public class FirstScreen implements Screen {
         onGround = false;
         isDead = false;
         score = 0;
+        coyoteSeconds = 100; //reset
+        jumpBuffer = 100; //reset
+        justLanded = false; //reset
+        screenShakeAccumulation = 0;
     }
 
     private void drawHUD(){
