@@ -17,6 +17,10 @@ public class Platform {
         this.height = height;
     }
 
+    public Platform(float x, float y, float width, float height) {
+        this((int) x, (int) y, (int) width, (int) height);
+    }
+
     public int getX() {
         return x;
     }

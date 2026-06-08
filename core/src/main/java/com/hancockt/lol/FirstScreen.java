@@ -58,7 +58,8 @@ public class FirstScreen implements Screen {
     float jumpBufferThreshold = 0.1f;
     float downforceFallAcceleration = -250f;
     float screenShake = 0.2f; //time of shaking
-    float screenShakeIntensity = 5f;
+    float screenShakeIntensity = 4f;
+    float collisionThreshold = 25f; //number of pixels into platform and still pop out one side
 
     //water
     float waterLevel;
@@ -88,6 +89,7 @@ public class FirstScreen implements Screen {
 
         restart();
 
+        //Set up platforms
         platforms = new ArrayList<>();
         platforms.add(new Platform(100, 100, 80, 10));
         platforms.add(new Platform(300, 75, 80, 10));
@@ -173,12 +175,40 @@ public class FirstScreen implements Screen {
         for (Platform p : platforms) {
             Rectangle platformRect = new Rectangle(p.x, p.y, p.width, p.height);
 
-            if (playerRect.overlaps(platformRect) && velocityY < 0 && y + ((float) playerHeight / 5) >= p.y) {
+            //Player lands on top
+            float collisionPoint = p.y;
+            if(p.height > collisionThreshold){
+                collisionPoint = p.height + p.y - collisionThreshold;
+            }
+            if (playerRect.overlaps(platformRect) && velocityY < 0 && y + ((float) playerHeight / 5) >= collisionPoint) {
                 y = p.y + p.height;
                 velocityY = 0;
                 onGround = true;
                 justLanded = true;
             }
+            //left of player hits right side of wall when moving left
+            collisionPoint = p.x + (float) (p.width / 2);
+            if ((float) p.width / 2 > collisionThreshold) {
+                collisionPoint = p.x + p.width - collisionThreshold;
+            }
+            if (playerRect.overlaps(platformRect) && velocityX < 0 && x + (float) (playerWidth / 2) >= collisionPoint
+                    && y + (float)(playerHeight / 2) < p.y + p.height) {
+                x = p.x + p.width;
+                velocityX = 0; //TODO - change this for when doing wall jumps!
+            }
+
+
+            //right of player hits left side of wall when moving right
+            collisionPoint = p.x + (float) (p.width / 2);
+            if ((float) p.width / 2 > collisionThreshold) {
+                collisionPoint = p.x + collisionThreshold;
+            }
+            if (playerRect.overlaps(platformRect) && velocityX > 0 && x + (float) (playerWidth / 2) <= collisionPoint
+                    && y + (float)(playerHeight / 2) < p.y + p.height) {
+                x = p.x - playerWidth;
+                velocityX = 0; //TODO - change this for when doing wall jumps!
+            }
+
         }
 
         //Coyote timer

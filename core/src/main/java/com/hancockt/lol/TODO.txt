@@ -5,8 +5,6 @@ V3 - Into space
 polish/release often and frequently)
 
 3. Add common QoL platformer stuff
- - screen shake on landing - make it variable  strength. Further fall, bigger shake
- - landing lag (bigger fall, bigger drop in momentum)
  - boundary walls
 4. Add new platformer mechanics?
  - wall jumping
