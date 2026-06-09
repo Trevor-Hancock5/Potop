@@ -9,10 +9,17 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.maps.MapLayer;
+import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
+import com.badlogic.gdx.math.Path;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +36,7 @@ public class FirstScreen implements Screen {
     float viewportWidth = 800f;
     float viewportHeight = 480f;
     float screenShakeAccumulation;
+    OrthogonalTiledMapRenderer mapRenderer;
 
     //Player
     float x,y;
@@ -91,9 +99,55 @@ public class FirstScreen implements Screen {
 
         //Set up platforms
         platforms = new ArrayList<>();
-        platforms.add(new Platform(100, 100, 80, 10));
-        platforms.add(new Platform(300, 75, 80, 10));
-        platforms.add(new Platform(600, 30, 80, 10));
+
+        TiledMap map = new TmxMapLoader().load("tuning.tmx");
+        MapLayer platformLayer = map.getLayers().get("platforms");
+
+        for(MapObject o : platformLayer.getObjects()){
+            if(o instanceof RectangleMapObject){
+                Rectangle rect = ((RectangleMapObject) o).getRectangle();
+                Platform p = new Platform(rect.x, rect.y, rect.width, rect.height);
+                platforms.add(p);
+            }
+        }
+
+        MapLayer wallLayer = map.getLayers().get("walls");
+        for(MapObject o : wallLayer.getObjects()){
+            if(o instanceof RectangleMapObject){
+                Rectangle rect = ((RectangleMapObject) o).getRectangle();
+                Platform p = new Platform(rect.x, rect.y, rect.width, rect.height);
+                platforms.add(p);
+            }
+        }
+
+
+
+        mapRenderer = new OrthogonalTiledMapRenderer(map);
+
+//        platforms.add(new Platform(100, 100, 80, 10));
+//        platforms.add(new Platform(300, 75, 80, 10));
+//        platforms.add(new Platform(600, 30, 80, 10));
+//
+//        for(int i = 0; i < 150; i++){
+//            boolean noCollision;
+//            do {
+//                int xVal = (int) (Math.random() * 1200);
+//                int Yval = (int) (Math.random() * 4000);
+//                int width = (int) (Math.random() * 125 + 25);
+//                int height = (int) (Math.random() * 40 + 10);
+//                platforms.add(new Platform(xVal, Yval, width, height));
+//                noCollision = true;
+//                for(int j = 0; j < platforms.size(); j++){
+//                    Platform p = platforms.get(i);
+//                    Rectangle p1 = new Rectangle(p.x, p.y, p.width, p.height);
+//                    Rectangle p2 = new Rectangle(xVal, Yval, width, height);
+//                    if (p1.overlaps(p2)){
+//                        noCollision = false;
+//                        break;
+//                    }
+//                }
+//            } while (!noCollision);
+//        }
 
         deathXValues = new ArrayList<>();
     }
@@ -316,6 +370,10 @@ public class FirstScreen implements Screen {
             shapeRenderer.rect(p.x, p.y, p.width, p.height);
         }
 
+        //background load (Tiled)
+        mapRenderer.setView(camera);
+        mapRenderer.render();
+
         //water
         shapeRenderer.setColor(new Color(17/255f, 132/255f, 214/255f, .65f));
 
@@ -337,8 +395,8 @@ public class FirstScreen implements Screen {
     }
 
     private void restart(){
-        x = 25;
-        y = 10;
+        x = 48;
+        y = 64;
         velocityY = 0;
         velocityX = 0;
         waterLevel = -50f;
