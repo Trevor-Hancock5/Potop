@@ -12,7 +12,6 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
-import com.badlogic.gdx.math.Path;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
@@ -67,7 +66,10 @@ public class FirstScreen implements Screen {
     float downforceFallAcceleration = -250f;
     float screenShake = 0.2f; //time of shaking
     float screenShakeIntensity = 4f;
-    float collisionThreshold = 25f; //number of pixels into platform and still pop out one side
+    float collisionThreshold = 15f; //number of pixels into platform and still pop out one side
+    float nudgeSpeed = 50f;
+    float nudgeThreshold = 10f;
+    float bounceRatio = 0.25f;
 
     //water
     float waterLevel;
@@ -78,6 +80,7 @@ public class FirstScreen implements Screen {
 
     //game reference
     lol game;
+    boolean levelDesign = false;
 
 
     public FirstScreen(lol game){
@@ -100,54 +103,56 @@ public class FirstScreen implements Screen {
         //Set up platforms
         platforms = new ArrayList<>();
 
-        TiledMap map = new TmxMapLoader().load("tuning.tmx");
-        MapLayer platformLayer = map.getLayers().get("platforms");
+        if(levelDesign) {
+            TiledMap map = new TmxMapLoader().load("tuning.tmx");
+            MapLayer platformLayer = map.getLayers().get("platforms");
 
-        for(MapObject o : platformLayer.getObjects()){
-            if(o instanceof RectangleMapObject){
-                Rectangle rect = ((RectangleMapObject) o).getRectangle();
-                Platform p = new Platform(rect.x, rect.y, rect.width, rect.height);
-                platforms.add(p);
+            for (MapObject o : platformLayer.getObjects()) {
+                if (o instanceof RectangleMapObject) {
+                    Rectangle rect = ((RectangleMapObject) o).getRectangle();
+                    Platform p = new Platform(rect.x, rect.y, rect.width, rect.height);
+                    platforms.add(p);
+                }
+            }
+
+            MapLayer wallLayer = map.getLayers().get("walls");
+            for (MapObject o : wallLayer.getObjects()) {
+                if (o instanceof RectangleMapObject) {
+                    Rectangle rect = ((RectangleMapObject) o).getRectangle();
+                    Platform p = new Platform(rect.x, rect.y, rect.width, rect.height);
+                    platforms.add(p);
+                }
+            }
+
+
+            mapRenderer = new OrthogonalTiledMapRenderer(map);
+        } else {
+            platforms.add(new Platform(100, 100, 80, 10));
+            platforms.add(new Platform(300, 75, 80, 10));
+            platforms.add(new Platform(600, 30, 80, 10));
+
+            for (int i = 0; i < 150; i++) {
+                boolean noCollision;
+                do {
+                    int xVal = (int) (Math.random() * 1200);
+                    int Yval = (int) (Math.random() * 4000);
+                    int width = (int) (Math.random() * 125 + 25);
+                    int height = (int) (Math.random() * 40 + 10);
+                    platforms.add(new Platform(xVal, Yval, width, height));
+                    noCollision = true;
+                    for (int j = 0; j < platforms.size(); j++) {
+                        Platform p = platforms.get(i);
+                        Rectangle p1 = new Rectangle(p.x, p.y, p.width, p.height);
+                        Rectangle p2 = new Rectangle(xVal, Yval, width, height);
+                        if (p1.overlaps(p2)) {
+                            noCollision = false;
+                            break;
+                        }
+                    }
+                } while (!noCollision);
             }
         }
 
-        MapLayer wallLayer = map.getLayers().get("walls");
-        for(MapObject o : wallLayer.getObjects()){
-            if(o instanceof RectangleMapObject){
-                Rectangle rect = ((RectangleMapObject) o).getRectangle();
-                Platform p = new Platform(rect.x, rect.y, rect.width, rect.height);
-                platforms.add(p);
-            }
-        }
-
-
-
-        mapRenderer = new OrthogonalTiledMapRenderer(map);
-
-//        platforms.add(new Platform(100, 100, 80, 10));
-//        platforms.add(new Platform(300, 75, 80, 10));
-//        platforms.add(new Platform(600, 30, 80, 10));
-//
-//        for(int i = 0; i < 150; i++){
-//            boolean noCollision;
-//            do {
-//                int xVal = (int) (Math.random() * 1200);
-//                int Yval = (int) (Math.random() * 4000);
-//                int width = (int) (Math.random() * 125 + 25);
-//                int height = (int) (Math.random() * 40 + 10);
-//                platforms.add(new Platform(xVal, Yval, width, height));
-//                noCollision = true;
-//                for(int j = 0; j < platforms.size(); j++){
-//                    Platform p = platforms.get(i);
-//                    Rectangle p1 = new Rectangle(p.x, p.y, p.width, p.height);
-//                    Rectangle p2 = new Rectangle(xVal, Yval, width, height);
-//                    if (p1.overlaps(p2)){
-//                        noCollision = false;
-//                        break;
-//                    }
-//                }
-//            } while (!noCollision);
-//        }
 
         deathXValues = new ArrayList<>();
     }
@@ -182,7 +187,6 @@ public class FirstScreen implements Screen {
     private void clearScreen(){
         Gdx.gl.glClearColor(0,0,0,1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
     }
 
     private void updatePhysics(float delta){
@@ -211,6 +215,19 @@ public class FirstScreen implements Screen {
         //update x and y
         y += velocityY * delta;
         x += velocityX * delta;
+
+        //Edge Nudging
+        for(Platform p : platforms) {
+            if (y + playerHeight > p.y && velocityY > 0){
+                if(x + playerWidth > p.x && x + playerWidth < p.x + nudgeThreshold){
+                    velocityX -= delta * nudgeSpeed;
+                }
+
+                if(x < p.x + p.width && x > p.x + p.width - nudgeThreshold){
+                    velocityX += delta * nudgeSpeed;
+                }
+            }
+        }
 
         //Reset to avoid jumping mid-air
         onGround = false;
@@ -248,7 +265,7 @@ public class FirstScreen implements Screen {
             if (playerRect.overlaps(platformRect) && velocityX < 0 && x + (float) (playerWidth / 2) >= collisionPoint
                     && y + (float)(playerHeight / 2) < p.y + p.height) {
                 x = p.x + p.width;
-                velocityX = 0; //TODO - change this for when doing wall jumps!
+                velocityX = bounceRatio * -velocityX; //TODO - change this for when doing wall jumps!
             }
 
 
@@ -260,7 +277,7 @@ public class FirstScreen implements Screen {
             if (playerRect.overlaps(platformRect) && velocityX > 0 && x + (float) (playerWidth / 2) <= collisionPoint
                     && y + (float)(playerHeight / 2) < p.y + p.height) {
                 x = p.x - playerWidth;
-                velocityX = 0; //TODO - change this for when doing wall jumps!
+                velocityX = bounceRatio * -velocityX; //TODO - change this for when doing wall jumps!
             }
 
         }
@@ -370,10 +387,11 @@ public class FirstScreen implements Screen {
             shapeRenderer.rect(p.x, p.y, p.width, p.height);
         }
 
-        //background load (Tiled)
-        mapRenderer.setView(camera);
-        mapRenderer.render();
-
+        if(levelDesign) {
+            //background load (Tiled)
+            mapRenderer.setView(camera);
+            mapRenderer.render();
+        }
         //water
         shapeRenderer.setColor(new Color(17/255f, 132/255f, 214/255f, .65f));
 

@@ -5,21 +5,16 @@ V3 - Into space
 polish/release often and frequently)
 
 3. Add common QoL platformer stuff
- - boundary walls
+ - edge nudging
 4. Add new platformer mechanics?
- - wall jumping
-2. make an initial small level! - this can be used for tuning the values
-    a. long flat section
-    b. small jump gap
-    c. large jump gap
-    d. tall vertical section with lots of platforms and some sparse sections
-    e. wall jumping area - different widths, maybe only one wall, ...
-    f. Varying platform widths to test platform difficulty
-    g. Varying hard sections to test difficulty
+ - wall jumping - yes for sure
+
     - Does everything feel right. Horizontal and vertical speed; speed/jump buffs; danger boost; water rise speed;
     gravity and friction; platforms too wide/narrow
 5. Tune the values - ensure that it doesn't feel too floaty or too fast - you want the player not waiting in the air.
    Also adjust the variable jump height.
+   - Way too much horizontal speed! More vertical.
+   - Definitely improve collisions
    - Look at making or using a tuning dashboard and maybe sliders for tuning. Look up imgui-java libgdx. Could also just
     use a config file.
 
