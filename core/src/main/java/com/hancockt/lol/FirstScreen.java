@@ -49,15 +49,15 @@ public class FirstScreen implements Screen {
     boolean justLanded = false; //for screen shake
 
     //PLAYER TUNING!
-    int accelerationX = 1200;
-    int maxSpeedX = 400;
+    int accelerationX = 1600;
+    int maxSpeedX = 425;
     int maxFallSpeed = -1200;
-    float groundFriction = 0.93f;
-    float airFriction = 0.999f;
-    float gravity = 900f;
-    float fallGravityMultiplier = 1.5f;
+    float groundFriction = 0.935f;
+    float airFriction = 0.99f;
+    float gravity = 1000f;
+    float fallGravityMultiplier = 1.6f;
     float jump_force = 400f;
-    float jump_hold_force = 225f;
+    float jump_hold_force = 200f;
     int playerWidth = 20;
     int playerHeight = 50;
     float cameraLerpSpeed = .1f;
@@ -70,8 +70,8 @@ public class FirstScreen implements Screen {
     float collisionThreshold = 15f; //number of pixels into platform and still pop out one side
     float nudgeSpeed = 50f;
     float nudgeThreshold = 5f;
-    float bounceRatio = 0.33f;
-    float airControlDivisor = 10f;
+    float bounceRatio = .5f;
+    float airControlDivisor = 8f;
 
     //water
     float waterLevel;
@@ -82,7 +82,7 @@ public class FirstScreen implements Screen {
 
     //game reference
     lol game;
-    boolean levelDesign = false;
+    boolean levelDesign = true;
 
 
     public FirstScreen(lol game){
@@ -219,13 +219,13 @@ public class FirstScreen implements Screen {
 
         //Edge Nudging
         for(Platform p : platforms) {
-            if (y + playerHeight > p.y && velocityY > 0){
+            if (y + playerHeight > p.y && velocityY > 0 && y < p.y + p.height){
                 if(x + playerWidth > p.x && x + playerWidth < p.x + nudgeThreshold){
-                    velocityX -= delta * nudgeSpeed;
+                    velocityX += delta * nudgeSpeed;
                 }
 
                 if(x < p.x + p.width && x > p.x + p.width - nudgeThreshold){
-                    velocityX += delta * nudgeSpeed;
+                    velocityX -= delta * nudgeSpeed;
                 }
             }
         }
