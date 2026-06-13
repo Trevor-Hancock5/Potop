@@ -49,12 +49,13 @@ public class FirstScreen implements Screen {
     boolean justLanded = false; //for screen shake
 
     //PLAYER TUNING!
-    int accelerationX = 1500;
+    int accelerationX = 1200;
     int maxSpeedX = 400;
     int maxFallSpeed = -1200;
     float groundFriction = 0.93f;
     float airFriction = 0.999f;
     float gravity = 900f;
+    float fallGravityMultiplier = 1.5f;
     float jump_force = 400f;
     float jump_hold_force = 225f;
     int playerWidth = 20;
@@ -68,8 +69,9 @@ public class FirstScreen implements Screen {
     float screenShakeIntensity = 4f;
     float collisionThreshold = 15f; //number of pixels into platform and still pop out one side
     float nudgeSpeed = 50f;
-    float nudgeThreshold = 10f;
-    float bounceRatio = 0.25f;
+    float nudgeThreshold = 5f;
+    float bounceRatio = 0.33f;
+    float airControlDivisor = 10f;
 
     //water
     float waterLevel;
@@ -127,17 +129,16 @@ public class FirstScreen implements Screen {
 
             mapRenderer = new OrthogonalTiledMapRenderer(map);
         } else {
-            platforms.add(new Platform(100, 100, 80, 10));
-            platforms.add(new Platform(300, 75, 80, 10));
-            platforms.add(new Platform(600, 30, 80, 10));
+            platforms.add(new Platform(-40, 0, 40, 9000));
+            platforms.add(new Platform(2000, 0, 40, 9000));
 
-            for (int i = 0; i < 150; i++) {
+            for (int i = 0; i < 750; i++) {
                 boolean noCollision;
                 do {
-                    int xVal = (int) (Math.random() * 1200);
-                    int Yval = (int) (Math.random() * 4000);
-                    int width = (int) (Math.random() * 125 + 25);
-                    int height = (int) (Math.random() * 40 + 10);
+                    int xVal = (int) (Math.random() * 2000);
+                    int Yval = (int) (Math.random() * 8000);
+                    int width = (int) (Math.random() * 175 + 25);
+                    int height = (int) (Math.random() * 30 + 10);
                     platforms.add(new Platform(xVal, Yval, width, height));
                     noCollision = true;
                     for (int j = 0; j < platforms.size(); j++) {
@@ -169,7 +170,7 @@ public class FirstScreen implements Screen {
         if(!isDead){
             updatePhysics(delta);
         } else{
-            waterLevel += water_rise_speed * 5 * delta;
+            waterLevel += water_rise_speed * 10 * delta;
         }
 
         if(isDead || !deathXValues.isEmpty()){
@@ -191,11 +192,11 @@ public class FirstScreen implements Screen {
 
     private void updatePhysics(float delta){
         //gravity
-        float currGravity = velocityY < 0 ? gravity * 1.1f : gravity;
+        float currGravity = velocityY < 0 ? gravity * fallGravityMultiplier : gravity;
         velocityY -= currGravity * delta;
 
         //Holding jump
-        if (Gdx.input.isKeyPressed(Input.Keys.UP) && !onGround && velocityY > 0) {
+        if ((Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.SPACE)) && !onGround && velocityY > 0) {
             velocityY += jump_hold_force * delta;
         }
 
@@ -295,11 +296,20 @@ public class FirstScreen implements Screen {
         dangerBoost = 1 + (dangerBoost / 4);
 
         //horizontal movement
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && onGround){
-            velocityX -= accelerationX * delta * dangerBoost;
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)){
+            if(onGround) {
+                velocityX -= accelerationX * delta * dangerBoost;
+            } else{
+                velocityX -= (accelerationX * delta * dangerBoost) / airControlDivisor;
+            }
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && onGround) {
-            velocityX += accelerationX * delta * dangerBoost;
+
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+            if(onGround) {
+                velocityX += accelerationX * delta * dangerBoost;
+            } else{
+                velocityX += (accelerationX * delta * dangerBoost) / airControlDivisor;
+            }
         }
 
         //friction & velocity cap
@@ -307,12 +317,12 @@ public class FirstScreen implements Screen {
         velocityX = Math.max(-maxSpeedX, Math.min(maxSpeedX, velocityX));
 
         jumpBuffer += delta;
-        if(Gdx.input.isKeyJustPressed(Input.Keys.UP)){
+        if(Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
             jumpBuffer = 0; //just tried to jump
         }
 
         //Jumping
-        if ((Gdx.input.isKeyJustPressed(Input.Keys.UP) || jumpBuffer < jumpBufferThreshold)
+        if ((Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE) || jumpBuffer < jumpBufferThreshold)
                 && (onGround || coyoteSeconds <= coyoteThreshold)) {
             coyoteSeconds = 100; //reset so can't double jump
             jumpBuffer = 100; //reset so can't double jump!
@@ -327,6 +337,7 @@ public class FirstScreen implements Screen {
         }
 
         //rising water
+        water_rise_speed += delta / 2;
         waterLevel += water_rise_speed * delta;
 
         //death check
@@ -413,12 +424,12 @@ public class FirstScreen implements Screen {
     }
 
     private void restart(){
-        x = 48;
-        y = 64;
+        x = viewportWidth / 2;
+        y = 0;
         velocityY = 0;
         velocityX = 0;
         waterLevel = -50f;
-        water_rise_speed = 5f;
+        water_rise_speed = 8f;
         onGround = false;
         isDead = false;
         score = 0;

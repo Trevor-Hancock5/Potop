@@ -4,14 +4,10 @@ V3 - Into space
 (This is to avoid scope creep and not releasing/polishing anything until my entire idea is fleshed out. Instead
 polish/release often and frequently)
 
-3. Add common QoL platformer stuff
- - edge nudging
-4. Add new platformer mechanics?
- - wall jumping - yes for sure
 
+5. Tune the values - ensure that it doesn't feel too floaty or too fast - you want the player not waiting in the air.
     - Does everything feel right. Horizontal and vertical speed; speed/jump buffs; danger boost; water rise speed;
     gravity and friction; platforms too wide/narrow
-5. Tune the values - ensure that it doesn't feel too floaty or too fast - you want the player not waiting in the air.
    Also adjust the variable jump height.
    - Way too much horizontal speed! More vertical.
    - Definitely improve collisions
