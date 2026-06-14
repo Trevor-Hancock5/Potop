@@ -272,10 +272,21 @@ public class FirstScreen implements Screen {
             if ((float) p.width / 2 > collisionThreshold) {
                 collisionPoint = p.x + p.width - collisionThreshold;
             }
-            if (playerRect.overlaps(platformRect) && velocityX < 0 && x + (float) (playerWidth / 2) >= collisionPoint
+            if (playerRect.overlaps(platformRect) && velocityX <= 0 && x + (float) (playerWidth / 2) >= collisionPoint
                     && y + (float)(playerHeight / 2) < p.y + p.height) {
                 x = p.x + p.width;
-                velocityX = bounceRatio * -velocityX; //TODO - change this for when doing wall jumps!
+                //wall bounce
+                //velocityX = bounceRatio * -velocityX; //TODO - change this for when doing wall jumps!
+
+                //wall jump
+                boolean jump = checkJump(delta, 1);
+                velocityX = wallJumpRatio * -velocityX;
+
+                //wall slide
+                if(!jump) {
+                    velocityX = 0;
+                    velocityY /= wallSlideDivisor;
+                }
             }
 
 
@@ -284,12 +295,52 @@ public class FirstScreen implements Screen {
             if ((float) p.width / 2 > collisionThreshold) {
                 collisionPoint = p.x + collisionThreshold;
             }
-            if (playerRect.overlaps(platformRect) && velocityX > 0 && x + (float) (playerWidth / 2) <= collisionPoint
+            if (playerRect.overlaps(platformRect) && velocityX >= 0 && x + (float) (playerWidth / 2) <= collisionPoint
                     && y + (float)(playerHeight / 2) < p.y + p.height) {
                 x = p.x - playerWidth;
-                velocityX = bounceRatio * -velocityX; //TODO - change this for when doing wall jumps!
+
+                //wall bounce
+                //velocityX = bounceRatio * -velocityX; //TODO - change this for when doing wall jumps!
+
+                //wall jump
+                boolean jump = checkJump(delta, 1);
+                velocityX = wallJumpRatio * -velocityX;
+
+                //wall slide
+                if(!jump) {
+                    velocityX = 0;
+                    velocityY /= wallSlideDivisor;
+                }
             }
 
+            //Check if close but not colliding with wall for wall slide/bounce
+            //left side of player, right side of wall
+            float distToPlatform = Math.abs((p.x + p.width) - x);
+            if(!onGround && velocityX <= 0 && velocityY < 0 && distToPlatform < wallSlideThreshold){
+                //wall jump
+                boolean jump = checkJump(delta, 1);
+                velocityX = wallJumpRatio * -velocityX;
+
+                //wall slide
+                if(!jump) {
+                    velocityX = 0;
+                    velocityY /= wallSlideDivisor;
+                }
+            }
+
+            //right side of player, left side of wall
+            distToPlatform = Math.abs((x + playerWidth) - p.x);
+            if(!onGround && velocityX >= 0 && velocityY < 0 && distToPlatform < wallSlideThreshold){
+                //wall jump
+                boolean jump = checkJump(delta, 1);
+                velocityX = wallJumpRatio * -velocityX;
+
+                //wall slide
+                if(!jump) {
+                    velocityX = 0;
+                    velocityY /= wallSlideDivisor;
+                }
+            }
         }
 
         //Coyote timer
@@ -325,24 +376,12 @@ public class FirstScreen implements Screen {
         velocityX *= onGround ? currFriction : airFriction;
         velocityX = Math.max(-maxSpeedX, Math.min(maxSpeedX, velocityX));
 
-        jumpBuffer += delta;
-        if(Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
-            jumpBuffer = 0; //just tried to jump
-        }
+        checkJump(delta, dangerBoost);
 
-        //Jumping
-        if ((Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE) || jumpBuffer < jumpBufferThreshold)
-                && (onGround || coyoteSeconds <= coyoteThreshold)) {
-            coyoteSeconds = 100; //reset so can't double jump
-            jumpBuffer = 100; //reset so can't double jump!
-            velocityY = jump_force * dangerBoost;
-            onGround = false;
+        // For screen shake when falling
+        if(velocityY < 0){
             justLanded = false;
             screenShakeAccumulation = 0;
-
-            // Form of dash when you jump
-            float speedRatio = Math.abs(velocityX) / maxSpeedX; // 0 to 1
-            velocityX *= (1f + speedRatio * 0.5f);
         }
 
         //rising water
@@ -364,6 +403,32 @@ public class FirstScreen implements Screen {
 
         //update score LAST
         score = Math.max(score, y);
+    }
+
+    private boolean checkJump(float delta, float dangerBoost){
+        jumpBuffer += delta;
+        if(Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
+            jumpBuffer = 0; //just tried to jump
+            return true;
+        }
+
+        //Jumping
+        if ((Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE) || jumpBuffer < jumpBufferThreshold)
+                && (onGround || coyoteSeconds <= coyoteThreshold)) {
+            coyoteSeconds = 100; //reset so can't double jump
+            jumpBuffer = 100; //reset so can't double jump!
+            velocityY = jump_force * dangerBoost;
+            onGround = false;
+            justLanded = false;
+            screenShakeAccumulation = 0;
+
+            // Form of dash when you jump
+            float speedRatio = Math.abs(velocityX) / maxSpeedX; // 0 to 1
+            velocityX *= (1f + speedRatio * 0.5f);
+            return true;
+        }
+
+        return false;
     }
 
     private void updateCamera(float delta) {
