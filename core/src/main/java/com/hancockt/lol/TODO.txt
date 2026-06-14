@@ -5,6 +5,11 @@ V3 - Into space
 polish/release often and frequently)
 
 
+//TODO
+FIX!!!!
+Wall slide and wall jump!
+
+
 5. Tune the values - ensure that it doesn't feel too floaty or too fast - you want the player not waiting in the air.
     - Does everything feel right. Horizontal and vertical speed; speed/jump buffs; danger boost; water rise speed;
     gravity and friction; platforms too wide/narrow

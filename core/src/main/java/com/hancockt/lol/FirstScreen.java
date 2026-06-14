@@ -47,6 +47,7 @@ public class FirstScreen implements Screen {
     float coyoteSeconds; //number of seconds off ground
     float jumpBuffer; // number of seconds since pressed jump
     boolean justLanded = false; //for screen shake
+    float impactVelocity; //velocity when landing! use for screen shake
 
     //PLAYER TUNING!
     int accelerationX = 1600;
@@ -60,18 +61,21 @@ public class FirstScreen implements Screen {
     float jump_hold_force = 200f;
     int playerWidth = 20;
     int playerHeight = 50;
-    float cameraLerpSpeed = .1f;
-    float cameraDeadZoneDivisor = 5;
+    float cameraLerpSpeed = .3f;
+    float cameraDeadZoneDivisor = 5f;
     float coyoteThreshold = 0.1f; //Can be off platform for x seconds and still jump
     float jumpBufferThreshold = 0.1f;
-    float downforceFallAcceleration = -250f;
-    float screenShake = 0.2f; //time of shaking
-    float screenShakeIntensity = 4f;
-    float collisionThreshold = 15f; //number of pixels into platform and still pop out one side
+    float downforceFallAcceleration = -300f;
+    float screenShake = 0.3f; //time of shaking
+    float screenShakeIntensity = 2f;
+    float collisionThreshold = 10f; //number of pixels into platform and still pop out one side
     float nudgeSpeed = 50f;
     float nudgeThreshold = 5f;
     float bounceRatio = .5f;
-    float airControlDivisor = 8f;
+    float airControlDivisor = 6f;
+    float wallSlideDivisor = 2; //how fast slows down vertically when sliding down wall
+    float wallJumpRatio = 0.5f; // how much horizontal velocity is maintained
+    float wallSlideThreshold = 5; // how close to wall to jump
 
     //water
     float waterLevel;
@@ -82,7 +86,10 @@ public class FirstScreen implements Screen {
 
     //game reference
     lol game;
+
+    // Controls
     boolean levelDesign = true;
+    boolean waterRise = false;
 
 
     public FirstScreen(lol game){
@@ -235,6 +242,7 @@ public class FirstScreen implements Screen {
 
         //floor collision
         if (y <= 0) {
+            impactVelocity = Math.abs(velocityY);
             onGround = true;
             y = 0;
             velocityY = 0;
@@ -253,6 +261,7 @@ public class FirstScreen implements Screen {
                 collisionPoint = p.height + p.y - collisionThreshold;
             }
             if (playerRect.overlaps(platformRect) && velocityY < 0 && y + ((float) playerHeight / 5) >= collisionPoint) {
+                impactVelocity = Math.abs(velocityY);
                 y = p.y + p.height;
                 velocityY = 0;
                 onGround = true;
@@ -337,8 +346,10 @@ public class FirstScreen implements Screen {
         }
 
         //rising water
-        water_rise_speed += delta / 2;
-        waterLevel += water_rise_speed * delta;
+        if(waterRise) {
+            water_rise_speed += delta / 2;
+            waterLevel += water_rise_speed * delta;
+        }
 
         //death check
         Rectangle playerRectFinal = new Rectangle(x, y, playerWidth, playerHeight);
@@ -372,12 +383,16 @@ public class FirstScreen implements Screen {
         float targetY = isDead ? Math.max(waterLevel, 240) : Math.max(y+25+vertLookAhead, 240);
 
         camera.position.x += (targetX - camera.position.x) * cameraLerpSpeed;
-        camera.position.y += (targetY - camera.position.y) * cameraLerpSpeed;
+        camera.position.y += (targetY - camera.position.y) * (cameraLerpSpeed / 3);
 
         if(justLanded && screenShakeAccumulation < screenShake){
-            screenShakeAccumulation += delta;
-            camera.position.x += (Math.random() - 0.5) * screenShakeIntensity;
-            camera.position.y += (Math.random() - 0.5) * screenShakeIntensity;
+            if(impactVelocity / maxFallSpeed > 0.5){
+                screenShakeAccumulation += delta / 2;
+            } else {
+                screenShakeAccumulation += delta;
+            }
+            camera.position.x += (float) ((Math.random() - 0.5) * (screenShakeIntensity * (2 + impactVelocity / maxFallSpeed)));
+            camera.position.y += (float) ((Math.random() - 0.5) * (screenShakeIntensity * (2 + impactVelocity / maxFallSpeed)));
         }
         camera.update();
     }
