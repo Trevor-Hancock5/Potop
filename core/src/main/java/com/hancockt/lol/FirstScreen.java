@@ -45,9 +45,15 @@ public class FirstScreen implements Screen {
     boolean isDead = false;
     float score;
     float coyoteSeconds; //number of seconds off ground
+    float wallCoyoteSeconds; //number of seconds off wall
     float jumpBuffer; // number of seconds since pressed jump
     boolean justLanded = false; //for screen shake
     float impactVelocity; //velocity when landing! use for screen shake
+    boolean touchingWallLeft = false;
+    boolean touchingWallRight = false;
+    boolean lastWallLeft = false;
+    boolean lastWallRight = false;
+    float wallJumpCooldown = 0f;
 
     //PLAYER TUNING!
     int accelerationX = 1600;
@@ -64,6 +70,7 @@ public class FirstScreen implements Screen {
     float cameraLerpSpeed = .3f;
     float cameraDeadZoneDivisor = 5f;
     float coyoteThreshold = 0.1f; //Can be off platform for x seconds and still jump
+//    float wallCoyoteThreshold = 0.2f;
     float jumpBufferThreshold = 0.1f;
     float downforceFallAcceleration = -300f;
     float screenShake = 0.3f; //time of shaking
@@ -73,9 +80,13 @@ public class FirstScreen implements Screen {
     float nudgeThreshold = 5f;
     float bounceRatio = .5f;
     float airControlDivisor = 6f;
-    float wallSlideDivisor = 2; //how fast slows down vertically when sliding down wall
-    float wallJumpRatio = 0.5f; // how much horizontal velocity is maintained
-    float wallSlideThreshold = 5; // how close to wall to jump
+
+    //TODO - tune
+    float wallJumpForce = .9f * jump_force;
+    float wallJumpHorizontalForce = .75f * jump_force;
+    float wallSlideMaxSpeed = -100f;
+    float wallProximity = 3f; //how many pixels count as on wall
+    float wallJumpCooldownThreshold = 0.3f; //seconds until wall jump again - prevents wall scaling
 
     //water
     float waterLevel;
@@ -88,7 +99,7 @@ public class FirstScreen implements Screen {
     lol game;
 
     // Controls
-    boolean levelDesign = true;
+    boolean levelDesign = false;
     boolean waterRise = false;
 
 
@@ -145,7 +156,7 @@ public class FirstScreen implements Screen {
                     int xVal = (int) (Math.random() * 2000);
                     int Yval = (int) (Math.random() * 8000);
                     int width = (int) (Math.random() * 175 + 25);
-                    int height = (int) (Math.random() * 30 + 10);
+                    int height = (int) (Math.random() * 90 + 10);
                     platforms.add(new Platform(xVal, Yval, width, height));
                     noCollision = true;
                     for (int j = 0; j < platforms.size(); j++) {
@@ -198,6 +209,15 @@ public class FirstScreen implements Screen {
     }
 
     private void updatePhysics(float delta){
+        //update jump buffer
+        jumpBuffer += delta;
+        if(Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
+            jumpBuffer = 0; //just tried to jump
+        }
+
+        //update wall jump cooldown
+        wallJumpCooldown += delta;
+
         //gravity
         float currGravity = velocityY < 0 ? gravity * fallGravityMultiplier : gravity;
         velocityY -= currGravity * delta;
@@ -247,11 +267,12 @@ public class FirstScreen implements Screen {
             y = 0;
             velocityY = 0;
             justLanded = true;
+            lastWallRight = false;
+            lastWallLeft = false;
         }
 
         //platform collision
         Rectangle playerRect = new Rectangle(x, y, playerWidth, playerHeight);
-
         for (Platform p : platforms) {
             Rectangle platformRect = new Rectangle(p.x, p.y, p.width, p.height);
 
@@ -260,12 +281,14 @@ public class FirstScreen implements Screen {
             if(p.height > collisionThreshold){
                 collisionPoint = p.height + p.y - collisionThreshold;
             }
-            if (playerRect.overlaps(platformRect) && velocityY < 0 && y + ((float) playerHeight / 5) >= collisionPoint) {
+            if (playerRect.overlaps(platformRect) && velocityY < 0 && y + ((float) playerHeight / 6) >= collisionPoint) {
                 impactVelocity = Math.abs(velocityY);
                 y = p.y + p.height;
                 velocityY = 0;
                 onGround = true;
                 justLanded = true;
+                lastWallRight = false;
+                lastWallLeft = false;
             }
             //left of player hits right side of wall when moving left
             collisionPoint = p.x + (float) (p.width / 2);
@@ -275,7 +298,8 @@ public class FirstScreen implements Screen {
             if (playerRect.overlaps(platformRect) && velocityX < 0 && x + (float) (playerWidth / 2) >= collisionPoint
                     && y + (float)(playerHeight / 2) < p.y + p.height) {
                 x = p.x + p.width;
-                velocityX = bounceRatio * -velocityX; //TODO - change this for when doing wall jumps!
+                velocityX = 0;
+                touchingWallRight = true;
             }
 
 
@@ -287,9 +311,88 @@ public class FirstScreen implements Screen {
             if (playerRect.overlaps(platformRect) && velocityX > 0 && x + (float) (playerWidth / 2) <= collisionPoint
                     && y + (float)(playerHeight / 2) < p.y + p.height) {
                 x = p.x - playerWidth;
-                velocityX = bounceRatio * -velocityX; //TODO - change this for when doing wall jumps!
+                velocityX = 0;
+                touchingWallLeft = true;
             }
 
+        }
+
+        //check if on wall
+        for (Platform p : platforms){
+            if (y + playerHeight < p.y || y > p.y + p.height) continue; //not same height, skip!
+
+            //left of player, right of wall
+            float distToRightWall = x - (p.x + p.width);
+            if (distToRightWall >= 0 && distToRightWall < wallProximity && velocityX <= 0){
+                touchingWallRight = true;
+            }
+
+            //right of player, left of wall
+            float distToLeftWall = p.x - (x + playerWidth);
+            if(distToLeftWall >= 0 && distToLeftWall < wallProximity && velocityX >= 0){
+                touchingWallLeft = true;
+            }
+        }
+
+        //wall slide/jump
+        boolean onWall = (touchingWallLeft || touchingWallRight) && !onGround;
+
+        //wall slide
+        if (onWall && velocityY < wallSlideMaxSpeed){
+            velocityY = wallSlideMaxSpeed;
+        }
+
+        // coyote wall update
+        if(onWall){
+            wallCoyoteSeconds = 0;
+        } else{
+            wallCoyoteSeconds += delta;
+        }
+
+        //wall jump
+        if((onWall || wallCoyoteSeconds < coyoteThreshold)
+            && wallJumpCooldown >= wallJumpCooldownThreshold
+            && (Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)
+                || jumpBuffer < jumpBufferThreshold)){
+            //jump fires, reset cooldown
+            wallJumpCooldown = 0f;
+
+            boolean wasRight = touchingWallRight || lastWallRight;
+            boolean wasLeft = touchingWallLeft || lastWallLeft;
+
+            boolean holdingInto = (wasRight && Gdx.input.isKeyPressed(Input.Keys.LEFT))
+                       || (wasLeft && Gdx.input.isKeyPressed(Input.Keys.RIGHT));
+            boolean holdingAway = (wasRight && Gdx.input.isKeyPressed(Input.Keys.RIGHT))
+                       || (wasLeft && Gdx.input.isKeyPressed(Input.Keys.LEFT));
+
+            float upForce, sideForce;
+            //TODO - TUNE THESE VALUES!
+            if(holdingInto){
+                upForce = wallJumpForce * .65f;
+                sideForce = wallJumpHorizontalForce * .1f;
+            } else if (holdingAway){
+                upForce = wallJumpForce * .5f;
+                sideForce = wallJumpHorizontalForce * 1.5f;
+            } else{
+                //not into or away
+                upForce = wallJumpForce;
+                sideForce = wallJumpHorizontalForce;
+            }
+
+            velocityY = upForce;
+
+            //guarenteed either touching wall on right or left
+            velocityX = wasRight ? sideForce : -sideForce;
+            touchingWallRight = false;
+            touchingWallLeft = false;
+            lastWallRight = false;
+            lastWallLeft = false;
+            wallCoyoteSeconds = 100;
+            coyoteSeconds = 100;
+            jumpBuffer = 100;
+            justLanded = false;
+            screenShakeAccumulation = 0;
+            onGround = false;
         }
 
         //Coyote timer
@@ -325,11 +428,6 @@ public class FirstScreen implements Screen {
         velocityX *= onGround ? currFriction : airFriction;
         velocityX = Math.max(-maxSpeedX, Math.min(maxSpeedX, velocityX));
 
-        jumpBuffer += delta;
-        if(Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
-            jumpBuffer = 0; //just tried to jump
-        }
-
         //Jumping
         if ((Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE) || jumpBuffer < jumpBufferThreshold)
                 && (onGround || coyoteSeconds <= coyoteThreshold)) {
@@ -361,6 +459,13 @@ public class FirstScreen implements Screen {
             }
             isDead = true;
         }
+
+        // reset flags for wall slide/jump
+        if(touchingWallLeft) lastWallLeft = true;
+        if(touchingWallRight) lastWallRight = true;
+
+        touchingWallLeft = false;
+        touchingWallRight = false;
 
         //update score LAST
         score = Math.max(score, y);
@@ -449,9 +554,11 @@ public class FirstScreen implements Screen {
         isDead = false;
         score = 0;
         coyoteSeconds = 100; //reset
+        wallCoyoteSeconds = 100; //reset
         jumpBuffer = 100; //reset
         justLanded = false; //reset
         screenShakeAccumulation = 0;
+        wallJumpCooldown = 0;
     }
 
     private void drawHUD(){
