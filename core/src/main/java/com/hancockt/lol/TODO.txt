@@ -5,21 +5,23 @@ V3 - Into space
 polish/release often and frequently)
 
 
-//TODO
-FIX!!!!
-Wall slide and wall jump!
+- Finish tuning! - wall jumping/sliding
+danger boost?
+
+- Get a friend to play it to 'tune' it and see if they find any issues
+
+- Level design
+
+- art
+
+- sound effects
+
+- dialogue
+
+- infinite mode
 
 
-5. Tune the values - ensure that it doesn't feel too floaty or too fast - you want the player not waiting in the air.
-    - Does everything feel right. Horizontal and vertical speed; speed/jump buffs; danger boost; water rise speed;
-    gravity and friction; platforms too wide/narrow
-   Also adjust the variable jump height.
-   - Way too much horizontal speed! More vertical.
-   - Definitely improve collisions
-   - Look at making or using a tuning dashboard and maybe sliders for tuning. Look up imgui-java libgdx. Could also just
-    use a config file.
 
-6. Get a friend to play it to 'tune' it and see if they find any issues
 
 V1 Polishing - add art, sound effects, and stickman dialogue
  - make a big deal out of the first time the player hits the water Like the stickman being like 'seriously, HELP! I'm
@@ -27,6 +29,10 @@ V1 Polishing - add art, sound effects, and stickman dialogue
  - add typos to his dialogue
  - His legal name is Mr. Stick Man, but he calls himself MC for Main Character because he knows he is. Why wouldn't he
  be?
+
+
+
+
 
 Start UW mechanics!
 7. Change death condition - isCaught, then dead with the breath

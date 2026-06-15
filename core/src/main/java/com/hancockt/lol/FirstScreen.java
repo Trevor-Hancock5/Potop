@@ -39,6 +39,7 @@ public class FirstScreen implements Screen {
 
     //Player
     float x,y;
+    float prevX, prevY;
     float velocityY;
     float velocityX;
     boolean onGround = false;
@@ -70,7 +71,6 @@ public class FirstScreen implements Screen {
     float cameraLerpSpeed = .3f;
     float cameraDeadZoneDivisor = 5f;
     float coyoteThreshold = 0.1f; //Can be off platform for x seconds and still jump
-//    float wallCoyoteThreshold = 0.2f;
     float jumpBufferThreshold = 0.1f;
     float downforceFallAcceleration = -300f;
     float screenShake = 0.3f; //time of shaking
@@ -78,7 +78,6 @@ public class FirstScreen implements Screen {
     float collisionThreshold = 10f; //number of pixels into platform and still pop out one side
     float nudgeSpeed = 50f;
     float nudgeThreshold = 5f;
-    float bounceRatio = .5f;
     float airControlDivisor = 6f;
 
     //TODO - tune
@@ -150,7 +149,7 @@ public class FirstScreen implements Screen {
             platforms.add(new Platform(-40, 0, 40, 9000));
             platforms.add(new Platform(2000, 0, 40, 9000));
 
-            for (int i = 0; i < 750; i++) {
+            for (int i = 0; i < 400; i++) {
                 boolean noCollision;
                 do {
                     int xVal = (int) (Math.random() * 2000);
@@ -215,6 +214,10 @@ public class FirstScreen implements Screen {
             jumpBuffer = 0; //just tried to jump
         }
 
+        //update previous x,y values to not tunnel through platforms
+        prevX = x;
+        prevY = y;
+
         //update wall jump cooldown
         wallJumpCooldown += delta;
 
@@ -272,16 +275,17 @@ public class FirstScreen implements Screen {
         }
 
         //platform collision
-        Rectangle playerRect = new Rectangle(x, y, playerWidth, playerHeight);
         for (Platform p : platforms) {
+            Rectangle playerRect = new Rectangle(x, y, playerWidth, playerHeight);
             Rectangle platformRect = new Rectangle(p.x, p.y, p.width, p.height);
+
 
             //Player lands on top
             float collisionPoint = p.y;
             if(p.height > collisionThreshold){
                 collisionPoint = p.height + p.y - collisionThreshold;
             }
-            if (playerRect.overlaps(platformRect) && velocityY < 0 && y + ((float) playerHeight / 6) >= collisionPoint) {
+            if (playerRect.overlaps(platformRect) && velocityY < 0 && prevY + ((float) playerHeight / 8) >= collisionPoint) {
                 impactVelocity = Math.abs(velocityY);
                 y = p.y + p.height;
                 velocityY = 0;
@@ -290,13 +294,14 @@ public class FirstScreen implements Screen {
                 lastWallRight = false;
                 lastWallLeft = false;
             }
+
             //left of player hits right side of wall when moving left
             collisionPoint = p.x + (float) (p.width / 2);
             if ((float) p.width / 2 > collisionThreshold) {
                 collisionPoint = p.x + p.width - collisionThreshold;
             }
-            if (playerRect.overlaps(platformRect) && velocityX < 0 && x + (float) (playerWidth / 2) >= collisionPoint
-                    && y + (float)(playerHeight / 2) < p.y + p.height) {
+            if (playerRect.overlaps(platformRect) && velocityX < 0 && prevX + (float) (playerWidth / 2) >= collisionPoint
+                    && y + (float)(playerHeight / 8) < p.y + p.height) {
                 x = p.x + p.width;
                 velocityX = 0;
                 touchingWallRight = true;
@@ -308,8 +313,8 @@ public class FirstScreen implements Screen {
             if ((float) p.width / 2 > collisionThreshold) {
                 collisionPoint = p.x + collisionThreshold;
             }
-            if (playerRect.overlaps(platformRect) && velocityX > 0 && x + (float) (playerWidth / 2) <= collisionPoint
-                    && y + (float)(playerHeight / 2) < p.y + p.height) {
+            if (playerRect.overlaps(platformRect) && velocityX > 0 && prevX + (float) (playerWidth / 2) <= collisionPoint
+                    && y + (float)(playerHeight / 8) < p.y + p.height) {
                 x = p.x - playerWidth;
                 velocityX = 0;
                 touchingWallLeft = true;
