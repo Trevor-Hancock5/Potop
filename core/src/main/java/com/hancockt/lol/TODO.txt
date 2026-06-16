@@ -5,12 +5,12 @@ V3 - Into space
 polish/release often and frequently)
 
 
-- Finish tuning! - wall jumping/sliding
-danger boost?
 
 - Get a friend to play it to 'tune' it and see if they find any issues
 
-- Level design
+- game loop (rewards, currency, etc. etc. etc.)
+
+- Level design - rewards along way. level 1 - tutorial which unlocks infinite mode as an option
 
 - art
 
@@ -20,6 +20,9 @@ danger boost?
 
 - infinite mode
 
+- clean up code!
+    - State machines (falling, jumping, collision, etc.)
+    - flyweight pattern for platforms?
 
 
 

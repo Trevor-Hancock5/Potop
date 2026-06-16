@@ -79,13 +79,10 @@ public class FirstScreen implements Screen {
     float nudgeSpeed = 50f;
     float nudgeThreshold = 5f;
     float airControlDivisor = 6f;
-
-    //TODO - tune
-    float wallJumpForce = .9f * jump_force;
-    float wallJumpHorizontalForce = .75f * jump_force;
-    float wallSlideMaxSpeed = -100f;
-    float wallProximity = 3f; //how many pixels count as on wall
-    float wallJumpCooldownThreshold = 0.3f; //seconds until wall jump again - prevents wall scaling
+    float wallSlideMaxSpeed = -115f;
+    float wallProximity = 5f; //how many pixels count as on wall
+    float wallJumpCooldownThreshold = 0.25f; //seconds until wall jump again - prevents wall scaling
+    float collisionPlayerHeightDivisor = 10f; //What amount of player height needs to be above a platform to land on top
 
     //water
     float waterLevel;
@@ -285,7 +282,7 @@ public class FirstScreen implements Screen {
             if(p.height > collisionThreshold){
                 collisionPoint = p.height + p.y - collisionThreshold;
             }
-            if (playerRect.overlaps(platformRect) && velocityY < 0 && prevY + ((float) playerHeight / 8) >= collisionPoint) {
+            if (playerRect.overlaps(platformRect) && velocityY < 0 && prevY + ((float) playerHeight / collisionPlayerHeightDivisor) >= collisionPoint) {
                 impactVelocity = Math.abs(velocityY);
                 y = p.y + p.height;
                 velocityY = 0;
@@ -301,7 +298,7 @@ public class FirstScreen implements Screen {
                 collisionPoint = p.x + p.width - collisionThreshold;
             }
             if (playerRect.overlaps(platformRect) && velocityX < 0 && prevX + (float) (playerWidth / 2) >= collisionPoint
-                    && y + (float)(playerHeight / 8) < p.y + p.height) {
+                    && y + (float)(playerHeight / collisionPlayerHeightDivisor) < p.y + p.height) {
                 x = p.x + p.width;
                 velocityX = 0;
                 touchingWallRight = true;
@@ -314,7 +311,7 @@ public class FirstScreen implements Screen {
                 collisionPoint = p.x + collisionThreshold;
             }
             if (playerRect.overlaps(platformRect) && velocityX > 0 && prevX + (float) (playerWidth / 2) <= collisionPoint
-                    && y + (float)(playerHeight / 8) < p.y + p.height) {
+                    && y + (float)(playerHeight / collisionPlayerHeightDivisor) < p.y + p.height) {
                 x = p.x - playerWidth;
                 velocityX = 0;
                 touchingWallLeft = true;
@@ -371,17 +368,16 @@ public class FirstScreen implements Screen {
                        || (wasLeft && Gdx.input.isKeyPressed(Input.Keys.LEFT));
 
             float upForce, sideForce;
-            //TODO - TUNE THESE VALUES!
             if(holdingInto){
-                upForce = wallJumpForce * .65f;
-                sideForce = wallJumpHorizontalForce * .1f;
+                upForce = jump_force * .75f;
+                sideForce = jump_force * .15f;
             } else if (holdingAway){
-                upForce = wallJumpForce * .5f;
-                sideForce = wallJumpHorizontalForce * 1.5f;
+                upForce = jump_force * .6f;
+                sideForce = jump_force * 1.2f;
             } else{
                 //not into or away
-                upForce = wallJumpForce;
-                sideForce = wallJumpHorizontalForce;
+                upForce = jump_force;
+                sideForce = .85f * jump_force;
             }
 
             velocityY = upForce;
@@ -409,7 +405,7 @@ public class FirstScreen implements Screen {
 
         //danger boost
         float distanceFromWater = y - waterLevel;
-        float dangerBoost = Math.max (0, 1 - (distanceFromWater / 300f));
+        float dangerBoost = Math.max (0, 1 - (distanceFromWater / 400f));
         dangerBoost = 1 + (dangerBoost / 4);
 
         //horizontal movement
