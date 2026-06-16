@@ -55,6 +55,8 @@ public class FirstScreen implements Screen {
     boolean lastWallLeft = false;
     boolean lastWallRight = false;
     float wallJumpCooldown = 0f;
+    Checkpoint currCheckpoint; //current checkpoint player has made it to
+    float deathWaterLevel; //water level when user hit current checkpoint
 
     //PLAYER TUNING!
     int accelerationX = 1600;
@@ -83,6 +85,7 @@ public class FirstScreen implements Screen {
     float wallProximity = 5f; //how many pixels count as on wall
     float wallJumpCooldownThreshold = 0.25f; //seconds until wall jump again - prevents wall scaling
     float collisionPlayerHeightDivisor = 10f; //What amount of player height needs to be above a platform to land on top
+    float checkpointMinWaterBuffer = 100f; //how far under checkpoint water starts at a minimum!
 
     //water
     float waterLevel;
@@ -90,6 +93,7 @@ public class FirstScreen implements Screen {
 
     List<Platform> platforms;
     List<Float> deathXValues;
+    List<Checkpoint> checkpoints;
 
     //game reference
     lol game;
@@ -145,7 +149,6 @@ public class FirstScreen implements Screen {
         } else {
             platforms.add(new Platform(-40, 0, 40, 9000));
             platforms.add(new Platform(2000, 0, 40, 9000));
-
             for (int i = 0; i < 400; i++) {
                 boolean noCollision;
                 do {

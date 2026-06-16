@@ -7,6 +7,23 @@ Stick man climbs through a Noah's flood. Water always rises. He always has somet
 
 ---
 
+## V1 - AW Game Loop
+- Route choice for player expression, water rising for risk, and checkpoints (built with memories?) for rewards
+- Infinite mode: Increase water speed as player gets higher with a max speed. Have a random seed, so other players 
+  can replicate and beat it. High scores! Section 1 rewards you with infinite mode. (Maybe a secret way to get 
+  infinite mode without beating section 1, but with a skill check)
+- Make modules to build levels with (wall jumps, big gaps, height, climbing sections, ...). Then use whiteboard to 
+  build the levels with those module numbers
+
+Future (not MVP) in AW section
+- Moving platforms, water surges, crumbling platforms
+- Memories could be glowing orbs representing places MC has been, where MC reflects on his memories there. A funny one,
+would be one where he just keeps talking and talking until the water gets right up to him and the player has just a 
+few seconds to escape lol. Could open up secret level challenges for hidden memories
+- Things cause water to rise faster (faucets, pipe bursts, etc.) that MC must clog up to slow down water.
+
+---
+
 ## The Stickman's Voice
 His legal name may be Mr. Stick Man, but he knows he is THE main character, so he goes by MC. hence the game name, 
 the MC. 

@@ -4,34 +4,35 @@ V3 - Into space
 (This is to avoid scope creep and not releasing/polishing anything until my entire idea is fleshed out. Instead
 polish/release often and frequently)
 
-
-
-- Get a friend to play it to 'tune' it and see if they find any issues
-
-- game loop (rewards, currency, etc. etc. etc.)
-
-- Level design - rewards along way. level 1 - tutorial which unlocks infinite mode as an option
-
+Game jam:
+Remember: Route choice for player expression, water rising for risk, and checkpoints (built with memories?) for rewards
+- checkpoints (save water position. When spawn, water level is at saved level or at least 200 (?) pixels beneath
+checkpoint. So their speed matters
+- Make modules to build levels with (wall jumps, big gaps, height, climbing sections, ...). Then use whiteboard to
+  build the levels with those module numbers. Use email about good level design and game dev notes in master nb
+    - tutorial level.
+- Infinite mode: Increase water speed as player gets higher with a max speed. Have a random seed, so other players
+  can replicate and beat it. High scores! Section 1 rewards you with infinite mode. (Maybe a secret way to get
+  infinite mode without beating section 1, but with a skill check) (have a random seed for each one, so other players
+  can try to beat others high score!)
+- pause screen/logic
+- get friend to play it and give feedback
+- fixes?
+- rest of levels
 - art
-
 - sound effects
+- death screen, menu screen, settings
+- dialogue/memories (make big deal of first time player hits water (cold, stickman yelling for help and at you.) 'lol'
+is massive and then jaws music comes on and he goes quiet. His legal name is Mr. Stick Man, but he calls himself MC for
+Main Character because he knows he is. Why wouldn't he be?)
+- clean up code: state machines and flyweight pattern (platforms)?
 
-- dialogue
-
-- infinite mode
-
-- clean up code!
-    - State machines (falling, jumping, collision, etc.)
-    - flyweight pattern for platforms?
+Game jam submission page: His legal name is Mr. Stick Man, but he calls himself MC for Main Character because he knows
+he is. Why wouldn't he be?
 
 
 
-V1 Polishing - add art, sound effects, and stickman dialogue
- - make a big deal out of the first time the player hits the water Like the stickman being like 'seriously, HELP! I'm
- drowning!!!!" etc. lol is massive, he's 'cussing' but with ***, and then the jaws music comes on. And he goes quiet.
- - add typos to his dialogue
- - His legal name is Mr. Stick Man, but he calls himself MC for Main Character because he knows he is. Why wouldn't he
- be?
+
 
 
 
@@ -44,16 +45,6 @@ Start UW mechanics!
 10. breath mechanic! - air bar?
 11. underwater state - physics for floating and variable float speed based on breath held
 12. surface escape and water debuff (slower and worse)
-
-
-
-
-wayyy later:
-- TUTORIAL!!!!
-- level design: or random generated?
-- death screen
-- menu screen
-- settings
 
 
 
