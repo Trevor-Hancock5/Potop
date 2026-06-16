@@ -85,7 +85,7 @@ public class FirstScreen implements Screen {
     float wallProximity = 5f; //how many pixels count as on wall
     float wallJumpCooldownThreshold = 0.25f; //seconds until wall jump again - prevents wall scaling
     float collisionPlayerHeightDivisor = 10f; //What amount of player height needs to be above a platform to land on top
-    float checkpointMinWaterBuffer = 100f; //how far under checkpoint water starts at a minimum!
+    float checkpointMinWaterBuffer = 200f; //how far under checkpoint water starts at a minimum!
 
     //water
     float waterLevel;
@@ -100,7 +100,7 @@ public class FirstScreen implements Screen {
 
     // Controls
     boolean levelDesign = false;
-    boolean waterRise = false;
+    boolean waterRise = true;
 
 
     public FirstScreen(lol game){
@@ -120,10 +120,12 @@ public class FirstScreen implements Screen {
 
         restart();
 
-        //Set up platforms
+        //Set up platforms and checkpoints
         platforms = new ArrayList<>();
+        checkpoints = new ArrayList<>();
 
         if(levelDesign) {
+            //TODO - add checkpoints
             TiledMap map = new TmxMapLoader().load("tuning.tmx");
             MapLayer platformLayer = map.getLayers().get("platforms");
 
@@ -168,6 +170,11 @@ public class FirstScreen implements Screen {
                         }
                     }
                 } while (!noCollision);
+            }
+
+            for(int i = 0; i < 8501; i += 1500){
+                float xVal = (float) (Math.random() * 1800);
+                checkpoints.add(new Checkpoint(xVal, i));
             }
         }
 
@@ -453,8 +460,18 @@ public class FirstScreen implements Screen {
             waterLevel += water_rise_speed * delta;
         }
 
-        //death check
+        //Checkpoints
         Rectangle playerRectFinal = new Rectangle(x, y, playerWidth, playerHeight);
+        for(Checkpoint c : checkpoints){
+            Rectangle checkpoint = new Rectangle(c.x, c.y, playerWidth * 2, playerHeight * 2);
+            if(!c.activated && checkpoint.overlaps(playerRectFinal)){
+                c.activated = true;
+                currCheckpoint = c;
+                deathWaterLevel = waterLevel;
+            }
+        }
+
+        //death check
         Rectangle waterRect = new Rectangle (-1000, 0, 10000, waterLevel);
 
         if(waterRect.overlaps(playerRectFinal)){
@@ -510,12 +527,6 @@ public class FirstScreen implements Screen {
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
-
-        if(!isDead){
-            shapeRenderer.setColor(Color.WHITE);
-            shapeRenderer.rect(x, y, playerWidth, playerHeight);
-        }
-
         //platforms
         shapeRenderer.setColor(Color.WHITE);
         for(Platform p : platforms){
@@ -527,6 +538,18 @@ public class FirstScreen implements Screen {
             mapRenderer.setView(camera);
             mapRenderer.render();
         }
+
+        //checkpoints
+        for(Checkpoint c : checkpoints) {
+            shapeRenderer.setColor(c.activated ? Color.GREEN : Color.CORAL); //TODO - change alpha!
+            shapeRenderer.rect(c.x, c.y, playerWidth * 2, playerHeight * 2);
+        }
+
+        if(!isDead){
+            shapeRenderer.setColor(Color.GOLD);
+            shapeRenderer.rect(x, y, playerWidth, playerHeight);
+        }
+
         //water
         shapeRenderer.setColor(new Color(17/255f, 132/255f, 214/255f, .65f));
 
@@ -548,21 +571,31 @@ public class FirstScreen implements Screen {
     }
 
     private void restart(){
-        x = viewportWidth / 2;
-        y = 0;
+        if(currCheckpoint != null){
+            x = currCheckpoint.x;
+            y = currCheckpoint.y;
+            waterLevel = Math.min(deathWaterLevel, y - checkpointMinWaterBuffer);
+        } else {
+            x = viewportWidth / 2;
+            y = 0;
+            waterLevel = -50f;
+            score = 0;
+        }
         velocityY = 0;
         velocityX = 0;
-        waterLevel = -50f;
         water_rise_speed = 8f;
         onGround = false;
         isDead = false;
-        score = 0;
         coyoteSeconds = 100; //reset
         wallCoyoteSeconds = 100; //reset
         jumpBuffer = 100; //reset
         justLanded = false; //reset
         screenShakeAccumulation = 0;
         wallJumpCooldown = 0;
+        touchingWallRight = false;
+        touchingWallLeft = false;
+        lastWallLeft = false;
+        lastWallRight = false;
     }
 
     private void drawHUD(){
