@@ -6,11 +6,14 @@ polish/release often and frequently)
 
 Game jam:
 Remember: Route choice for player expression, water rising for risk, and checkpoints (built with memories?) for rewards
-- checkpoints (save water position. When spawn, water level is at saved level or at least 200 (?) pixels beneath
-checkpoint. So their speed matters
+
 - Make modules to build levels with (wall jumps, big gaps, height, climbing sections, ...). Then use whiteboard to
   build the levels with those module numbers. Use email about good level design and game dev notes in master nb
     - tutorial level.
+
+Make modules for mechanics:
+-
+
 - Infinite mode: Increase water speed as player gets higher with a max speed. Have a random seed, so other players
   can replicate and beat it. High scores! Section 1 rewards you with infinite mode. (Maybe a secret way to get
   infinite mode without beating section 1, but with a skill check) (have a random seed for each one, so other players

@@ -125,7 +125,12 @@ public class FirstScreen implements Screen {
         checkpoints = new ArrayList<>();
 
         if(levelDesign) {
-            //TODO - add checkpoints
+            checkpoints.add(new Checkpoint(16,0));
+            checkpoints.add(new Checkpoint(16,1100));
+            checkpoints.add(new Checkpoint(16,900));
+            checkpoints.add(new Checkpoint(1000,2145));
+            checkpoints.add(new Checkpoint(2000,1800));
+            checkpoints.add(new Checkpoint(1250,1150));
             TiledMap map = new TmxMapLoader().load("tuning.tmx");
             MapLayer platformLayer = map.getLayers().get("platforms");
 
@@ -365,7 +370,8 @@ public class FirstScreen implements Screen {
         if((onWall || wallCoyoteSeconds < coyoteThreshold)
             && wallJumpCooldown >= wallJumpCooldownThreshold
             && (Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)
-                || jumpBuffer < jumpBufferThreshold)){
+                || jumpBuffer < jumpBufferThreshold)
+            && !onGround){
             //jump fires, reset cooldown
             wallJumpCooldown = 0f;
 
@@ -466,8 +472,15 @@ public class FirstScreen implements Screen {
             Rectangle checkpoint = new Rectangle(c.x, c.y, playerWidth * 2, playerHeight * 2);
             if(!c.activated && checkpoint.overlaps(playerRectFinal)){
                 c.activated = true;
-                currCheckpoint = c;
-                deathWaterLevel = waterLevel;
+                if(currCheckpoint != null) {
+                    if (c.y > currCheckpoint.y) {
+                        currCheckpoint = c;
+                        deathWaterLevel = waterLevel;
+                    }
+                } else{
+                    currCheckpoint = c;
+                    deathWaterLevel = waterLevel;
+                }
             }
         }
 
