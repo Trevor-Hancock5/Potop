@@ -100,7 +100,7 @@ public class FirstScreen implements Screen {
 
     // Controls
     boolean levelDesign = false;
-    boolean waterRise = true;
+    boolean waterRise = false;
 
 
     public FirstScreen(lol game){
@@ -615,6 +615,7 @@ public class FirstScreen implements Screen {
         batch.setProjectionMatrix(hudCam.combined);
         batch.begin();
         font.draw(batch, "Score: " + Math.round(score), viewportWidth - 100, viewportHeight - 10);
+        font.draw(batch, "x:" + Math.round(x) + " y:" + Math.round(y), 10, viewportHeight - 10);
         batch.end();
     }
 

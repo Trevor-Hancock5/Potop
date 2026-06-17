@@ -7,21 +7,46 @@ polish/release often and frequently)
 Game jam:
 Remember: Route choice for player expression, water rising for risk, and checkpoints (built with memories?) for rewards
 
-- Make modules to build levels with (wall jumps, big gaps, height, climbing sections, ...). Then use whiteboard to
-  build the levels with those module numbers. Use email about good level design and game dev notes in master nb
-    - tutorial level.
+- Make tutorial level using the modules (abstract modules to use for future), then store it and connect the modules for
+the level
+
 
 Make modules for mechanics:
--
+    - [start; end platform; and geometry of platforms in btwn]
+    - Assume starting point is on a platform! (end of last platform, but 0,0)
+    - Ending point is at the very end of the last platform
+
+- walk and run: long flat section
+    - [(0,0); (1500,0); N/A]
+- small jump up - small wall to focus more on jumping, not wall jumping
+    - [(0,0); (250,65); {(150,45,100,20)}]
+- variable jumps - small jump vs large jump
+    - [(0,0); (1750,140); {(300,-20,100,20), (900,-20,100,20), (1200,60,100,20), (1650,120,100,20)}]
+- momentum - gap series getting longer and longer
+    - [(0,0); (1770,0); {(50,-20,30,20), (230,-20,50,20), (580,-20,70,20), (1100,-20,20,20), (1670,-20,100,20)}]
+- jumping series - multiple jumps and doing various jumps
+    - [(0,0); (600,345); {(0,65,50,10), (300,95,50,50), (-50,155,100,25), (-450,215,75,35), (-230,325,50,10), (420,325,
+    30,10), (500,325,100,20)]
+- fast fall. Only way to move past is to fall
+    - [(0,0); (1760,-1600); {(400,-550,100,150), (1500,-710,60,10), (1560,-1650,200,50)}]
+- wall slide/jump: two walls nearby with the fastest way to travel being wall jumping
+    - [(0,0); (800,850); {(450,-20,350,20), (450,150,25,750), (650,0,150,850)}]
+- danger boost: platform at the top only reachable with boost!
+    - [(0,0); (100,125); {(50,110,50,15)}]
+    - [(0,0); (450,88); {(375,68,75,20)}]
+- higher friction when holding down: jump to narrow platform
+    - [(0,0); (950,-170); {(400,-65,25,15), (650,-265,25,15), (800,-200,25,15), (925,-185,25,15)}]
+
+
 
 - Infinite mode: Increase water speed as player gets higher with a max speed. Have a random seed, so other players
   can replicate and beat it. High scores! Section 1 rewards you with infinite mode. (Maybe a secret way to get
   infinite mode without beating section 1, but with a skill check) (have a random seed for each one, so other players
-  can try to beat others high score!)
+  can try to beat others high score!). Add randomness to modules and then randomly combine them?
 - pause screen/logic
 - get friend to play it and give feedback
 - fixes?
-- rest of levels
+- more modules and levels
 - art
 - sound effects
 - death screen, menu screen, settings

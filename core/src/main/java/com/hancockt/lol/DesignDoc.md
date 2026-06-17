@@ -22,6 +22,18 @@ would be one where he just keeps talking and talking until the water gets right 
 few seconds to escape lol. Could open up secret level challenges for hidden memories
 - Things cause water to rise faster (faucets, pipe bursts, etc.) that MC must clog up to slow down water.
 
+Note:
+player size = 20 x 50
+pixels/seconds horizontal: 400
+pixels/seconds falling: 1200 (max cap!)
+comfortable jump gap (no vert): 300
+comfortable jump gap (diag): 200 x 80
+max jump gap (no vert): 600
+max jump gap (diag): 350 x 60
+comfortable jump height: 75
+max jump height: 108
+danger boost: 1.25x
+
 ---
 
 ## The Stickman's Voice
