@@ -13,6 +13,7 @@ import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -99,7 +100,7 @@ public class FirstScreen implements Screen {
     lol game;
 
     // Controls
-    boolean levelDesign = false;
+    int levelDesign = 2;
     boolean waterRise = false;
 
 
@@ -124,7 +125,7 @@ public class FirstScreen implements Screen {
         platforms = new ArrayList<>();
         checkpoints = new ArrayList<>();
 
-        if(levelDesign) {
+        if(levelDesign == 0) {
             checkpoints.add(new Checkpoint(16,0));
             checkpoints.add(new Checkpoint(16,1100));
             checkpoints.add(new Checkpoint(16,900));
@@ -153,7 +154,7 @@ public class FirstScreen implements Screen {
 
 
             mapRenderer = new OrthogonalTiledMapRenderer(map);
-        } else {
+        } else if (levelDesign == 1){
             platforms.add(new Platform(-40, 0, 40, 9000));
             platforms.add(new Platform(2000, 0, 40, 9000));
             for (int i = 0; i < 400; i++) {
@@ -181,6 +182,20 @@ public class FirstScreen implements Screen {
                 float xVal = (float) (Math.random() * 1800);
                 checkpoints.add(new Checkpoint(xVal, i));
             }
+        } else if(levelDesign == 2){
+            //tutorial level
+            List<Module> tutorialSequence = new ArrayList<>();
+            tutorialSequence.add(getModuleByName("walk_and_run"));
+            tutorialSequence.add(getModuleByName("small_jump"));
+            tutorialSequence.add(getModuleByName("variable_jumps"));
+            tutorialSequence.add(getModuleByName("momentum"));
+            tutorialSequence.add(getModuleByName("vert_jumping_series"));
+            tutorialSequence.add(getModuleByName("falls"));
+            tutorialSequence.add(getModuleByName("wall_jumping"));
+            tutorialSequence.add(getModuleByName("danger_boost_vertical"));
+            tutorialSequence.add(getModuleByName("danger_boost_horizontal"));
+            tutorialSequence.add(getModuleByName("precision_jumps"));
+            platforms = buildLevelFromModules(tutorialSequence, new Vector2(0,0));
         }
 
 
@@ -546,7 +561,7 @@ public class FirstScreen implements Screen {
             shapeRenderer.rect(p.x, p.y, p.width, p.height);
         }
 
-        if(levelDesign) {
+        if(levelDesign == 0) {
             //background load (Tiled)
             mapRenderer.setView(camera);
             mapRenderer.render();
@@ -589,7 +604,8 @@ public class FirstScreen implements Screen {
             y = currCheckpoint.y;
             waterLevel = Math.min(deathWaterLevel, y - checkpointMinWaterBuffer);
         } else {
-            x = viewportWidth / 2;
+//            x = viewportWidth / 2;
+            x = 0;
             y = 0;
             waterLevel = -50f;
             score = 0;
@@ -640,5 +656,26 @@ public class FirstScreen implements Screen {
         shapeRenderer.dispose();
         batch.dispose();
         font.dispose();
+    }
+
+    private List<Platform> buildLevelFromModules(List<Module> moduleSequence, Vector2 startPoint) {
+        List<Platform> result = new ArrayList<>();
+        Vector2 currFront = new Vector2(startPoint);
+
+        for (Module m : moduleSequence) {
+            for (Platform r : m.platforms) {
+                result.add(new Platform(currFront.x + r.x, currFront.y + r.y, r.width, r.height));
+            }
+            currFront.add(m.endOffset);
+        }
+
+        return result;
+    }
+
+    private Module getModuleByName(String name) {
+        for (Module m : ModuleLibrary.ALL_MODULES) {
+            if (m.name.equals(name)) return m;
+        }
+        throw new RuntimeException("Module not found: " + name);
     }
 }
