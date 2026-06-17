@@ -185,15 +185,15 @@ public class FirstScreen implements Screen {
         } else if(levelDesign == 2){
             //tutorial level
             List<Module> tutorialSequence = new ArrayList<>();
-            tutorialSequence.add(getModuleByName("walk_and_run"));
-            tutorialSequence.add(getModuleByName("small_jump"));
-            tutorialSequence.add(getModuleByName("variable_jumps"));
-            tutorialSequence.add(getModuleByName("momentum"));
-            tutorialSequence.add(getModuleByName("vert_jumping_series"));
-            tutorialSequence.add(getModuleByName("falls"));
-            tutorialSequence.add(getModuleByName("wall_jumping"));
-            tutorialSequence.add(getModuleByName("danger_boost_vertical"));
-            tutorialSequence.add(getModuleByName("danger_boost_horizontal"));
+//            tutorialSequence.add(getModuleByName("walk_and_run"));
+//            tutorialSequence.add(getModuleByName("small_jump"));
+//            tutorialSequence.add(getModuleByName("variable_jumps"));
+//            tutorialSequence.add(getModuleByName("momentum"));
+//            tutorialSequence.add(getModuleByName("vert_jumping_series"));
+//            tutorialSequence.add(getModuleByName("falls"));
+//            tutorialSequence.add(getModuleByName("wall_jumping"));
+//            tutorialSequence.add(getModuleByName("danger_boost_vertical"));
+//            tutorialSequence.add(getModuleByName("danger_boost_horizontal"));
             tutorialSequence.add(getModuleByName("precision_jumps"));
             platforms = buildLevelFromModules(tutorialSequence, new Vector2(0,0));
         }
@@ -607,7 +607,7 @@ public class FirstScreen implements Screen {
 //            x = viewportWidth / 2;
             x = 0;
             y = 0;
-            waterLevel = -50f;
+            waterLevel = -600f;
             score = 0;
         }
         velocityY = 0;
