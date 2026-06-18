@@ -194,7 +194,7 @@ public class FirstScreen implements Screen {
 //            tutorialSequence.add(getModuleByName("wall_jumping"));
 //            tutorialSequence.add(getModuleByName("danger_boost_vertical"));
 //            tutorialSequence.add(getModuleByName("danger_boost_horizontal"));
-            tutorialSequence.add(getModuleByName("precision_jumps"));
+//            tutorialSequence.add(getModuleByName("precision_jumps"));
             platforms = buildLevelFromModules(tutorialSequence, new Vector2(0,0));
         }
 
@@ -607,7 +607,7 @@ public class FirstScreen implements Screen {
 //            x = viewportWidth / 2;
             x = 0;
             y = 0;
-            waterLevel = -600f;
+            waterLevel = 0f; //todo - chang eback to -50
             score = 0;
         }
         velocityY = 0;

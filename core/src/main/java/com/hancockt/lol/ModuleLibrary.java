@@ -14,9 +14,6 @@ import java.util.List;
 
 public class ModuleLibrary {
     public static List<Module> ALL_MODULES = new ArrayList<>();
-    //TODO - test all w/ and w/o danger boost. Maybe adjust jumping w/o danger boost
-        //set water level to <-500 in restart for none. Or 0 for max danger boost.
-    //TODO - update all end offsets!
         static {
             ALL_MODULES.add(new Module(
                 "walk_and_run",
@@ -36,24 +33,24 @@ public class ModuleLibrary {
 
             ALL_MODULES.add(new Module(
                 "variable_jumps",
-                new Vector2(1650,160),
+                new Vector2(1500,160),
                 new Platform[]{
                     new Platform(300,0,100,20),
-                    new Platform(800,0,100,20),
-                    new Platform(1100,80,100,20),
-                    new Platform(1550,140,100,20)
+                    new Platform(750,0,100,20),
+                    new Platform(1000,80,100,20),
+                    new Platform(1400,140,100,20)
                 }
             ));
 
             ALL_MODULES.add(new Module(
                 "momentum",
-                new Vector2(1835,20),
+                new Vector2(1665,20),
                 new Platform[]{
                     new Platform(150,0,50,20),
                     new Platform(350,0,70,20),
                     new Platform(700,0,90,20),
-                    new Platform(1220,0,60,20),
-                    new Platform(1715,0,120,20)
+                    new Platform(1150,0,60,20),
+                    new Platform(1545,0,120,20)
                 }
             ));
 
@@ -63,7 +60,7 @@ public class ModuleLibrary {
                 new Platform[]{
                     new Platform(25,60,30,30),
                     new Platform(0,175,85,15),
-                    new Platform(40,285,75,15),
+                    new Platform(40,275,75,15),
                     new Platform(440,220,150,80),
                     new Platform(540,375,100,15)
                 }
@@ -123,15 +120,15 @@ public class ModuleLibrary {
 
             ALL_MODULES.add(new Module(
                 "precision_jumps", //to teach holding down for higher friction
-                new Vector2(1235,135),
+                new Vector2(1250,165),
                 new Platform[]{
-                    new Platform(0, 85, 35, 15),
-                    new Platform(0,185,35,15),
-                    new Platform(350,200,35,15),
-                    new Platform(650,0,50,15),
-                    new Platform(850,65,35,15),
-                    new Platform(925,80,35,15),
-                    new Platform(1200,150,35,15)
+                    new Platform(0, 85, 50, 15),
+                    new Platform(0,185,50,15),
+                    new Platform(350,200,50,15),
+                    new Platform(650,0,65,15),
+                    new Platform(850,65,50,15),
+                    new Platform(975,80,50,15),
+                    new Platform(1200,150,50,15)
                 }
             ));
         }
