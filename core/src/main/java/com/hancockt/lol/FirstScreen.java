@@ -91,6 +91,8 @@ public class FirstScreen implements Screen {
     //water
     float waterLevel;
     float water_rise_speed;
+    Rectangle waterTriggerZone;
+    Rectangle waterFixZone;
 
     List<Platform> platforms;
     List<Float> deathXValues;
@@ -183,18 +185,28 @@ public class FirstScreen implements Screen {
                 checkpoints.add(new Checkpoint(xVal, i));
             }
         } else if(levelDesign == 2){
+            //PR = 41s
+            checkpoints.add(new Checkpoint(1930, 265));
+            checkpoints.add(new Checkpoint(3580, 285));
+            checkpoints.add(new Checkpoint(4760, 1825));
+            checkpoints.add(new Checkpoint(6435, 1910));
+            checkpoints.add(new Checkpoint(8125, 2163));
+
+            waterTriggerZone = new Rectangle(6245, 1800, 50, 1000);
+            waterFixZone = new Rectangle(6920, 2000, 50, 1000);
+
             //tutorial level
             List<Module> tutorialSequence = new ArrayList<>();
-//            tutorialSequence.add(getModuleByName("walk_and_run"));
-//            tutorialSequence.add(getModuleByName("small_jump"));
-//            tutorialSequence.add(getModuleByName("variable_jumps"));
-//            tutorialSequence.add(getModuleByName("momentum"));
-//            tutorialSequence.add(getModuleByName("vert_jumping_series"));
-//            tutorialSequence.add(getModuleByName("falls"));
-//            tutorialSequence.add(getModuleByName("wall_jumping"));
-//            tutorialSequence.add(getModuleByName("danger_boost_vertical"));
-//            tutorialSequence.add(getModuleByName("danger_boost_horizontal"));
-//            tutorialSequence.add(getModuleByName("precision_jumps"));
+            tutorialSequence.add(getModuleByName("walk_and_run"));
+            tutorialSequence.add(getModuleByName("small_jump"));
+            tutorialSequence.add(getModuleByName("variable_jumps"));
+            tutorialSequence.add(getModuleByName("momentum"));
+            tutorialSequence.add(getModuleByName("vert_jumping_series"));
+            tutorialSequence.add(getModuleByName("falls"));
+            tutorialSequence.add(getModuleByName("wall_jumping"));
+            tutorialSequence.add(getModuleByName("danger_boost_vertical"));
+            tutorialSequence.add(getModuleByName("danger_boost_horizontal"));
+            tutorialSequence.add(getModuleByName("precision_jumps"));
             platforms = buildLevelFromModules(tutorialSequence, new Vector2(0,0));
         }
 
@@ -219,9 +231,18 @@ public class FirstScreen implements Screen {
 
         if(isDead || !deathXValues.isEmpty()){
             drawDeathText(delta);
-            if(Gdx.input.isKeyJustPressed(Input.Keys.R) && isDead){
+        }
+
+        if(Gdx.input.isKeyJustPressed(Input.Keys.R)){
                 restart();
+        }
+
+        if(Gdx.input.isKeyPressed(Input.Keys.S)){
+            for(Checkpoint c : checkpoints){
+                c.activated = false;
             }
+            currCheckpoint = null;
+            restart();
         }
 
         drawShapes();
@@ -481,6 +502,7 @@ public class FirstScreen implements Screen {
             waterLevel += water_rise_speed * delta;
         }
 
+
         //Checkpoints
         Rectangle playerRectFinal = new Rectangle(x, y, playerWidth, playerHeight);
         for(Checkpoint c : checkpoints){
@@ -499,8 +521,21 @@ public class FirstScreen implements Screen {
             }
         }
 
+        // for tutorial level danger boost example
+        if(waterTriggerZone != null) {
+            if (playerRectFinal.overlaps(waterTriggerZone)) {
+                waterLevel = y - 100;
+            }
+        }
+
+        if(waterFixZone != null){
+            if(playerRectFinal.overlaps(waterFixZone)){
+                waterLevel = 1;
+            }
+        }
+
         //death check
-        Rectangle waterRect = new Rectangle (-1000, 0, 10000, waterLevel);
+        Rectangle waterRect = new Rectangle (-50000, 0, 100000, waterLevel);
 
         if(waterRect.overlaps(playerRectFinal)){
             if(!isDead){
@@ -604,10 +639,9 @@ public class FirstScreen implements Screen {
             y = currCheckpoint.y;
             waterLevel = Math.min(deathWaterLevel, y - checkpointMinWaterBuffer);
         } else {
-//            x = viewportWidth / 2;
             x = 0;
-            y = 0;
-            waterLevel = 0f; //todo - chang eback to -50
+            y = 25;
+            waterLevel = 1f;
             score = 0;
         }
         velocityY = 0;

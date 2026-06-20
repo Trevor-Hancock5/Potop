@@ -70,23 +70,23 @@ public class ModuleLibrary {
                 "falls",
                 new Vector2(1350,440),
                 new Platform[]{
-                    new Platform(50, 85, 50, 15),
-                    new Platform(50, 185, 50, 15),
-                    new Platform(50, 285, 50, 15),
-                    new Platform(50, 385, 50, 15),
-                    new Platform(50, 485, 50, 15),
-                    new Platform(50, 585, 50, 15),
-                    new Platform(50, 685, 50, 15),
-                    new Platform(50, 785, 50, 15),
-                    new Platform(50, 885, 50, 15),
-                    new Platform(50, 985, 50, 15),
-                    new Platform(50, 1085, 50, 15),
-                    new Platform(50, 1185, 50, 15),
-                    new Platform(50, 1285, 50, 15),
-                    new Platform(50, 1385, 50, 15),
-                    new Platform(50, 1485, 50, 15),
-                    new Platform(50, 1585, 50, 15),
-                    new Platform(50, 1685, 50, 15),
+                    new Platform(45, 85, 65, 15),
+                    new Platform(45, 185, 65, 15),
+                    new Platform(45, 285, 65, 15),
+                    new Platform(45, 385, 65, 15),
+                    new Platform(45, 485, 65, 15),
+                    new Platform(45, 585, 65, 15),
+                    new Platform(45, 685, 65, 15),
+                    new Platform(45, 785, 65, 15),
+                    new Platform(45, 885, 65, 15),
+                    new Platform(45, 985, 65, 15),
+                    new Platform(45, 1085, 65, 15),
+                    new Platform(45, 1185, 65, 15),
+                    new Platform(45, 1285, 65, 15),
+                    new Platform(45, 1385, 65, 15),
+                    new Platform(45, 1485, 65, 15),
+                    new Platform(45, 1585, 65, 15),
+                    new Platform(45, 1685, 65, 15),
                     new Platform(400,1000,150,150),
                     new Platform(1150,410,200,30)
                 }
@@ -94,11 +94,11 @@ public class ModuleLibrary {
 
             ALL_MODULES.add(new Module(
                 "wall_jumping",
-                new Vector2(750,670),
+                new Vector2(725,670),
                 new Platform[]{
-                    new Platform(350,0,400,20),
-                    new Platform(450,170,25,600),
-                    new Platform(600,20,150,650)
+                    new Platform(325,0,400,20),
+                    new Platform(425,170,25,600),
+                    new Platform(575,20,150,650)
                 }
             ));
 
@@ -112,9 +112,9 @@ public class ModuleLibrary {
 
             ALL_MODULES.add(new Module(
                 "danger_boost_horizontal",
-                new Vector2(450,88),
+                new Vector2(440,88),
                 new Platform[]{
-                    new Platform(375,68,75,20)
+                    new Platform(365,68,75,20)
                 }
             ));
 
