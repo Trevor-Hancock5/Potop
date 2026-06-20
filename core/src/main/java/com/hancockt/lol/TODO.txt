@@ -4,6 +4,18 @@ V3 - Into space
 (This is to avoid scope creep and not releasing/polishing anything until my entire idea is fleshed out. Instead
 polish/release often and frequently)
 
+Checkpoints only work (right now) if it is higher than the previous one. But maybe just closer to the end? (so if that's
+ right, then right, if left then left)
+
+Themes for game jams: 'Spin to win' & 'Limited power'
+Spin to win - there are faucets along route that slow water rise speed. But then a master faucet
+at the top that turns off all water (including the base water rise speed). Turning that
+off wins you the level. To turn a faucet off, you have to stand there and hold a button
+while the water rises (trigger animation) and spin the faucet off. The master takes a bit longer.
+Limited power - jumps are commited, you have limited power in the air. No double jump,
+no dash, no grapple. The only boost is adrenaline!
+
+
 Game jam:
 Remember: Route choice for player expression, water rising for risk, and checkpoints (built with memories?) for rewards
 
