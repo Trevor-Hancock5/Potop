@@ -18,7 +18,7 @@ public class LevelLibrary {
 
     static {
         ALL_LEVELS.put(LevelType.TUTORIAL, buildTutorialLevel());
-        // ALL_LEVELS.put(LevelType.LEVEL_1, buildLevel1());
+        ALL_LEVELS.put(LevelType.INFINITE, buildInfiniteLevel());
     }
 
     private static LevelData buildTutorialLevel(){
@@ -87,8 +87,12 @@ public class LevelLibrary {
 
     private static Platform generateBand(List<Platform> platforms, List<Checkpoint> checkpoints, float bandY,
                                      float bandHeight, float levelWidth, Platform highestPlatform){
+        //TODO - Too sparse. Maybe make wider and then have a set like density or smth related to width!
+        //TODO - make width random within a range?
+        //TODO - add walls for edges!
+
         //add checkpoint
-        float checkpointHeightDistance = 2000f;
+        float checkpointHeightDistance = 1500f;
         float skipCheckpointThreshold = 0.1f;
         if(checkpoints.isEmpty() || (bandY - checkpoints.getLast().y > checkpointHeightDistance && rng.nextFloat() > skipCheckpointThreshold)){
             //add a checkpoint to the highest platform since it shouldn't overlap any other platform!

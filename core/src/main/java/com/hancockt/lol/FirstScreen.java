@@ -105,7 +105,6 @@ public class FirstScreen implements Screen {
     lol game;
 
     // Controls
-    int levelDesign = 2;
     boolean waterRise = false;
 
 
@@ -124,108 +123,10 @@ public class FirstScreen implements Screen {
         viewport = new ExtendViewport(viewportWidth, viewportHeight, camera);
         hudCam = new OrthographicCamera();
         hudCam.setToOrtho(false, viewportWidth, viewportHeight);
-
-        restart();
-
-        //Set up platforms and checkpoints
-        platforms = new ArrayList<>();
-        checkpoints = new ArrayList<>();
-
-        if(levelDesign == 0) {
-            checkpoints.add(new Checkpoint(16,0, 1));
-            checkpoints.add(new Checkpoint(16,1100, 2));
-            checkpoints.add(new Checkpoint(16,900, 3));
-            checkpoints.add(new Checkpoint(1000,2145, 4));
-            checkpoints.add(new Checkpoint(2000,1800,5));
-            checkpoints.add(new Checkpoint(1250,1150,6));
-            TiledMap map = new TmxMapLoader().load("tuning.tmx");
-            MapLayer platformLayer = map.getLayers().get("platforms");
-
-            for (MapObject o : platformLayer.getObjects()) {
-                if (o instanceof RectangleMapObject) {
-                    Rectangle rect = ((RectangleMapObject) o).getRectangle();
-                    Platform p = new Platform(rect.x, rect.y, rect.width, rect.height);
-                    platforms.add(p);
-                }
-            }
-
-            MapLayer wallLayer = map.getLayers().get("walls");
-            for (MapObject o : wallLayer.getObjects()) {
-                if (o instanceof RectangleMapObject) {
-                    Rectangle rect = ((RectangleMapObject) o).getRectangle();
-                    Platform p = new Platform(rect.x, rect.y, rect.width, rect.height);
-                    platforms.add(p);
-                }
-            }
-
-
-            mapRenderer = new OrthogonalTiledMapRenderer(map);
-        } else if (levelDesign == 1){
-            platforms.add(new Platform(-40, 0, 40, 9000));
-            platforms.add(new Platform(2000, 0, 40, 9000));
-            for (int i = 0; i < 400; i++) {
-                boolean noCollision;
-
-                do {
-                    int xVal = (int) (Math.random() * 2000);
-                    int yVal = (int) (Math.random() * 8000);
-                    int width = (int) (Math.random() * 175 + 25);
-                    int height = (int) (Math.random() * 90 + 10);
-
-                    Rectangle p2 = new Rectangle(xVal, yVal, width, height);
-
-                    noCollision = true;
-
-                    for (Platform p : platforms) {
-                        Rectangle p1 = new Rectangle(p.x, p.y, p.width, p.height);
-
-                        if (p1.overlaps(p2)) {
-                            noCollision = false;
-                            break;
-                        }
-                    }
-
-                    if (noCollision) {
-                        platforms.add(new Platform(xVal, yVal, width, height));
-                    }
-
-                } while (!noCollision);
-            }
-
-            for(int i = 0; i < 8501; i += 1500){
-                float xVal = (float) (Math.random() * 1800);
-                checkpoints.add(new Checkpoint(xVal, i, i/1500));
-            }
-
-            winZone = new Rectangle((int) (Math.random() * 2000), 8050, playerWidth * 2, playerHeight * 2);
-        } else if(levelDesign == 2){
-            //PR = 41s
-            checkpoints.add(new Checkpoint(1930, 265, 1));
-            checkpoints.add(new Checkpoint(3580, 285,2));
-            checkpoints.add(new Checkpoint(4760, 1825,3));
-            checkpoints.add(new Checkpoint(6435, 1910,4));
-
-            waterTriggerZone = new Rectangle(6245, 1800, 50, 1000);
-            waterFixZone = new Rectangle(6920, 2000, 50, 1000);
-
-            //tutorial level
-            List<Module> tutorialSequence = new ArrayList<>();
-            tutorialSequence.add(getModuleByName("walk_and_run"));
-            tutorialSequence.add(getModuleByName("small_jump"));
-            tutorialSequence.add(getModuleByName("variable_jumps"));
-            tutorialSequence.add(getModuleByName("momentum"));
-            tutorialSequence.add(getModuleByName("vert_jumping_series"));
-            tutorialSequence.add(getModuleByName("falls"));
-            tutorialSequence.add(getModuleByName("wall_jumping"));
-            tutorialSequence.add(getModuleByName("danger_boost_vertical"));
-            tutorialSequence.add(getModuleByName("danger_boost_horizontal"));
-            tutorialSequence.add(getModuleByName("precision_jumps"));
-            platforms = buildLevelFromModules(tutorialSequence, new Vector2(0,0));
-            winZone = new Rectangle(8125, 2163, playerWidth * 2, playerHeight * 2);
-        }
-
-
         deathXValues = new ArrayList<>();
+
+        loadLevel(currentLevel);
+        restart();
     }
 
     //REMEMBER: Everything in here is made 60 times a second!
@@ -546,12 +447,17 @@ public class FirstScreen implements Screen {
         }
 
         //Check win condition before death
-        if(winZone.overlaps(playerRectFinal)){
+        if(winZone != null && winZone.overlaps(playerRectFinal)){
             hasWon = true;
-            //showWinScreen(); TODO
-            currCheckpoint = null;
-            deathXValues.clear();
-            restart();
+            //showWinScreen(); TODO, return boolean to go to next screen?
+            LevelData data = LevelLibrary.ALL_LEVELS.get(currentLevel);
+            if(data.nextLevel != null){
+                game.setScreen(new FirstScreen(game, data.nextLevel));
+            } else {
+                currCheckpoint = null;
+                deathXValues.clear();
+                restart();
+            }
         }
 
         //death check
@@ -616,21 +522,18 @@ public class FirstScreen implements Screen {
             shapeRenderer.rect(p.x, p.y, p.width, p.height);
         }
 
-        if(levelDesign == 0) {
-            //background load (Tiled)
-            mapRenderer.setView(camera);
-            mapRenderer.render();
-        }
-
         //checkpoints
         for(Checkpoint c : checkpoints) {
-            shapeRenderer.setColor(c.activated ? Color.GREEN : Color.CORAL); //TODO - change alpha!
+            shapeRenderer.setColor(c.activated ? new Color(0,1,0,0.6f) : new Color(1,0.5f,0.3f,0.6f)); //TODO -
+            // change alpha!
             shapeRenderer.rect(c.x, c.y, playerWidth * 2, playerHeight * 2);
         }
 
         //winzone
-        shapeRenderer.setColor(Color.GOLDENROD);
-        shapeRenderer.rect(winZone.x, winZone.y, winZone.width, winZone.height);
+        if(winZone != null) {
+            shapeRenderer.setColor(Color.GOLDENROD);
+            shapeRenderer.rect(winZone.x, winZone.y, winZone.width, winZone.height);
+        }
 
         if(!isDead){
             shapeRenderer.setColor(Color.OLIVE);
@@ -665,11 +568,7 @@ public class FirstScreen implements Screen {
         } else {
             x = 0;
             y = 25;
-            if(levelDesign == 2) {
-                waterLevel = -1000f;
-            } else{
-                waterLevel = -50f;
-            }
+            waterLevel = -50f;
             score = 0;
 
             //reset checkpoints
