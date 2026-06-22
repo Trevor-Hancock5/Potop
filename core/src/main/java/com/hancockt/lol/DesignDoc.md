@@ -37,6 +37,8 @@ danger boost: 1.25x
 ---
 
 ## The Stickman's Voice
+THICK LEGS for stickman and super skinny upperbody (only ever hits leg day)!!
+
 His legal name may be Mr. Stick Man, but he knows he is THE main character, so he goes by MC. hence the game name, 
 the MC. 
 Self aware and bitter about it. He knows he's in a game. He knows YOU'RE sitting there doing nothing while HE does all the athletic work. He complains constantly, breaks the fourth wall freely, and makes fun of you when you fail. The humor is his suffering vs your comfort.

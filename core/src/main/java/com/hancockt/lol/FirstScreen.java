@@ -37,6 +37,7 @@ public class FirstScreen implements Screen {
     float viewportHeight = 480f;
     float screenShakeAccumulation;
     OrthogonalTiledMapRenderer mapRenderer;
+    LevelType currentLevel;
 
     //Player
     float x,y;
@@ -58,6 +59,8 @@ public class FirstScreen implements Screen {
     float wallJumpCooldown = 0f;
     Checkpoint currCheckpoint; //current checkpoint player has made it to
     float deathWaterLevel; //water level when user hit current checkpoint
+    Rectangle winZone;
+    boolean hasWon;
 
     //PLAYER TUNING!
     int accelerationX = 1600;
@@ -106,8 +109,9 @@ public class FirstScreen implements Screen {
     boolean waterRise = false;
 
 
-    public FirstScreen(lol game){
+    public FirstScreen(lol game, LevelType type){
         this.game = game;
+        currentLevel = type;
     }
 
     @Override
@@ -128,12 +132,12 @@ public class FirstScreen implements Screen {
         checkpoints = new ArrayList<>();
 
         if(levelDesign == 0) {
-            checkpoints.add(new Checkpoint(16,0));
-            checkpoints.add(new Checkpoint(16,1100));
-            checkpoints.add(new Checkpoint(16,900));
-            checkpoints.add(new Checkpoint(1000,2145));
-            checkpoints.add(new Checkpoint(2000,1800));
-            checkpoints.add(new Checkpoint(1250,1150));
+            checkpoints.add(new Checkpoint(16,0, 1));
+            checkpoints.add(new Checkpoint(16,1100, 2));
+            checkpoints.add(new Checkpoint(16,900, 3));
+            checkpoints.add(new Checkpoint(1000,2145, 4));
+            checkpoints.add(new Checkpoint(2000,1800,5));
+            checkpoints.add(new Checkpoint(1250,1150,6));
             TiledMap map = new TmxMapLoader().load("tuning.tmx");
             MapLayer platformLayer = map.getLayers().get("platforms");
 
@@ -161,36 +165,45 @@ public class FirstScreen implements Screen {
             platforms.add(new Platform(2000, 0, 40, 9000));
             for (int i = 0; i < 400; i++) {
                 boolean noCollision;
+
                 do {
                     int xVal = (int) (Math.random() * 2000);
-                    int Yval = (int) (Math.random() * 8000);
+                    int yVal = (int) (Math.random() * 8000);
                     int width = (int) (Math.random() * 175 + 25);
                     int height = (int) (Math.random() * 90 + 10);
-                    platforms.add(new Platform(xVal, Yval, width, height));
+
+                    Rectangle p2 = new Rectangle(xVal, yVal, width, height);
+
                     noCollision = true;
-                    for (int j = 0; j < platforms.size(); j++) {
-                        Platform p = platforms.get(i);
+
+                    for (Platform p : platforms) {
                         Rectangle p1 = new Rectangle(p.x, p.y, p.width, p.height);
-                        Rectangle p2 = new Rectangle(xVal, Yval, width, height);
+
                         if (p1.overlaps(p2)) {
                             noCollision = false;
                             break;
                         }
                     }
+
+                    if (noCollision) {
+                        platforms.add(new Platform(xVal, yVal, width, height));
+                    }
+
                 } while (!noCollision);
             }
 
             for(int i = 0; i < 8501; i += 1500){
                 float xVal = (float) (Math.random() * 1800);
-                checkpoints.add(new Checkpoint(xVal, i));
+                checkpoints.add(new Checkpoint(xVal, i, i/1500));
             }
+
+            winZone = new Rectangle((int) (Math.random() * 2000), 8050, playerWidth * 2, playerHeight * 2);
         } else if(levelDesign == 2){
             //PR = 41s
-            checkpoints.add(new Checkpoint(1930, 265));
-            checkpoints.add(new Checkpoint(3580, 285));
-            checkpoints.add(new Checkpoint(4760, 1825));
-            checkpoints.add(new Checkpoint(6435, 1910));
-            checkpoints.add(new Checkpoint(8125, 2163));
+            checkpoints.add(new Checkpoint(1930, 265, 1));
+            checkpoints.add(new Checkpoint(3580, 285,2));
+            checkpoints.add(new Checkpoint(4760, 1825,3));
+            checkpoints.add(new Checkpoint(6435, 1910,4));
 
             waterTriggerZone = new Rectangle(6245, 1800, 50, 1000);
             waterFixZone = new Rectangle(6920, 2000, 50, 1000);
@@ -208,6 +221,7 @@ public class FirstScreen implements Screen {
             tutorialSequence.add(getModuleByName("danger_boost_horizontal"));
             tutorialSequence.add(getModuleByName("precision_jumps"));
             platforms = buildLevelFromModules(tutorialSequence, new Vector2(0,0));
+            winZone = new Rectangle(8125, 2163, playerWidth * 2, playerHeight * 2);
         }
 
 
@@ -238,9 +252,6 @@ public class FirstScreen implements Screen {
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.S)){
-            for(Checkpoint c : checkpoints){
-                c.activated = false;
-            }
             currCheckpoint = null;
             restart();
         }
@@ -510,7 +521,7 @@ public class FirstScreen implements Screen {
             if(!c.activated && checkpoint.overlaps(playerRectFinal)){
                 c.activated = true;
                 if(currCheckpoint != null) {
-                    if (c.y > currCheckpoint.y) {
+                    if (c.order > currCheckpoint.order) {
                         currCheckpoint = c;
                         deathWaterLevel = waterLevel;
                     }
@@ -532,6 +543,15 @@ public class FirstScreen implements Screen {
             if(playerRectFinal.overlaps(waterFixZone)){
                 waterLevel = 1;
             }
+        }
+
+        //Check win condition before death
+        if(winZone.overlaps(playerRectFinal)){
+            hasWon = true;
+            //showWinScreen(); TODO
+            currCheckpoint = null;
+            deathXValues.clear();
+            restart();
         }
 
         //death check
@@ -608,8 +628,12 @@ public class FirstScreen implements Screen {
             shapeRenderer.rect(c.x, c.y, playerWidth * 2, playerHeight * 2);
         }
 
+        //winzone
+        shapeRenderer.setColor(Color.GOLDENROD);
+        shapeRenderer.rect(winZone.x, winZone.y, winZone.width, winZone.height);
+
         if(!isDead){
-            shapeRenderer.setColor(Color.GOLD);
+            shapeRenderer.setColor(Color.OLIVE);
             shapeRenderer.rect(x, y, playerWidth, playerHeight);
         }
 
@@ -641,8 +665,19 @@ public class FirstScreen implements Screen {
         } else {
             x = 0;
             y = 25;
-            waterLevel = 1f;
+            if(levelDesign == 2) {
+                waterLevel = -1000f;
+            } else{
+                waterLevel = -50f;
+            }
             score = 0;
+
+            //reset checkpoints
+            if(checkpoints != null) {
+                for (Checkpoint c : checkpoints) {
+                    c.activated = false;
+                }
+            }
         }
         velocityY = 0;
         velocityX = 0;
@@ -659,6 +694,20 @@ public class FirstScreen implements Screen {
         touchingWallLeft = false;
         lastWallLeft = false;
         lastWallRight = false;
+    }
+
+    private void loadLevel(LevelType levelType){
+        LevelData data = LevelLibrary.ALL_LEVELS.get(levelType);
+        platforms = data.platforms;
+        checkpoints = data.checkpoints;
+        waterTriggerZone = data.waterTriggerZone;
+        waterFixZone = data.waterFixZone;
+        winZone = data.winZone;
+        waterRise = data.waterStartsActive;
+        x = data.startPoint.x;
+        y = data.startPoint.y;
+
+        //TODO - implement logic for next level
     }
 
     private void drawHUD(){

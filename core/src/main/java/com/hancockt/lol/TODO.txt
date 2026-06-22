@@ -4,9 +4,6 @@ V3 - Into space
 (This is to avoid scope creep and not releasing/polishing anything until my entire idea is fleshed out. Instead
 polish/release often and frequently)
 
-Checkpoints only work (right now) if it is higher than the previous one. But maybe just closer to the end? (so if that's
- right, then right, if left then left)
-
 Themes for game jams: 'Spin to win' & 'Limited power'
 Spin to win - there are faucets along route that slow water rise speed. But then a master faucet
 at the top that turns off all water (including the base water rise speed). Turning that
@@ -15,53 +12,35 @@ while the water rises (trigger animation) and spin the faucet off. The master ta
 Limited power - jumps are commited, you have limited power in the air. No double jump,
 no dash, no grapple. The only boost is adrenaline!
 
-
-Game jam:
 Remember: Route choice for player expression, water rising for risk, and checkpoints (built with memories?) for rewards
-
-- Make tutorial level using the modules (abstract modules to use for future), then store it and connect the modules for
-the level
-
 
 Make modules for mechanics:
     - [start; end platform; and geometry of platforms in btwn]
     - Assume starting point is on a platform! (end of last platform, but 0,0)
     - Ending point is at the very end of the last platform
-
-- walk and run: long flat section
-    - [(0,0); (1500,0); N/A]
-- small jump up - small wall to focus more on jumping, not wall jumping
-    - [(0,0); (250,65); {(150,45,100,20)}]
+Reference:
 - variable jumps - small jump vs large jump
     - [(0,0); (1750,140); {(300,-20,100,20), (900,-20,100,20), (1200,60,100,20), (1650,120,100,20)}]
-- momentum - gap series getting longer and longer
-    - [(0,0); (1770,0); {(50,-20,30,20), (230,-20,50,20), (580,-20,70,20), (1100,-20,20,20), (1670,-20,100,20)}]
-- jumping series - multiple jumps and doing various jumps
-    - [(0,0); (600,345); {(300,95,50,50), (-50,155,100,25), (-450,215,75,35), (-230,325,50,10), (420,325,
-    30,10), (500,325,100,20)]
-- fast fall. Only way to move past is to fall
-    - [(0,0); (1760,-1600); {(400,-550,100,150), (1500,-710,60,10), (1560,-1650,200,50)}]
 
 
-- wall slide/jump: two walls nearby with the fastest way to travel being wall jumping
-    - [(0,0); (800,850); {(450,-20,350,20), (450,150,25,750), (650,0,150,850)}]
-
-- danger boost: platform at the top only reachable with boost!
-    - [(0,0); (100,125); {(50,110,50,15)}]
-    - [(0,0); (450,88); {(375,68,75,20)}]
-- higher friction when holding down: jump to narrow platform
-    - [(0,0); (950,-170); {(400,-65,25,15), (650,-265,25,15), (800,-200,25,15), (925,-185,25,15)}]
+TODO for jam:
+- pause, death, win, and title screen
+- levels work
+- Infinite mode: tutorial rewards infinite mode. water and stuff - refer to infiniteMode.txt
+- playtest!
+- faucets!
 
 
 
-- Infinite mode: Increase water speed as player gets higher with a max speed. Have a random seed, so other players
-  can replicate and beat it. High scores! Section 1 rewards you with infinite mode. (Maybe a secret way to get
-  infinite mode without beating section 1, but with a skill check) (have a random seed for each one, so other players
-  can try to beat others high score!). Add randomness to modules and then randomly combine them?
-- pause screen/logic
+
+TODO later!
+- level set up (ordering and stuff)
+- pause screen/logic and next level/retry level screen
 - get friend to play it and give feedback
 - fixes?
+- add faucets for spin to win
 - more modules and levels
+- screen winning and level selection/progression
 - art
 - sound effects
 - death screen, menu screen, settings
@@ -74,6 +53,13 @@ Game jam submission page: His legal name is Mr. Stick Man, but he calls himself 
 he is. Why wouldn't he be?
 
 
+
+
+Infinite mode polish:
+- use modules
+- Resolve same-band platform overlaps by shifting the newer platform along whichever axis (x or y) minimizes
+  displacement, rather than rejecting and retrying placement. Basically, remove weird gaps!
+- high scores
 
 
 
