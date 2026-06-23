@@ -93,7 +93,7 @@ public class LevelLibrary {
     private static Platform generateBand(List<Platform> platforms, List<Checkpoint> checkpoints, float bandY,
                                      float bandHeight, float levelWidth, Platform highestPlatform){
         //add checkpoint
-        float checkpointHeightDistance = 1500f;
+        float checkpointHeightDistance = rng.nextFloat(1000, 2000); //add some randomness for kicks and giggles!
         float skipCheckpointThreshold = 0.1f;
         if(checkpoints.isEmpty() || (bandY - checkpoints.getLast().y > checkpointHeightDistance && rng.nextFloat() > skipCheckpointThreshold)){
             //add a checkpoint to the highest platform since it shouldn't overlap any other platform!

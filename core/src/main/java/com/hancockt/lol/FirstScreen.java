@@ -92,6 +92,7 @@ public class FirstScreen implements Screen {
     float wallJumpCooldownThreshold = 0.25f; //seconds until wall jump again - prevents wall scaling
     float collisionPlayerHeightDivisor = 10f; //What amount of player height needs to be above a platform to land on top
     float checkpointMinWaterBuffer = 200f; //how far under checkpoint water starts at a minimum!
+    float maxWaterRiseSpeed = 50f;
 
     //water
     float waterLevel;
@@ -102,6 +103,8 @@ public class FirstScreen implements Screen {
     List<Platform> platforms;
     List<Float> deathXValues;
     List<Checkpoint> checkpoints;
+    boolean pressedI = false;
+    boolean pressedN = false;
 
     //game reference
     lol game;
@@ -444,7 +447,11 @@ public class FirstScreen implements Screen {
 
         //rising water
         if(waterRise) {
-            water_rise_speed += delta / 2;
+            if(currentLevel == LevelType.INFINITE) {
+                if(water_rise_speed <= maxWaterRiseSpeed) {
+                    water_rise_speed += 2 * delta;
+                }
+            }
             waterLevel += water_rise_speed * delta;
         }
 
@@ -476,7 +483,7 @@ public class FirstScreen implements Screen {
 
         if(waterFixZone != null){
             if(playerRectFinal.overlaps(waterFixZone)){
-                waterLevel = 1;
+                waterLevel = 10;
             }
         }
 
@@ -595,6 +602,9 @@ public class FirstScreen implements Screen {
             x = 0;
             y = 25;
             waterLevel = -50f;
+            if(currentLevel == LevelType.TUTORIAL){
+                waterLevel = 10f;
+            }
             score = 0;
 
             //reset checkpoints
@@ -606,7 +616,8 @@ public class FirstScreen implements Screen {
         }
         velocityY = 0;
         velocityX = 0;
-        water_rise_speed = 8f;
+        // scale the reset speed with how high the checkpoint/respawn point is
+        water_rise_speed = Math.min(50f, 8f + (y / 200f)); //full speed always after ~8k height
         onGround = false;
         isDead = false;
         coyoteSeconds = 100; //reset
@@ -622,6 +633,8 @@ public class FirstScreen implements Screen {
     }
 
     private void loadLevel(LevelType levelType){
+        currentLevel = levelType;
+
         LevelData data = LevelLibrary.ALL_LEVELS.get(levelType);
         platforms = data.platforms;
         checkpoints = data.checkpoints;
@@ -640,6 +653,8 @@ public class FirstScreen implements Screen {
         batch.begin();
         font.draw(batch, "Score: " + Math.round(score), viewportWidth - 100, viewportHeight - 10);
         font.draw(batch, "x:" + Math.round(x) + " y:" + Math.round(y), 10, viewportHeight - 10);
+        font.draw(batch, "water rise: " + water_rise_speed, 10, viewportHeight - 50);
+        font.draw(batch, "waterLevel: " + waterLevel, 10, viewportHeight - 90);
         batch.end();
     }
 
@@ -672,7 +687,19 @@ public class FirstScreen implements Screen {
             restart();
             state = GameState.PLAYING;
         }
-        if(Gdx.input.isKeyJustPressed(Input.Keys.I) && infiniteUnlocked){ //unless 5 times
+        if(Gdx.input.isKeyJustPressed(Input.Keys.I)){
+            if(infiniteUnlocked) {
+                loadLevel(LevelType.INFINITE);
+                restart();
+                state = GameState.PLAYING;
+            }
+            pressedI = true;
+        }
+        if(pressedI && Gdx.input.isKeyJustPressed(Input.Keys.N)){
+            pressedN = true;
+        }
+        if(pressedI && pressedN && Gdx.input.isKeyJustPressed(Input.Keys.F)){
+            //Skip straight to infinite mode
             loadLevel(LevelType.INFINITE);
             restart();
             state = GameState.PLAYING;

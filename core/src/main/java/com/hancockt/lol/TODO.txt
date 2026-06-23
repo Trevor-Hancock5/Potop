@@ -24,11 +24,13 @@ Reference:
 
 
 TODO for jam:
-- pause, death, win, and title screen
-- levels work
-- Infinite mode: tutorial rewards infinite mode. water and stuff - refer to infiniteMode.txt
+- boundary walls slippery
 - playtest!
+- fix tutorial level?
+- fix score
+- Improve screens! (allow to click smth to generate a new seed for infinite mode)
 - faucets!
+- make infinite mode infinite!
 
 
 
