@@ -320,6 +320,7 @@ public class FirstScreen implements Screen {
         }
 
         //check if on wall
+        boolean onBoundingWall = false;
         for (Platform p : platforms){
             if (y + playerHeight < p.y || y > p.y + p.height) continue; //not same height, skip!
 
@@ -327,12 +328,22 @@ public class FirstScreen implements Screen {
             float distToRightWall = x - (p.x + p.width);
             if (distToRightWall >= 0 && distToRightWall < wallProximity && velocityX <= 0){
                 touchingWallRight = true;
+                if(p.isBoundaryWall){
+                    onBoundingWall = true;
+                } else{
+                    onBoundingWall = false;
+                }
             }
 
             //right of player, left of wall
             float distToLeftWall = p.x - (x + playerWidth);
             if(distToLeftWall >= 0 && distToLeftWall < wallProximity && velocityX >= 0){
                 touchingWallLeft = true;
+                if(p.isBoundaryWall){
+                    onBoundingWall = true;
+                } else{
+                    onBoundingWall = false;
+                }
             }
         }
 
@@ -370,8 +381,13 @@ public class FirstScreen implements Screen {
 
             float upForce, sideForce;
             if(holdingInto){
-                upForce = jump_force * .75f;
-                sideForce = jump_force * .15f;
+                if(onBoundingWall) {
+                    upForce = jump_force * .55f;
+                    sideForce = jump_force * .15f;
+                } else{
+                    upForce = jump_force * .8f;
+                    sideForce = jump_force * .1f;
+                }
             } else if (holdingAway){
                 upForce = jump_force * .6f;
                 sideForce = jump_force * 1.2f;
@@ -550,8 +566,8 @@ public class FirstScreen implements Screen {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
         //platforms
-        shapeRenderer.setColor(Color.WHITE);
         for(Platform p : platforms){
+            shapeRenderer.setColor(p.isBoundaryWall ? Color.DARK_GRAY : Color.WHITE);
             shapeRenderer.rect(p.x, p.y, p.width, p.height);
         }
 

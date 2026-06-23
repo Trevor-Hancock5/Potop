@@ -73,8 +73,12 @@ public class LevelLibrary {
         }
         //TODO - make these walls slippery so wall jumping up them doesn't work well, water catches you! But good
         // enough to gain slight height!
-        platforms.add(new Platform(-40, 0, 40, 100_000));
-        platforms.add(new Platform(levelWidth, 0, 40, 100_000));
+        Platform leftWall = new Platform(-40, 0, 40, 20_000);
+        Platform rightWall = new Platform(levelWidth, 0, 40, 20_000);
+        leftWall.isBoundaryWall = true;
+        rightWall.isBoundaryWall = true;
+        platforms.add(leftWall);
+        platforms.add(rightWall);
         Rectangle waterTriggerZone = null;
         Rectangle waterFixZone = null;
         Rectangle winZone = null;
