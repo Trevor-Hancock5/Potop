@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapLayer;
@@ -36,8 +37,9 @@ public class FirstScreen implements Screen {
     float viewportWidth = 800f;
     float viewportHeight = 480f;
     float screenShakeAccumulation;
-    OrthogonalTiledMapRenderer mapRenderer;
     LevelType currentLevel;
+    GameState state = GameState.MENU; //start with menu
+    GlyphLayout layout = new GlyphLayout(); // create once, reuse
 
     //Player
     float x,y;
@@ -60,7 +62,7 @@ public class FirstScreen implements Screen {
     Checkpoint currCheckpoint; //current checkpoint player has made it to
     float deathWaterLevel; //water level when user hit current checkpoint
     Rectangle winZone;
-    boolean hasWon;
+    boolean infiniteUnlocked = false;
 
     //PLAYER TUNING!
     int accelerationX = 1600;
@@ -138,28 +140,60 @@ public class FirstScreen implements Screen {
         clearScreen();
         if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) Gdx.app.exit();
 
-        if(!isDead){
-            updatePhysics(delta);
-        } else{
-            waterLevel += water_rise_speed * 10 * delta;
+        switch(state){
+            case MENU:
+                handleMenuInput();
+                drawMenu();
+                return; //skip everything else
+            case PAUSE:
+                handlePauseInput();
+                drawShapes(); //still draw game in background
+                drawHUD();
+                drawPauseOverlay();
+                return;
+            case DEATH:
+                drawShapes();
+                drawHUD();
+                drawDeathText(delta);
+                drawDeathOverlay();
+                handleDeathInput();
+                return;
+            case WIN:
+                drawShapes();
+                drawHUD();
+                drawWinOverlay();
+                handleWinInput();
+                return;
+            case PLAYING:
+                if(!isDead){
+                    updatePhysics(delta);
+                } else{
+                    waterLevel += water_rise_speed * 10 * delta;
+                }
+
+                if(isDead || !deathXValues.isEmpty()){
+                    drawDeathText(delta);
+                }
+
+                if(Gdx.input.isKeyJustPressed(Input.Keys.R)){
+                    restart();
+                }
+
+                //TODO - change key, add wasd
+                if(Gdx.input.isKeyPressed(Input.Keys.S)){
+                    currCheckpoint = null;
+                    restart();
+                }
+
+                if(Gdx.input.isKeyJustPressed(Input.Keys.P)){
+                    state = GameState.PAUSE;
+                }
+
+                drawShapes();
+                updateCamera(delta);
+                drawHUD();
         }
 
-        if(isDead || !deathXValues.isEmpty()){
-            drawDeathText(delta);
-        }
-
-        if(Gdx.input.isKeyJustPressed(Input.Keys.R)){
-                restart();
-        }
-
-        if(Gdx.input.isKeyPressed(Input.Keys.S)){
-            currCheckpoint = null;
-            restart();
-        }
-
-        drawShapes();
-        updateCamera(delta);
-        drawHUD();
     }
 
     private void clearScreen(){
@@ -448,16 +482,7 @@ public class FirstScreen implements Screen {
 
         //Check win condition before death
         if(winZone != null && winZone.overlaps(playerRectFinal)){
-            hasWon = true;
-            //showWinScreen(); TODO, return boolean to go to next screen?
-            LevelData data = LevelLibrary.ALL_LEVELS.get(currentLevel);
-            if(data.nextLevel != null){
-                game.setScreen(new FirstScreen(game, data.nextLevel));
-            } else {
-                currCheckpoint = null;
-                deathXValues.clear();
-                restart();
-            }
+            state = GameState.WIN;
         }
 
         //death check
@@ -468,6 +493,7 @@ public class FirstScreen implements Screen {
                 deathXValues.add(x);
             }
             isDead = true;
+            state = GameState.DEATH;
         }
 
         // reset flags for wall slide/jump
@@ -617,6 +643,107 @@ public class FirstScreen implements Screen {
         batch.end();
     }
 
+    private void drawCenteredText(String text, float yOffset, float scale){
+        font.getData().setScale(scale);
+
+        layout.setText(font, text);
+        float x = (viewportWidth - layout.width) / 2;
+        float y = (viewportHeight - layout.height) / 2 + yOffset;
+        font.draw(batch, text, x, y);
+
+        font.getData().setScale(1f); //reset
+    }
+
+    private void drawMenu(){
+        batch.setProjectionMatrix(hudCam.combined);
+        batch.begin();
+
+        drawCenteredText("The MC", 70, 2);
+        drawCenteredText("Press SPACE to start tutorial", 10, 1);
+        drawCenteredText("Press I to start infinite (Must complete tutorial first)", -10, 1);
+        //TODO - unless hit 5 times in quick succession, then go there
+
+        batch.end();
+    }
+
+    private void handleMenuInput(){
+        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
+            loadLevel(LevelType.TUTORIAL);
+            restart();
+            state = GameState.PLAYING;
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.I) && infiniteUnlocked){ //unless 5 times
+            loadLevel(LevelType.INFINITE);
+            restart();
+            state = GameState.PLAYING;
+        }
+    }
+
+    private void drawPauseOverlay(){
+        batch.setProjectionMatrix(hudCam.combined);
+        batch.begin();
+
+        drawCenteredText("PAUSED", 35, 2);
+        drawCenteredText("Press P to resume", 0, 1);
+
+        batch.end();
+    }
+
+    private void handlePauseInput(){
+        if(Gdx.input.isKeyJustPressed(Input.Keys.P)){
+            state = GameState.PLAYING;
+        }
+    }
+
+    private void drawDeathOverlay(){
+        batch.setProjectionMatrix(hudCam.combined);
+        batch.begin();
+
+        drawCenteredText("You drowned. Score: " + Math.round(score), 30, 1.5f);
+        drawCenteredText("Press R to retry!", 0, 1);
+
+        batch.end();
+    }
+
+    private void handleDeathInput(){
+        if(Gdx.input.isKeyJustPressed(Input.Keys.R)){
+            restart();
+            state = GameState.PLAYING;
+        }
+    }
+
+    private void drawWinOverlay(){
+        batch.setProjectionMatrix(hudCam.combined);
+        batch.begin();
+
+        drawCenteredText("YOU MADE IT!!", 65, 3);
+        drawCenteredText("Press ENTER to continue", 0, 1);
+        drawCenteredText("nextLevel: " + LevelLibrary.ALL_LEVELS.get(currentLevel).nextLevel, -50, 1);
+
+        batch.end();
+    }
+
+    private void handleWinInput(){
+        //TODO - after winning tutorial, doesn't progress to infinte.
+        //TODO - BUG: Spawn mid air right above water and die instantly instead of infinite mode
+
+        if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER)){
+            LevelData data = LevelLibrary.ALL_LEVELS.get(currentLevel);
+            LevelType next = data.nextLevel;
+            if(next != null){
+                if(currentLevel == LevelType.TUTORIAL){
+                    infiniteUnlocked = true;
+                }
+                currentLevel = next;
+                loadLevel(next);
+                restart();
+                state = GameState.PLAYING;
+            } else{
+                state = GameState.MENU;
+            }
+        }
+    }
+
     @Override
     public void resize(int width, int height) {
         if(width <= 0 || height <= 0) return;
@@ -638,26 +765,5 @@ public class FirstScreen implements Screen {
         shapeRenderer.dispose();
         batch.dispose();
         font.dispose();
-    }
-
-    private List<Platform> buildLevelFromModules(List<Module> moduleSequence, Vector2 startPoint) {
-        List<Platform> result = new ArrayList<>();
-        Vector2 currFront = new Vector2(startPoint);
-
-        for (Module m : moduleSequence) {
-            for (Platform r : m.platforms) {
-                result.add(new Platform(currFront.x + r.x, currFront.y + r.y, r.width, r.height));
-            }
-            currFront.add(m.endOffset);
-        }
-
-        return result;
-    }
-
-    private Module getModuleByName(String name) {
-        for (Module m : ModuleLibrary.ALL_MODULES) {
-            if (m.name.equals(name)) return m;
-        }
-        throw new RuntimeException("Module not found: " + name);
     }
 }

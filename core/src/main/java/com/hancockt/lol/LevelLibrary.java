@@ -67,9 +67,14 @@ public class LevelLibrary {
 
         //just call generate band for each band until height
         Platform highestPlatform = new Platform(0,0,75,25);
-        for(int i = 0; i <= 10000; i += 250) {
-            highestPlatform = generateBand(platforms, checkpoints, i, 250, 2000, highestPlatform);
+        float levelWidth = 3000;
+        for(int i = 0; i <= 13000; i += 250) {
+            highestPlatform = generateBand(platforms, checkpoints, i, 250, levelWidth, highestPlatform);
         }
+        //TODO - make these walls slippery so wall jumping up them doesn't work well, water catches you! But good
+        // enough to gain slight height!
+        platforms.add(new Platform(-40, 0, 40, 100_000));
+        platforms.add(new Platform(levelWidth, 0, 40, 100_000));
         Rectangle waterTriggerZone = null;
         Rectangle waterFixZone = null;
         Rectangle winZone = null;
@@ -87,10 +92,6 @@ public class LevelLibrary {
 
     private static Platform generateBand(List<Platform> platforms, List<Checkpoint> checkpoints, float bandY,
                                      float bandHeight, float levelWidth, Platform highestPlatform){
-        //TODO - Too sparse. Maybe make wider and then have a set like density or smth related to width!
-        //TODO - make width random within a range?
-        //TODO - add walls for edges!
-
         //add checkpoint
         float checkpointHeightDistance = 1500f;
         float skipCheckpointThreshold = 0.1f;
@@ -105,25 +106,37 @@ public class LevelLibrary {
                             checkpoints.size()));
         }
 
-        //Difficulty
-        float baseNumPlatforms = 10;
-        float baseMaxWidth = 300;
-        float baseMaxHeight = 150;
-        float minNumPlatforms = 2;
-        float minMaxWidth = 50;
-        float minMaxHeight = 30;
+        //TODO - TUNE THIS ENTIRE SECTION HERE!
 
-        //TUNE - TODO
-        //per 1000 score gained
-        float numPlatformDecay = 0.7f;
-        float widthDecay = 20;
-        float heightDecay = 10;
+        float bandArea = levelWidth * bandHeight;
         float decayMultiplier = bandY / 1000;
 
-        //Define max ranges for randomness
-        float numPlatforms = Math.max(baseNumPlatforms - (decayMultiplier * numPlatformDecay), minNumPlatforms);
+        //Density
+        float baseCoverageRatio = 0.25f;
+        float minCoverageRatio = 0.02f;
+        float coverageDecay = 0.02f;
+        float coverageRatio = Math.max(minCoverageRatio, baseCoverageRatio - (decayMultiplier * coverageDecay));
+
+        //width and height
+        float baseMaxWidth = 300;
+        float baseMaxHeight = 150;
+        float minMaxWidth = 50;
+        float minMaxHeight = 30;
+        float widthDecay = 20;
+        float heightDecay = 10;
         float maxWidth = Math.max(baseMaxWidth - (decayMultiplier * widthDecay), minMaxWidth);
         float maxHeight = Math.max(baseMaxHeight - (decayMultiplier * heightDecay), minMaxHeight);
+        float minWidth = 20;
+        float minHeight = 10;
+
+        //dynamically choose numPlatforms based on density
+        float minNumPlatforms = 5;
+        float avgWidth = (maxWidth + minWidth) / 2f;
+        float avgHeight = (maxHeight + minHeight) / 2f;
+        float avgPlatformArea = avgWidth * avgHeight;
+
+        float targetCoveredArea = bandArea * coverageRatio;
+        int numPlatforms = (int) Math.max(minNumPlatforms, targetCoveredArea / avgPlatformArea);
 
         //platforms
         boolean reachable = false; //reachable from previous band
@@ -135,8 +148,8 @@ public class LevelLibrary {
             int attempts = 0;
             do {
                 attempts++;
-                float width = rng.nextFloat(20, maxWidth); //20 and max width!
-                float height = rng.nextFloat(10, maxHeight); // 10 and max height!
+                float width = rng.nextFloat(minWidth, maxWidth); //20 and max width!
+                float height = rng.nextFloat(minHeight, maxHeight); // 10 and max height!
                 float xVal = rng.nextFloat(levelWidth - width); //btwn 0 and (levelWidth - width)
                 float yVal = rng.nextFloat(bandY, Math.max(bandY, bandY + bandHeight - height)); //btwn bandY and
                 // (bandY + bandHeight -
