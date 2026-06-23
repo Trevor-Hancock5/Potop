@@ -159,10 +159,10 @@ public class FirstScreen implements Screen {
                 handleDeathInput();
                 return;
             case WIN:
-                drawShapes();
-                drawHUD();
                 drawWinOverlay();
                 handleWinInput();
+                drawShapes();
+                drawHUD();
                 return;
             case PLAYING:
                 if(!isDead){
@@ -718,15 +718,11 @@ public class FirstScreen implements Screen {
 
         drawCenteredText("YOU MADE IT!!", 65, 3);
         drawCenteredText("Press ENTER to continue", 0, 1);
-        drawCenteredText("nextLevel: " + LevelLibrary.ALL_LEVELS.get(currentLevel).nextLevel, -50, 1);
 
         batch.end();
     }
 
     private void handleWinInput(){
-        //TODO - after winning tutorial, doesn't progress to infinte.
-        //TODO - BUG: Spawn mid air right above water and die instantly instead of infinite mode
-
         if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER)){
             LevelData data = LevelLibrary.ALL_LEVELS.get(currentLevel);
             LevelType next = data.nextLevel;
@@ -734,6 +730,12 @@ public class FirstScreen implements Screen {
                 if(currentLevel == LevelType.TUTORIAL){
                     infiniteUnlocked = true;
                 }
+                deathWaterLevel = -50f;
+                currCheckpoint = null;
+                checkpoints = null;
+                LevelData nextLevel = LevelLibrary.ALL_LEVELS.get(next);
+                x = nextLevel.startPoint.x;
+                y = nextLevel.startPoint.y;
                 currentLevel = next;
                 loadLevel(next);
                 restart();
