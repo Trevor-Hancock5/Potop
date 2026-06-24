@@ -157,15 +157,15 @@ public class FirstScreen implements Screen {
             case DEATH:
                 drawShapes();
                 drawHUD();
-                drawDeathText(delta);
+                drawDeathText();
                 drawDeathOverlay();
                 handleDeathInput();
                 return;
             case WIN:
-                drawWinOverlay();
                 handleWinInput();
                 drawShapes();
                 drawHUD();
+                drawWinOverlay();
                 return;
             case PLAYING:
                 if(!isDead){
@@ -175,15 +175,14 @@ public class FirstScreen implements Screen {
                 }
 
                 if(isDead || !deathXValues.isEmpty()){
-                    drawDeathText(delta);
+                    drawDeathText();
                 }
 
                 if(Gdx.input.isKeyJustPressed(Input.Keys.R)){
                     restart();
                 }
 
-                //TODO - change key, add wasd
-                if(Gdx.input.isKeyPressed(Input.Keys.S)){
+                if(Gdx.input.isKeyPressed(Input.Keys.Q)){
                     currCheckpoint = null;
                     restart();
                 }
@@ -195,8 +194,93 @@ public class FirstScreen implements Screen {
                 drawShapes();
                 updateCamera(delta);
                 drawHUD();
+
+                //Instructions
+                if(currentLevel == LevelType.TUTORIAL){
+                    List<String> text = new ArrayList<>();
+                    List<Float> xValues = new ArrayList<>();
+                    List<Float> yValues = new ArrayList<>();
+                    List<Float> scaleValues = new ArrayList<>();
+
+                    text.add("Watch out for the water\nOr you DROWN");
+                    xValues.add(-125f);
+                    yValues.add(50f);
+                    scaleValues.add(0.75f);
+
+                    text.add("WASD/Arrow Keys to move\nW/UP/SPACE to jump\nP to PAUSE\nQ to COMPLETELY RESTART\nESC " +
+                        "to EXIT game");
+                    xValues.add(50f);
+                    yValues.add(145f);
+                    scaleValues.add(0.75f);
+
+                    text.add("Hold UP/W/SPACE\njump higher");
+                    xValues.add(800f);
+                    yValues.add(225f);
+                    scaleValues.add(0.75f);
+
+                    text.add("Hold DOWN/S\nslow down or fall faster");
+                    xValues.add(1900f);
+                    yValues.add(400f);
+                    scaleValues.add(0.75f);
+
+                    text.add("JUUUUMMMMPPPPPP");
+                    xValues.add(4925f);
+                    yValues.add(1875f);
+                    scaleValues.add(1f);
+
+                    text.add("You can WALL JUMP in 3 ways:\n- Just JUMP to go diagonal\n- Hold INTO the wall " +
+                        "and jump to climb\n- Hold AWAY from the wall and jump to fling sideways");
+                    xValues.add(5925f);
+                    yValues.add(1275f);
+                    scaleValues.add(0.75f);
+
+                    text.add("As the water gets closer to you\nyou jump higher and move faster!");
+                    xValues.add(6225f);
+                    yValues.add(1900f);
+                    scaleValues.add(0.75f);
+
+                    text.add("WIN");
+                    xValues.add(8132.5f);
+                    yValues.add(2260f);
+                    scaleValues.add(0.75f);
+
+                    drawText(text, xValues, yValues, scaleValues);
+                }
+
+                if(currentLevel == LevelType.INFINITE){
+                    List<String> text = new ArrayList<>();
+                    List<Float> xValues = new ArrayList<>();
+                    List<Float> yValues = new ArrayList<>();
+                    List<Float> scaleValues = new ArrayList<>();
+
+                    text.add("INFINITE MODE");
+                    xValues.add(45f);
+                    yValues.add(150f);
+                    scaleValues.add(1f);
+
+                    text.add("Warning: Water rises faster and faster");
+                    xValues.add(5f);
+                    yValues.add(135f);
+                    scaleValues.add(0.75f);
+
+                    drawText(text, xValues, yValues, scaleValues);
+                }
         }
 
+    }
+
+    private void drawText(List<String> text, List<Float> xPos, List<Float> yPos, List<Float> scale){
+        batch.begin();
+        batch.setProjectionMatrix(camera.combined);
+
+        for(int i = 0; i < text.size(); i++) {
+            font.getData().setScale(scale.get(i));
+
+            font.draw(batch, text.get(i), xPos.get(i), yPos.get(i));
+        }
+
+        batch.end();
+        font.getData().setScale(1f); //reset
     }
 
     private void clearScreen(){
@@ -207,7 +291,8 @@ public class FirstScreen implements Screen {
     private void updatePhysics(float delta){
         //update jump buffer
         jumpBuffer += delta;
-        if(Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
+        if(Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)
+            || Gdx.input.isKeyJustPressed(Input.Keys.W)){
             jumpBuffer = 0; //just tried to jump
         }
 
@@ -223,13 +308,14 @@ public class FirstScreen implements Screen {
         velocityY -= currGravity * delta;
 
         //Holding jump
-        if ((Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.SPACE)) && !onGround && velocityY > 0) {
+        if ((Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.SPACE)
+            || Gdx.input.isKeyPressed(Input.Keys.W)) && !onGround && velocityY > 0) {
             velocityY += jump_hold_force * delta;
         }
 
         //Or holding down
         float currFriction = groundFriction;
-        if(Gdx.input.isKeyPressed(Input.Keys.DOWN)){
+        if(Gdx.input.isKeyPressed(Input.Keys.DOWN) || Gdx.input.isKeyPressed(Input.Keys.S)){
             if(!onGround) {
                 velocityY += downforceFallAcceleration * delta;
             } else{
@@ -366,7 +452,7 @@ public class FirstScreen implements Screen {
         if((onWall || wallCoyoteSeconds < coyoteThreshold)
             && wallJumpCooldown >= wallJumpCooldownThreshold
             && (Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)
-                || jumpBuffer < jumpBufferThreshold)
+                    || Gdx.input.isKeyJustPressed(Input.Keys.W) || jumpBuffer < jumpBufferThreshold)
             && !onGround){
             //jump fires, reset cooldown
             wallJumpCooldown = 0f;
@@ -374,15 +460,16 @@ public class FirstScreen implements Screen {
             boolean wasRight = touchingWallRight || lastWallRight;
             boolean wasLeft = touchingWallLeft || lastWallLeft;
 
-            boolean holdingInto = (wasRight && Gdx.input.isKeyPressed(Input.Keys.LEFT))
-                       || (wasLeft && Gdx.input.isKeyPressed(Input.Keys.RIGHT));
-            boolean holdingAway = (wasRight && Gdx.input.isKeyPressed(Input.Keys.RIGHT))
-                       || (wasLeft && Gdx.input.isKeyPressed(Input.Keys.LEFT));
+            boolean holdingInto =
+                (wasRight && (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)))
+                       || (wasLeft && (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)));
+            boolean holdingAway = (wasRight && (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)))
+                       || (wasLeft && (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)));
 
             float upForce, sideForce;
             if(holdingInto){
                 if(onBoundingWall) {
-                    upForce = jump_force * .55f;
+                    upForce = jump_force * .5f;
                     sideForce = jump_force * .15f;
                 } else{
                     upForce = jump_force * .8f;
@@ -426,7 +513,7 @@ public class FirstScreen implements Screen {
         dangerBoost = 1 + (dangerBoost / 4);
 
         //horizontal movement
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)){
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)){
             if(onGround) {
                 velocityX -= accelerationX * delta * dangerBoost;
             } else{
@@ -434,7 +521,7 @@ public class FirstScreen implements Screen {
             }
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) {
             if(onGround) {
                 velocityX += accelerationX * delta * dangerBoost;
             } else{
@@ -447,8 +534,9 @@ public class FirstScreen implements Screen {
         velocityX = Math.max(-maxSpeedX, Math.min(maxSpeedX, velocityX));
 
         //Jumping
-        if ((Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE) || jumpBuffer < jumpBufferThreshold)
-                && (onGround || coyoteSeconds <= coyoteThreshold)) {
+        if ((Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)
+                    || Gdx.input.isKeyJustPressed(Input.Keys.W)|| jumpBuffer < jumpBufferThreshold)
+                    && (onGround || coyoteSeconds <= coyoteThreshold)) {
             coyoteSeconds = 100; //reset so can't double jump
             jumpBuffer = 100; //reset so can't double jump!
             velocityY = jump_force * dangerBoost;
@@ -573,8 +661,7 @@ public class FirstScreen implements Screen {
 
         //checkpoints
         for(Checkpoint c : checkpoints) {
-            shapeRenderer.setColor(c.activated ? new Color(0,1,0,0.6f) : new Color(1,0.5f,0.3f,0.6f)); //TODO -
-            // change alpha!
+            shapeRenderer.setColor(c.activated ? new Color(0,1,0,0.6f) : new Color(1,0.35f,0.3f,0.6f));
             shapeRenderer.rect(c.x, c.y, playerWidth * 2, playerHeight * 2);
         }
 
@@ -598,7 +685,7 @@ public class FirstScreen implements Screen {
         shapeRenderer.end();
     }
 
-    private void drawDeathText(float delta) {
+    private void drawDeathText() {
         float bob = (float) Math.sin(TimeUtils.millis() / 300.0) * 2.5f;
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
@@ -667,10 +754,11 @@ public class FirstScreen implements Screen {
     private void drawHUD(){
         batch.setProjectionMatrix(hudCam.combined);
         batch.begin();
-        font.draw(batch, "Score: " + Math.round(score), viewportWidth - 100, viewportHeight - 10);
-        font.draw(batch, "x:" + Math.round(x) + " y:" + Math.round(y), 10, viewportHeight - 10);
-        font.draw(batch, "water rise: " + water_rise_speed, 10, viewportHeight - 50);
-        font.draw(batch, "waterLevel: " + waterLevel, 10, viewportHeight - 90);
+
+        font.getData().setScale(1.25f);
+        font.draw(batch, "Score: " + Math.round(score), viewportWidth - 125, viewportHeight - 10);
+        font.getData().setScale(1f); //reset
+
         batch.end();
     }
 

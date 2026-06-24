@@ -24,14 +24,20 @@ Reference:
 
 
 TODO for jam:
-- boundary walls slippery
-- playtest!
-- fix tutorial level?
-- fix score
-- Improve screens! (allow to click smth to generate a new seed for infinite mode)
-- faucets!
+- FAUCETS!!! -> Spin to win!
 - make infinite mode infinite!
+- Improve screens! (allow to click smth to generate a new seed for infinite mode)
 
+Review from playtest:
+- Should have some personality even for game jam (add smiley face to MC and the lol bodies)
+- be able to look further in front of you to check for platforms
+- better water (make it look more like water, maybe geometric pattern?)
+- improve collision, not so shifty
+- When wall jumping into a wall, it usually just barely gets high enough and then shifts to the top (maybe fixed by
+collisions), but you are still holding in and you jump off the platform. So maybe corner buffer and then reduce speed so
+ not jump off.
+- When someone jumps to get on top of wall but hits edge of wall, and then move up high enough to be above the platform.
+ So then maybe bump then in that direction horizontally to land on top of the platform
 
 
 

@@ -31,7 +31,7 @@ public class LevelLibrary {
 
         Rectangle waterTriggerZone = new Rectangle(6245, 1800, 50, 1000);
         Rectangle waterFixZone = new Rectangle(6920, 2000, 50, 1000);
-        Rectangle winZone = new Rectangle(8125, 2163, 25, 75);
+        Rectangle winZone = new Rectangle(8132.5f, 2163, 25, 75);
 
         //platforms
         List<Module> tutorialSequence = new ArrayList<>();
