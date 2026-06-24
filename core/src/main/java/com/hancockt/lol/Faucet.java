@@ -1,0 +1,27 @@
+/*
+ * Course: CSC1110A-111
+ * Fall 2024
+ * Assignment
+ * Name: Trevor Hancock
+ * Last Updated: 6/24/2026
+ */
+package com.hancockt.lol;
+
+public class Faucet {
+    float x,y,width,height;
+    boolean turnedOff;
+    float speedReduction;
+    float progress;
+    boolean winFaucet;
+
+    public Faucet(float x, float y, float width, float height, float speedReduction, boolean winFaucet){
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        turnedOff = false;
+        this.speedReduction = speedReduction;
+        progress = 0;
+        this.winFaucet = winFaucet;
+    }
+}

@@ -29,8 +29,12 @@ public class LevelLibrary {
         checkpoints.add(new Checkpoint(4760, 1825, 3));
         checkpoints.add(new Checkpoint(6435, 1910, 4));
 
+        List<Faucet> faucets = new ArrayList<>();
+        faucets.add(new Faucet(6870, 2015, 25, 25, 10, false));
+        faucets.add(new Faucet(8132.5f, 2198, 25, 25, 0, true));
+
         Rectangle waterTriggerZone = new Rectangle(6245, 1800, 50, 1000);
-        Rectangle waterFixZone = new Rectangle(6920, 2000, 50, 1000);
+        Rectangle waterFixZone = new Rectangle(6845, 2000, 50, 1000);
         Rectangle winZone = new Rectangle(8132.5f, 2163, 25, 75);
 
         //platforms
@@ -54,7 +58,7 @@ public class LevelLibrary {
 
         return new LevelData(
             LevelType.TUTORIAL, checkpoints, waterTriggerZone, waterFixZone, winZone, platforms,
-            startPoint, waterStartsActive, nextLevel
+            startPoint, waterStartsActive, nextLevel, faucets
         );
     }
 
@@ -64,12 +68,13 @@ public class LevelLibrary {
 
         List<Checkpoint> checkpoints = new ArrayList<>();
         List<Platform> platforms = new ArrayList<>();
+        List<Faucet> faucets = new ArrayList<>();
 
         //just call generate band for each band until height
         Platform highestPlatform = new Platform(0,0,75,25);
         float levelWidth = 3000;
         for(int i = 0; i <= 13000; i += 250) {
-            highestPlatform = generateBand(platforms, checkpoints, i, 250, levelWidth, highestPlatform);
+            highestPlatform = generateBand(platforms, checkpoints, i, 250, levelWidth, highestPlatform, faucets);
         }
         //TODO - make these walls slippery so wall jumping up them doesn't work well, water catches you! But good
         // enough to gain slight height!
@@ -90,17 +95,20 @@ public class LevelLibrary {
 
         return new LevelData(
             LevelType.INFINITE, checkpoints, waterTriggerZone, waterFixZone, winZone, platforms, startPoint,
-            waterStartsActive, nextLevel
+            waterStartsActive, nextLevel, faucets
         );
     }
 
     private static Platform generateBand(List<Platform> platforms, List<Checkpoint> checkpoints, float bandY,
-                                     float bandHeight, float levelWidth, Platform highestPlatform){
+                                     float bandHeight, float levelWidth, Platform highestPlatform,
+                                         List<Faucet> faucets){
         //add checkpoint
         float checkpointHeightDistance = rng.nextFloat(1000, 2000); //add some randomness for kicks and giggles!
         float skipCheckpointThreshold = 0.1f;
+        boolean checkpointAdded = false;
         if(checkpoints.isEmpty() || (bandY - checkpoints.getLast().y > checkpointHeightDistance && rng.nextFloat() > skipCheckpointThreshold)){
             //add a checkpoint to the highest platform since it shouldn't overlap any other platform!
+            checkpointAdded = true;
             float platformMidpoint = highestPlatform.x + (float)(highestPlatform.width / 2);
             float checkpointWidth = Math.min(25, highestPlatform.width);
             float checkpointHeight = 75;
@@ -108,6 +116,20 @@ public class LevelLibrary {
             float checkpointY = highestPlatform.y + highestPlatform.height;
             checkpoints.add(new Checkpoint(checkpointX, checkpointY, checkpointWidth, checkpointHeight,
                             checkpoints.size()));
+        }
+
+        //add faucets
+        float faucetHeightDistance = rng.nextFloat(500,1000);
+        float skipFaucetThreshold = 0.33f;
+        if(!checkpointAdded && (faucets.isEmpty() || (bandY - faucets.getLast().y > faucetHeightDistance
+                && rng.nextFloat() > skipFaucetThreshold))){
+            //add a faucet to highest platform
+            float platformMidpoint = highestPlatform.x + (float)(highestPlatform.width / 2);
+            float faucetDimensions = 25; //width/height
+            float faucetX = platformMidpoint - faucetDimensions / 2;
+            float faucetY = highestPlatform.y + highestPlatform.height + 10; //float in air
+            float speedReduction = rng.nextFloat(10, 60); //how much to slow the water_rise_speed
+            faucets.add(new Faucet(faucetX, faucetY, faucetDimensions, faucetDimensions, speedReduction, false));
         }
 
         //TODO - TUNE THIS ENTIRE SECTION HERE!
@@ -147,6 +169,7 @@ public class LevelLibrary {
 
         //for overlapping, since only platforms in this band can overlap other ones
         List<Platform> bandPlatforms = new ArrayList<>();
+        boolean faucetOverlap = false;
         for(int i = 0; i < numPlatforms; i++) {
             Platform p;
             int attempts = 0;
@@ -166,11 +189,25 @@ public class LevelLibrary {
                     Rectangle currP = new Rectangle(p.x, p.y, p.width, p.height);
                     Rectangle bandP = new Rectangle(bp.x, bp.y, bp.width, bp.height);
 
-                    Checkpoint c1 = checkpoints.getLast();
-                    Rectangle check = new Rectangle(c1.x, c1.y, c1.width, c1.height);
+                    Rectangle check = null;
+                    Checkpoint c1 = null;
+                    if(!checkpoints.isEmpty()) {
+                        c1 = checkpoints.getLast();
+                        check = new Rectangle(c1.x, c1.y, c1.width, c1.height);
+                    }
+
+                    Rectangle faucet = null;
+                    Faucet f;
+                    if(!faucets.isEmpty()) {
+                        f = faucets.getLast();
+                        faucet = new Rectangle(f.x, f.y, f.width, f.height);
+                        if(currP.overlaps(faucet)){
+                            continue;
+                        }
+                    }
 
                     boolean overlapPlatform = currP.overlaps(bandP);
-                    boolean overlapCheckpoint = currP.overlaps(check);
+                    boolean overlapCheckpoint = check != null && currP.overlaps(check);
                     if(overlapPlatform || overlapCheckpoint){
                         float moveThreshold = 0.7f;
                         if(rng.nextFloat() > moveThreshold){
@@ -197,7 +234,7 @@ public class LevelLibrary {
 
                 //check reachability - need at least one. First one added is reachable!
                 reachable = checkReachability(p, highestPlatform) || reachable; // once true, stays true until next band
-            } while (!reachable && attempts < 50);
+            } while (faucetOverlap || (!reachable && attempts < 50));
 
             platforms.add(p);
             bandPlatforms.add(p);

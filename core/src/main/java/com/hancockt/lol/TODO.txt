@@ -24,7 +24,7 @@ Reference:
 
 
 TODO for jam:
-- FAUCETS!!! -> Spin to win!
+- FAUCETS!!! -> Water stream, spin block, reset faucets on death, less faucet as you go higher (inf)
 - make infinite mode infinite!
 - Improve screens! (allow to click smth to generate a new seed for infinite mode)
 

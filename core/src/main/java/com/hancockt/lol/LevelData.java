@@ -15,6 +15,7 @@ import java.util.List;
 public class LevelData {
     public LevelType type;
     public List<Checkpoint> checkpoints;
+    public List<Faucet> faucets;
     public Rectangle waterTriggerZone;
     public Rectangle waterFixZone;
     public Rectangle winZone;
@@ -25,9 +26,10 @@ public class LevelData {
 
     public LevelData(LevelType type, List<Checkpoint> checkpoints, Rectangle waterTriggerZone,
                       Rectangle waterFixZone, Rectangle winZone, List<Platform> platforms,
-                      Vector2 startPoint, boolean waterStartsActive, LevelType nextLevel) {
+                      Vector2 startPoint, boolean waterStartsActive, LevelType nextLevel, List<Faucet> faucets) {
         this.type = type;
         this.checkpoints = checkpoints;
+        this.faucets = faucets;
         this.waterTriggerZone = waterTriggerZone;
         this.waterFixZone = waterFixZone;
         this.winZone = winZone;

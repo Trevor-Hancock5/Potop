@@ -93,6 +93,8 @@ public class FirstScreen implements Screen {
     float collisionPlayerHeightDivisor = 10f; //What amount of player height needs to be above a platform to land on top
     float checkpointMinWaterBuffer = 200f; //how far under checkpoint water starts at a minimum!
     float maxWaterRiseSpeed = 50f;
+    float faucetInteractionTime = 1.5f; //seconds
+    float faucetRange = 30f; //how close to faucet to interact
 
     //water
     float waterLevel;
@@ -103,6 +105,7 @@ public class FirstScreen implements Screen {
     List<Platform> platforms;
     List<Float> deathXValues;
     List<Checkpoint> checkpoints;
+    List<Faucet> faucets;
     boolean pressedI = false;
     boolean pressedN = false;
 
@@ -239,9 +242,14 @@ public class FirstScreen implements Screen {
                     yValues.add(1900f);
                     scaleValues.add(0.75f);
 
-                    text.add("WIN");
-                    xValues.add(8132.5f);
-                    yValues.add(2260f);
+                    text.add("Hold E or SHIFT to turn the faucet\n to slow down the water!");
+                    xValues.add(6740f);
+                    yValues.add(2090f);
+                    scaleValues.add(0.75f);
+
+                    text.add("Finish the faucet to WIN!");
+                    xValues.add(8085f);
+                    yValues.add(2245f);
                     scaleValues.add(0.75f);
 
                     drawText(text, xValues, yValues, scaleValues);
@@ -578,6 +586,35 @@ public class FirstScreen implements Screen {
             }
         }
 
+        //Faucets
+        Faucet nearFaucet = null;
+        for(Faucet f : faucets) {
+            if(!f.turnedOff){
+                Rectangle faucet = new Rectangle(f.x - faucetRange, f.y - faucetRange, f.width + 2*faucetRange,
+                    f.height + 2*faucetRange);
+                if(playerRectFinal.overlaps(faucet)){
+                    nearFaucet = f;
+                    break;
+                }
+            }
+        }
+
+        boolean finishedFinalFaucet = false;
+        if(nearFaucet != null && (Gdx.input.isKeyPressed(Input.Keys.E) || Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)
+                || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT))){
+            nearFaucet.progress += delta;
+            if(nearFaucet.progress > faucetInteractionTime){
+                nearFaucet.turnedOff = true;
+                water_rise_speed -= nearFaucet.speedReduction;
+                if(nearFaucet.winFaucet){
+                    finishedFinalFaucet = true;
+                }
+            }
+        } else if(nearFaucet != null){
+            //not holding down, start spinning back
+            nearFaucet.progress = Math.max(0, nearFaucet.progress - delta);
+        }
+
         // for tutorial level danger boost example
         if(waterTriggerZone != null) {
             if (playerRectFinal.overlaps(waterTriggerZone)) {
@@ -586,13 +623,14 @@ public class FirstScreen implements Screen {
         }
 
         if(waterFixZone != null){
-            if(playerRectFinal.overlaps(waterFixZone)){
+            //close enough to waterFix zone, so there is also a faucet nearby that needs to be activated
+            if(playerRectFinal.overlaps(waterFixZone) && nearFaucet != null && nearFaucet.turnedOff){
                 waterLevel = 10;
             }
         }
 
         //Check win condition before death
-        if(winZone != null && winZone.overlaps(playerRectFinal)){
+        if(winZone != null && winZone.overlaps(playerRectFinal) && finishedFinalFaucet){
             state = GameState.WIN;
         }
 
@@ -666,9 +704,24 @@ public class FirstScreen implements Screen {
         }
 
         //winzone
-        if(winZone != null) {
+        if(winZone != null && currentLevel != LevelType.TUTORIAL) {
             shapeRenderer.setColor(Color.GOLDENROD);
             shapeRenderer.rect(winZone.x, winZone.y, winZone.width, winZone.height);
+        }
+
+
+        //faucets
+        for(Faucet f : faucets){
+            Color color;
+            if(f.turnedOff){
+                color = Color.GRAY;
+            } else if(f.progress > faucetInteractionTime / 2){
+                color = new Color(0.85f, 0.7f, 0.7f, 1f);
+            } else{
+                color = new Color(1f, 0.6f, 0.6f, 1f);
+            }
+            shapeRenderer.setColor(color);
+            shapeRenderer.rect(f.x, f.y, f.width, f.height);
         }
 
         if(!isDead){
@@ -745,6 +798,7 @@ public class FirstScreen implements Screen {
         waterFixZone = data.waterFixZone;
         winZone = data.winZone;
         waterRise = data.waterStartsActive;
+        faucets = data.faucets;
         x = data.startPoint.x;
         y = data.startPoint.y;
 
@@ -757,6 +811,8 @@ public class FirstScreen implements Screen {
 
         font.getData().setScale(1.25f);
         font.draw(batch, "Score: " + Math.round(score), viewportWidth - 125, viewportHeight - 10);
+        font.draw(batch, "X: " + x + "; Y: " + y, 15, viewportHeight - 10);
+        font.draw(batch, "Water rise: " + water_rise_speed, 15, viewportHeight - 50);
         font.getData().setScale(1f); //reset
 
         batch.end();
