@@ -296,4 +296,8 @@ public class LevelLibrary {
         }
         throw new RuntimeException("Module not found: " + name);
     }
+
+    public static void regenerateInfinite(){
+        ALL_LEVELS.put(LevelType.INFINITE, buildInfiniteLevel());
+    }
 }

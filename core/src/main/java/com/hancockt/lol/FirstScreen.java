@@ -187,6 +187,12 @@ public class FirstScreen implements Screen {
                 }
 
                 if(Gdx.input.isKeyPressed(Input.Keys.Q)){
+                    if(currentLevel == LevelType.INFINITE){
+                        deathWaterLevel = -50f;
+                        deathXValues = new ArrayList<>(); //reset
+                        LevelLibrary.regenerateInfinite();
+                        loadLevel(LevelType.INFINITE); //regenerate!
+                    }
                     currCheckpoint = null;
                     restart();
                 }
@@ -270,6 +276,11 @@ public class FirstScreen implements Screen {
                     text.add("Warning: Water rises faster and faster");
                     xValues.add(5f);
                     yValues.add(135f);
+                    scaleValues.add(0.75f);
+
+                    text.add("Click Q to regenerate");
+                    xValues.add(5f);
+                    yValues.add(115f);
                     scaleValues.add(0.75f);
 
                     drawText(text, xValues, yValues, scaleValues);
@@ -867,7 +878,6 @@ public class FirstScreen implements Screen {
         drawCenteredText("The MC", 70, 2);
         drawCenteredText("Press SPACE to start tutorial", 10, 1);
         drawCenteredText("Press I to start infinite (Must complete tutorial first)", -10, 1);
-        //TODO - unless hit 5 times in quick succession, then go there
 
         batch.end();
     }
