@@ -95,6 +95,7 @@ public class FirstScreen implements Screen {
     float maxWaterRiseSpeed = 50f;
     float faucetInteractionTime = 1.5f; //seconds
     float faucetRange = 30f; //how close to faucet to interact
+    float faucetRotationSpeed = 240f; //degrees per second it spins
 
     //water
     float waterLevel;
@@ -603,8 +604,10 @@ public class FirstScreen implements Screen {
         if(nearFaucet != null && (Gdx.input.isKeyPressed(Input.Keys.E) || Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)
                 || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT))){
             nearFaucet.progress += delta;
+            nearFaucet.rotation += faucetRotationSpeed * delta;
             if(nearFaucet.progress > faucetInteractionTime){
                 nearFaucet.turnedOff = true;
+                nearFaucet.rotation = 360;
                 water_rise_speed -= nearFaucet.speedReduction;
                 if(nearFaucet.winFaucet){
                     finishedFinalFaucet = true;
@@ -613,12 +616,17 @@ public class FirstScreen implements Screen {
         } else if(nearFaucet != null){
             //not holding down, start spinning back
             nearFaucet.progress = Math.max(0, nearFaucet.progress - delta);
+            if(nearFaucet.rotation > 0) {
+                nearFaucet.rotation -= faucetRotationSpeed * delta;
+            } else{
+                nearFaucet.rotation = 0;
+            }
         }
 
         // for tutorial level danger boost example
         if(waterTriggerZone != null) {
             if (playerRectFinal.overlaps(waterTriggerZone)) {
-                waterLevel = y - 100;
+                waterLevel = 1784;
             }
         }
 
@@ -643,6 +651,11 @@ public class FirstScreen implements Screen {
             }
             isDead = true;
             state = GameState.DEATH;
+            for(Faucet f : faucets){
+                f.turnedOff = false; //reset
+                f.rotation = 0;
+                f.progress = 0;
+            }
         }
 
         // reset flags for wall slide/jump
@@ -710,8 +723,18 @@ public class FirstScreen implements Screen {
         }
 
 
+
         //faucets
         for(Faucet f : faucets){
+            shapeRenderer.identity(); // reset any prior transform
+
+            float centerX = f.x + f.width / 2f;
+            float centerY = f.y + f.height / 2f;
+
+            shapeRenderer.translate(centerX, centerY, 0);
+            shapeRenderer.rotate(0, 0, 1, -f.rotation); // rotate around z-axis by faucetRotation degrees
+            shapeRenderer.translate(-centerX, -centerY, 0);
+
             Color color;
             if(f.turnedOff){
                 color = Color.GRAY;
@@ -722,6 +745,8 @@ public class FirstScreen implements Screen {
             }
             shapeRenderer.setColor(color);
             shapeRenderer.rect(f.x, f.y, f.width, f.height);
+
+            shapeRenderer.identity(); // reset so it doesn't affect anything drawn after
         }
 
         if(!isDead){
@@ -786,6 +811,12 @@ public class FirstScreen implements Screen {
         touchingWallLeft = false;
         lastWallLeft = false;
         lastWallRight = false;
+
+        for(Faucet f : faucets){
+            f.turnedOff = false; //reset
+            f.rotation = 0;
+            f.progress = 0;
+        }
     }
 
     private void loadLevel(LevelType levelType){

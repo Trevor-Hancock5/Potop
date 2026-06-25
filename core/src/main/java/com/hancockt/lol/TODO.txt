@@ -24,10 +24,13 @@ Reference:
 
 
 TODO for jam:
-- FAUCETS!!! -> Water stream, spin block, reset faucets on death, less faucet as you go higher (inf)
+Export game and ensure it works on more than just your computer!
+- make itch.io page!
+
+
+- FAUCETS!!! -> Water stream
 - make infinite mode infinite!
 - Improve screens! (allow to click smth to generate a new seed for infinite mode)
-
 Review from playtest:
 - Should have some personality even for game jam (add smiley face to MC and the lol bodies)
 - be able to look further in front of you to check for platforms

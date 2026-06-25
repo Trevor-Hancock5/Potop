@@ -73,11 +73,9 @@ public class LevelLibrary {
         //just call generate band for each band until height
         Platform highestPlatform = new Platform(0,0,75,25);
         float levelWidth = 3000;
-        for(int i = 0; i <= 13000; i += 250) {
+        for(int i = 0; i <= 19000; i += 250) {
             highestPlatform = generateBand(platforms, checkpoints, i, 250, levelWidth, highestPlatform, faucets);
         }
-        //TODO - make these walls slippery so wall jumping up them doesn't work well, water catches you! But good
-        // enough to gain slight height!
         Platform leftWall = new Platform(-40, 0, 40, 20_000);
         Platform rightWall = new Platform(levelWidth, 0, 40, 20_000);
         leftWall.isBoundaryWall = true;
