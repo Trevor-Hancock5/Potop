@@ -217,20 +217,21 @@ public class FirstScreen implements Screen {
                     yValues.add(50f);
                     scaleValues.add(0.75f);
 
-                    text.add("WASD/Arrow Keys to move\nW/UP/SPACE to jump\nP to PAUSE\nQ to COMPLETELY RESTART\nESC " +
+                    text.add("WASD / Arrow Keys to move\nW / UP /SPACE to jump\nP to PAUSE\nQ to COMPLETELY " +
+                        "RESTART\nESC " +
                         "to EXIT game");
                     xValues.add(50f);
                     yValues.add(145f);
                     scaleValues.add(0.75f);
 
-                    text.add("Hold UP/W/SPACE\njump higher");
+                    text.add("Hold UP / W / SPACE\njump higher");
                     xValues.add(800f);
                     yValues.add(225f);
                     scaleValues.add(0.75f);
 
-                    text.add("Hold DOWN/S\nslow down or fall faster");
+                    text.add("CHECKPOINT\n\nHold DOWN / S\nslow down or fall faster");
                     xValues.add(1900f);
-                    yValues.add(400f);
+                    yValues.add(425f);
                     scaleValues.add(0.75f);
 
                     text.add("JUUUUMMMMPPPPPP");
@@ -270,17 +271,17 @@ public class FirstScreen implements Screen {
 
                     text.add("INFINITE MODE");
                     xValues.add(45f);
-                    yValues.add(150f);
+                    yValues.add(175f);
                     scaleValues.add(1f);
 
                     text.add("Warning: Water rises faster and faster");
                     xValues.add(5f);
-                    yValues.add(135f);
+                    yValues.add(160f);
                     scaleValues.add(0.75f);
 
                     text.add("Click Q to regenerate");
                     xValues.add(5f);
-                    yValues.add(115f);
+                    yValues.add(140f);
                     scaleValues.add(0.75f);
 
                     drawText(text, xValues, yValues, scaleValues);
@@ -760,9 +761,17 @@ public class FirstScreen implements Screen {
             shapeRenderer.identity(); // reset so it doesn't affect anything drawn after
         }
 
+        // player
         if(!isDead){
             shapeRenderer.setColor(Color.OLIVE);
             shapeRenderer.rect(x, y, playerWidth, playerHeight);
+            shapeRenderer.setColor(Color.LIGHT_GRAY);
+            shapeRenderer.rect(x + 5, y + playerHeight - 15, 3, 9); //left eye
+            shapeRenderer.rect(x + playerWidth - 8, y + playerHeight - 15, 3, 9); //right eye
+
+            //smile
+            shapeRenderer.rect(x + 5, y + (float) playerHeight / 2, 10, 4);
+            shapeRenderer.rect(x + 3, y + (float) playerHeight / 2 + 4, 14, 2);
         }
 
         //water
@@ -853,8 +862,6 @@ public class FirstScreen implements Screen {
 
         font.getData().setScale(1.25f);
         font.draw(batch, "Score: " + Math.round(score), viewportWidth - 125, viewportHeight - 10);
-        font.draw(batch, "X: " + x + "; Y: " + y, 15, viewportHeight - 10);
-        font.draw(batch, "Water rise: " + water_rise_speed, 15, viewportHeight - 50);
         font.getData().setScale(1f); //reset
 
         batch.end();

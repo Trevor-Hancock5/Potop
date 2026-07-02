@@ -4,6 +4,10 @@ V3 - Into space
 (This is to avoid scope creep and not releasing/polishing anything until my entire idea is fleshed out. Instead
 polish/release often and frequently)
 
+
+Physics breaks on 180hz monitor, had to switch to 60hz monitor.
+
+
 Themes for game jams: 'Spin to win' & 'Limited power'
 Spin to win - there are faucets along route that slow water rise speed. But then a master faucet
 at the top that turns off all water (including the base water rise speed). Turning that
@@ -23,15 +27,13 @@ Reference:
     - [(0,0); (1750,140); {(300,-20,100,20), (900,-20,100,20), (1200,60,100,20), (1650,120,100,20)}]
 
 
-TODO for jam:
-Export game and ensure it works on more than just your computer!
-- make itch.io page!
 
 
-- FAUCETS!!! -> Water stream
+- FAUCETS!!! -> Water stream???
 - make infinite mode infinite!
 - Improve screens! (allow to click smth to generate a new seed for infinite mode)
 Review from playtest:
+- settings!
 - Should have some personality even for game jam (add smiley face to MC and the lol bodies)
 - be able to look further in front of you to check for platforms
 - better water (make it look more like water, maybe geometric pattern?)
