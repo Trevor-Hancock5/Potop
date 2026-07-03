@@ -6,17 +6,25 @@ import com.badlogic.gdx.math.Vector2;
 import java.util.*;
 
 public class LevelLibrary {
-    public static Map<LevelType, LevelData> ALL_LEVELS = new HashMap<>();
-    public static Random rng;
-    public static int highestInfiniteY = 0;
-    private static int bandHeight = 250;
+    private static final Map<LevelType, LevelData> ALL_LEVELS = new HashMap<>();
+    private static Random rng;
+    private static int highestInfiniteY = 0;
+    private static final int BAND_HEIGHT = 250;
     private static Platform highestPlatform;
-    private static float levelWidth = 3000;
+    private static final float LEVEL_WIDTH = 3000;
 
 
     static {
         ALL_LEVELS.put(LevelType.TUTORIAL, buildTutorialLevel());
         ALL_LEVELS.put(LevelType.INFINITE, buildInfiniteLevel());
+    }
+
+    public static Map<LevelType, LevelData> getAllLevels(){
+        return ALL_LEVELS;
+    }
+
+    public static int getHighestYInInfinite(){
+        return highestInfiniteY;
     }
 
     private static LevelData buildTutorialLevel(){
@@ -70,21 +78,13 @@ public class LevelLibrary {
 
         //just call generate band for each band until height
         highestPlatform = new Platform(0,0,75,25);
-        for(int i = 0; i <= 2000; i += bandHeight) {
-            highestPlatform = generateBand(platforms, checkpoints, i, bandHeight, levelWidth, highestPlatform, faucets);
+        for(int i = 0; i <= 2000; i += BAND_HEIGHT) {
+            highestPlatform = generateBand(platforms, checkpoints, i, BAND_HEIGHT, LEVEL_WIDTH, highestPlatform, faucets);
         }
-        Rectangle waterTriggerZone = null;
-        Rectangle waterFixZone = null;
-        Rectangle winZone = null;
-
-
-        Vector2 startPoint = new Vector2(0,0);
-        boolean waterStartsActive = true;
-        LevelType nextLevel = null;
 
         return new LevelData(
-            LevelType.INFINITE, checkpoints, waterTriggerZone, waterFixZone, winZone, platforms, startPoint,
-            waterStartsActive, nextLevel, faucets
+            LevelType.INFINITE, checkpoints, null, null, null, platforms, new Vector2(0,0),
+            true, null, faucets
         );
     }
 
@@ -92,22 +92,14 @@ public class LevelLibrary {
                                                List<Faucet> faucets){
         //Add another 2000 height to the infinite level
         int maxAdditionY = highestInfiniteY + 2000;
-        for(int i = highestInfiniteY; i < maxAdditionY; i += bandHeight){
-            highestPlatform = generateBand(platforms, checkpoints, highestInfiniteY, bandHeight, levelWidth,
+        for(int i = highestInfiniteY; i < maxAdditionY; i += BAND_HEIGHT){
+            highestPlatform = generateBand(platforms, checkpoints, highestInfiniteY, BAND_HEIGHT, LEVEL_WIDTH,
                 highestPlatform, faucets);
         }
-        Rectangle waterTriggerZone = null;
-        Rectangle waterFixZone = null;
-        Rectangle winZone = null;
-
-
-        Vector2 startPoint = new Vector2(0,0);
-        boolean waterStartsActive = true;
-        LevelType nextLevel = null;
 
         return new LevelData(
-            LevelType.INFINITE, checkpoints, waterTriggerZone, waterFixZone, winZone, platforms, startPoint,
-            waterStartsActive, nextLevel, faucets
+            LevelType.INFINITE, checkpoints, null, null, null, platforms, new Vector2(0,0),
+            true, null, faucets
         );
     }
 
@@ -118,14 +110,14 @@ public class LevelLibrary {
         float checkpointHeightDistance = rng.nextFloat(1000, 2000); //add some randomness for kicks and giggles!
         float skipCheckpointThreshold = 0.1f;
         boolean checkpointAdded = false;
-        if(checkpoints.isEmpty() || (bandY - checkpoints.getLast().y > checkpointHeightDistance && rng.nextFloat() > skipCheckpointThreshold)){
+        if(checkpoints.isEmpty() || (bandY - checkpoints.getLast().getY() > checkpointHeightDistance && rng.nextFloat() > skipCheckpointThreshold)){
             //add a checkpoint to the highest platform since it shouldn't overlap any other platform!
             checkpointAdded = true;
-            float platformMidpoint = highestPlatform.x + (float)(highestPlatform.width / 2);
-            float checkpointWidth = Math.min(25, highestPlatform.width);
+            float platformMidpoint = highestPlatform.getX() + (float)(highestPlatform.getWidth() / 2);
+            float checkpointWidth = Math.min(25, highestPlatform.getWidth());
             float checkpointHeight = 75;
             float checkpointX = platformMidpoint - (checkpointWidth / 2);
-            float checkpointY = highestPlatform.y + highestPlatform.height;
+            float checkpointY = highestPlatform.getY() + highestPlatform.getHeight();
             checkpoints.add(new Checkpoint(checkpointX, checkpointY, checkpointWidth, checkpointHeight,
                             checkpoints.size()));
         }
@@ -133,13 +125,13 @@ public class LevelLibrary {
         //add faucets
         float faucetHeightDistance = rng.nextFloat(500,1000);
         float skipFaucetThreshold = 0.33f;
-        if(!checkpointAdded && (faucets.isEmpty() || (bandY - faucets.getLast().y > faucetHeightDistance
+        if(!checkpointAdded && (faucets.isEmpty() || (bandY - faucets.getLast().getY() > faucetHeightDistance
                 && rng.nextFloat() > skipFaucetThreshold))){
             //add a faucet to highest platform
-            float platformMidpoint = highestPlatform.x + (float)(highestPlatform.width / 2);
+            float platformMidpoint = highestPlatform.getX() + (float)(highestPlatform.getWidth() / 2);
             float faucetDimensions = 25; //width/height
             float faucetX = platformMidpoint - faucetDimensions / 2;
-            float faucetY = highestPlatform.y + highestPlatform.height + 10; //float in air
+            float faucetY = highestPlatform.getY() + highestPlatform.getHeight() + 10; //float in air
             float speedReduction = rng.nextFloat(10, 60); //how much to slow the water_rise_speed
             faucets.add(new Faucet(faucetX, faucetY, faucetDimensions, faucetDimensions, speedReduction, false));
         }
@@ -147,8 +139,8 @@ public class LevelLibrary {
         //Add boundary walls
         Platform leftWall = new Platform(-40, bandY, 40, bandHeight);
         Platform rightWall = new Platform(levelWidth, bandY, 40, bandHeight);
-        leftWall.isBoundaryWall = true;
-        rightWall.isBoundaryWall = true;
+        leftWall.setBoundaryWall(true);
+        rightWall.setBoundaryWall(true);
         platforms.add(leftWall);
         platforms.add(rightWall);
 
@@ -207,21 +199,21 @@ public class LevelLibrary {
 
                 //check overlap and checkpoints (check last checkpoint only)
                 for(Platform bp : bandPlatforms){
-                    Rectangle currP = new Rectangle(p.x, p.y, p.width, p.height);
-                    Rectangle bandP = new Rectangle(bp.x, bp.y, bp.width, bp.height);
+                    Rectangle currP = new Rectangle(p.getX(), p.getY(), p.getWidth(), p.getHeight());
+                    Rectangle bandP = new Rectangle(bp.getX(), bp.getY(), bp.getWidth(), bp.getHeight());
 
                     Rectangle check = null;
                     Checkpoint c1 = null;
                     if(!checkpoints.isEmpty()) {
                         c1 = checkpoints.getLast();
-                        check = new Rectangle(c1.x, c1.y, c1.width, c1.height);
+                        check = new Rectangle(c1.getX(), c1.getY(), c1.getWidth(), c1.getHeight());
                     }
 
                     Rectangle faucet = null;
                     Faucet f;
                     if(!faucets.isEmpty()) {
                         f = faucets.getLast();
-                        faucet = new Rectangle(f.x, f.y, f.width, f.height);
+                        faucet = new Rectangle(f.getX(), f.getY(), f.getWidth(), f.getHeight());
                         if(currP.overlaps(faucet)){
                             continue;
                         }
@@ -233,21 +225,23 @@ public class LevelLibrary {
                         float moveThreshold = 0.7f;
                         if(rng.nextFloat() > moveThreshold){
                             //move platform vertically
-                            if(!overlapCheckpoint && bp.y + bp.height + p.height > bandY + bandHeight){
+                            if(!overlapCheckpoint && bp.getY() + bp.getHeight() + p.getHeight() > bandY + bandHeight){
                                 //move down
-                                p.y = bp.y - p.height;
+                                p.setY(bp.getY() - p.getHeight());
                             } else{
                                 //move up
-                                p.y = (int) Math.max(bp.y + bp.height, c1.y + c1.height);
+                                if (c1 != null) {
+                                    p.setY((int) Math.max(bp.getY() + bp.getHeight(), c1.getY() + c1.getHeight()));
+                                }
                             }
                         } else{
                             //move platform horizontally
-                            if(bp.x + bp.width + p.width > levelWidth){
+                            if(bp.getX() + bp.getWidth() + p.getWidth() > levelWidth){
                                 //move left
-                                p.x = bp.x - p.width;
+                                p.setX(bp.getX() - p.getWidth());
                             } else{
                                 //move right
-                                p.x = bp.x + bp.width;
+                                p.setX(bp.getX() + bp.getWidth());
                             }
                         }
                     }
@@ -274,7 +268,7 @@ public class LevelLibrary {
 
         // check if new highest platform for checkpoint making
         for(Platform p : bandPlatforms) {
-            if (p.y + p.height > highestPlatform.y + highestPlatform.height) {
+            if (p.getY() + p.getHeight() > highestPlatform.getY() + highestPlatform.getHeight()) {
                 highestPlatform = p;
             }
         }
@@ -286,21 +280,21 @@ public class LevelLibrary {
     private static boolean checkReachability(Platform currPlatform, Platform highestPlatform){
         //check horizontal
         int horizontalMax = 325;
-        if(currPlatform.x > highestPlatform.x){
+        if(currPlatform.getX() > highestPlatform.getX()){
             //check if right side of highest platform is within reach of left side of current platform
-            if(currPlatform.x - (highestPlatform.x + highestPlatform.width) > horizontalMax){
+            if(currPlatform.getX() - (highestPlatform.getX() + highestPlatform.getWidth()) > horizontalMax){
                 return false;
             }
         } else{
             //check if right side of curr platform is within reach of left side of highest platform
-            if(highestPlatform.x - (currPlatform.x + currPlatform.width) > horizontalMax){
+            if(highestPlatform.getX() - (currPlatform.getX() + currPlatform.getWidth()) > horizontalMax){
                 return false;
             }
         }
 
         //check vertical
         int verticalMax = 100;
-        if(Math.abs((currPlatform.y + currPlatform.height) - (highestPlatform.y + highestPlatform.height)) > verticalMax){
+        if(Math.abs((currPlatform.getY() + currPlatform.getHeight()) - (highestPlatform.getY() + highestPlatform.getHeight())) > verticalMax){
             return false;
         }
 
@@ -313,10 +307,10 @@ public class LevelLibrary {
         Vector2 currFront = new Vector2(startPoint);
 
         for (Module m : moduleSequence) {
-            for (Platform r : m.platforms) {
-                result.add(new Platform(currFront.x + r.x, currFront.y + r.y, r.width, r.height));
+            for (Platform r : m.getPlatforms()) {
+                result.add(new Platform(currFront.x + r.getX(), currFront.y + r.getY(), r.getWidth(), r.getHeight()));
             }
-            currFront.add(m.endOffset);
+            currFront.add(m.getEndOffset());
         }
 
         return result;
@@ -324,7 +318,7 @@ public class LevelLibrary {
 
     private static Module getModuleByName(String name) {
         for (Module m : ModuleLibrary.ALL_MODULES) {
-            if (m.name.equals(name)) return m;
+            if (m.getName().equals(name)) return m;
         }
         throw new RuntimeException("Module not found: " + name);
     }

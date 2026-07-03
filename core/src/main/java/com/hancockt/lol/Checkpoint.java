@@ -1,9 +1,12 @@
 package com.hancockt.lol;
 
 public class Checkpoint {
-    float x,y, width,height;
-    boolean activated;
-    int order;
+    private float x;
+    private float y;
+    private float width;
+    private float height;
+    private boolean activated;
+    private int order;
 
     public Checkpoint(float x, float y, float width, float height, boolean activated, int order){
         this.x = x;
@@ -19,6 +22,34 @@ public class Checkpoint {
     }
 
     public Checkpoint(float x, float y, int order){
-        this(x, y, 25, 75, order);
+        this(x, y, 40, 100, order); //default width and height
+    }
+
+    public float getX() {
+        return x;
+    }
+
+    public float getY() {
+        return y;
+    }
+
+    public float getWidth() {
+        return width;
+    }
+
+    public float getHeight() {
+        return height;
+    }
+
+    public boolean isActivated() {
+        return activated;
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setActivated (boolean activated) {
+        this.activated = activated;
     }
 }

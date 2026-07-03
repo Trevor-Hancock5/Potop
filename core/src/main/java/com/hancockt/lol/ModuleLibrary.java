@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ModuleLibrary {
-    public static List<Module> ALL_MODULES = new ArrayList<>();
+    public static final List<Module> ALL_MODULES = new ArrayList<>();
         static {
             ALL_MODULES.add(new Module(
                 "walk_and_run",

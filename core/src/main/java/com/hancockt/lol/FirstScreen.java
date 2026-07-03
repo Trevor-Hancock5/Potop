@@ -337,12 +337,12 @@ public class FirstScreen implements Screen {
 
         //Edge Nudging
         for(Platform p : platforms) {
-            if (y + playerHeight > p.y && velocityY > 0 && y < p.y + p.height){
-                if(x + playerWidth > p.x && x + playerWidth < p.x + nudgeThreshold){
+            if (y + playerHeight > p.getY() && velocityY > 0 && y < p.getY() + p.getHeight()){
+                if(x + playerWidth > p.getX() && x + playerWidth < p.getX() + nudgeThreshold){
                     velocityX += delta * nudgeSpeed;
                 }
 
-                if(x < p.x + p.width && x > p.x + p.width - nudgeThreshold){
+                if(x < p.getX() + p.getWidth() && x > p.getX() + p.getWidth() - nudgeThreshold){
                     velocityX -= delta * nudgeSpeed;
                 }
             }
@@ -365,17 +365,17 @@ public class FirstScreen implements Screen {
         //platform collision
         for (Platform p : platforms) {
             Rectangle playerRect = new Rectangle(x, y, playerWidth, playerHeight);
-            Rectangle platformRect = new Rectangle(p.x, p.y, p.width, p.height);
+            Rectangle platformRect = new Rectangle(p.getX(), p.getY(), p.getWidth(), p.getHeight());
 
 
             //Player lands on top
-            float collisionPoint = p.y;
-            if(p.height > collisionThreshold){
-                collisionPoint = p.height + p.y - collisionThreshold;
+            float collisionPoint = p.getY();
+            if(p.getHeight() > collisionThreshold){
+                collisionPoint = p.getHeight() + p.getY() - collisionThreshold;
             }
             if (playerRect.overlaps(platformRect) && velocityY < 0 && prevY + ((float) playerHeight / collisionPlayerHeightDivisor) >= collisionPoint) {
                 impactVelocity = Math.abs(velocityY);
-                y = p.y + p.height;
+                y = p.getY() + p.getHeight();
                 velocityY = 0;
                 onGround = true;
                 justLanded = true;
@@ -384,26 +384,26 @@ public class FirstScreen implements Screen {
             }
 
             //left of player hits right side of wall when moving left
-            collisionPoint = p.x + (float) (p.width / 2);
-            if ((float) p.width / 2 > collisionThreshold) {
-                collisionPoint = p.x + p.width - collisionThreshold;
+            collisionPoint = p.getX() + (float) (p.getWidth() / 2);
+            if ((float) p.getWidth() / 2 > collisionThreshold) {
+                collisionPoint = p.getX() + p.getWidth() - collisionThreshold;
             }
             if (playerRect.overlaps(platformRect) && velocityX < 0 && prevX + (float) (playerWidth / 2) >= collisionPoint
-                    && y + (playerHeight / collisionPlayerHeightDivisor) < p.y + p.height) {
-                x = p.x + p.width;
+                    && y + (playerHeight / collisionPlayerHeightDivisor) < p.getY() + p.getHeight()) {
+                x = p.getX() + p.getWidth();
                 velocityX = 0;
                 touchingWallRight = true;
             }
 
 
             //right of player hits left side of wall when moving right
-            collisionPoint = p.x + (float) (p.width / 2);
-            if ((float) p.width / 2 > collisionThreshold) {
-                collisionPoint = p.x + collisionThreshold;
+            collisionPoint = p.getX() + (float) (p.getWidth() / 2);
+            if ((float) p.getWidth() / 2 > collisionThreshold) {
+                collisionPoint = p.getX() + collisionThreshold;
             }
             if (playerRect.overlaps(platformRect) && velocityX > 0 && prevX + (float) (playerWidth / 2) <= collisionPoint
-                    && y + (playerHeight / collisionPlayerHeightDivisor) < p.y + p.height) {
-                x = p.x - playerWidth;
+                    && y + (playerHeight / collisionPlayerHeightDivisor) < p.getY() + p.getHeight()) {
+                x = p.getX() - playerWidth;
                 velocityX = 0;
                 touchingWallLeft = true;
             }
@@ -413,22 +413,22 @@ public class FirstScreen implements Screen {
         //check if on wall
         boolean onBoundingWall = false;
         for (Platform p : platforms){
-            if (y + playerHeight < p.y || y > p.y + p.height) {
+            if (y + playerHeight < p.getY() || y > p.getY() + p.getHeight()) {
                 continue; //not same height, skip!
             }
 
             //left of player, right of wall
-            float distToRightWall = x - (p.x + p.width);
+            float distToRightWall = x - (p.getX() + p.getWidth());
             if (distToRightWall >= 0 && distToRightWall < wallProximity && velocityX <= 0){
                 touchingWallRight = true;
-                onBoundingWall = p.isBoundaryWall;
+                onBoundingWall = p.isBoundaryWall();
             }
 
             //right of player, left of wall
-            float distToLeftWall = p.x - (x + playerWidth);
+            float distToLeftWall = p.getX() - (x + playerWidth);
             if(distToLeftWall >= 0 && distToLeftWall < wallProximity && velocityX >= 0){
                 touchingWallLeft = true;
-                onBoundingWall = p.isBoundaryWall;
+                onBoundingWall = p.isBoundaryWall();
             }
         }
 
@@ -565,11 +565,11 @@ public class FirstScreen implements Screen {
         //Checkpoints
         Rectangle playerRectFinal = new Rectangle(x, y, playerWidth, playerHeight);
         for(Checkpoint c : checkpoints){
-            Rectangle checkpoint = new Rectangle(c.x, c.y, playerWidth * 2, playerHeight * 2);
-            if(!c.activated && checkpoint.overlaps(playerRectFinal)){
-                c.activated = true;
+            Rectangle checkpoint = new Rectangle(c.getX(), c.getY(), c.getWidth(), c.getHeight());
+            if(!c.isActivated() && checkpoint.overlaps(playerRectFinal)){
+                c.setActivated(true);
                 if(currCheckpoint != null) {
-                    if (c.order > currCheckpoint.order) {
+                    if (c.getOrder() > currCheckpoint.getOrder()) {
                         currCheckpoint = c;
                         deathWaterLevel = waterLevel;
                         timeAtDeath = time;
@@ -585,9 +585,9 @@ public class FirstScreen implements Screen {
         //Faucets
         Faucet nearFaucet = null;
         for(Faucet f : faucets) {
-            if(!f.turnedOff){
-                Rectangle faucet = new Rectangle(f.x - faucetRange, f.y - faucetRange, f.width + 2*faucetRange,
-                    f.height + 2*faucetRange);
+            if(!f.isTurnedOff()){
+                Rectangle faucet = new Rectangle(f.getX() - faucetRange, f.getY() - faucetRange, f.getWidth() + 2*faucetRange,
+                    f.getHeight() + 2*faucetRange);
                 if(playerRectFinal.overlaps(faucet)){
                     nearFaucet = f;
                     break;
@@ -598,23 +598,23 @@ public class FirstScreen implements Screen {
         boolean finishedFinalFaucet = false;
         if(nearFaucet != null && (Gdx.input.isKeyPressed(Input.Keys.E) || Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)
                 || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT))){
-            nearFaucet.progress += delta;
-            nearFaucet.rotation += faucetRotationSpeed * delta;
-            if(nearFaucet.progress > faucetInteractionTime){
-                nearFaucet.turnedOff = true;
-                nearFaucet.rotation = 360;
-                waterRiseSpeed -= nearFaucet.speedReduction;
-                if(nearFaucet.winFaucet){
+            nearFaucet.setProgress(nearFaucet.getProgress() + delta);
+            nearFaucet.setRotation(nearFaucet.getRotation() + (faucetRotationSpeed * delta));
+            if(nearFaucet.getProgress() > faucetInteractionTime){
+                nearFaucet.setTurnedOff(true);
+                nearFaucet.setRotation(360);
+                waterRiseSpeed -= nearFaucet.getSpeedReduction();
+                if(nearFaucet.isWinFaucet()){
                     finishedFinalFaucet = true;
                 }
             }
         } else if(nearFaucet != null){
             //not holding down, start spinning back
-            nearFaucet.progress = Math.max(0, nearFaucet.progress - delta);
-            if(nearFaucet.rotation > 0) {
-                nearFaucet.rotation -= faucetRotationSpeed * delta;
+            nearFaucet.setProgress(Math.max(0, nearFaucet.getProgress() - delta));
+            if(nearFaucet.getRotation() > 0) {
+                nearFaucet.setRotation(nearFaucet.getRotation() - (faucetRotationSpeed * delta));
             } else{
-                nearFaucet.rotation = 0;
+                nearFaucet.setRotation(0);
             }
         }
 
@@ -627,7 +627,7 @@ public class FirstScreen implements Screen {
 
         if(waterFixZone != null){
             //close enough to waterFix zone, so there is also a faucet nearby that needs to be activated
-            if(playerRectFinal.overlaps(waterFixZone) && nearFaucet != null && nearFaucet.turnedOff){
+            if(playerRectFinal.overlaps(waterFixZone) && nearFaucet != null && nearFaucet.isTurnedOff()){
                 waterLevel = 10;
             }
         }
@@ -647,9 +647,9 @@ public class FirstScreen implements Screen {
             isDead = true;
             state = GameState.DEATH;
             for(Faucet f : faucets){
-                f.turnedOff = false; //reset
-                f.rotation = 0;
-                f.progress = 0;
+                f.setTurnedOff(false);
+                f.setRotation(0);
+                f.setProgress(0);
             }
         }
 
@@ -671,7 +671,7 @@ public class FirstScreen implements Screen {
 
         //update infinite level if needed
         if(currentLevel == LevelType.INFINITE) {
-            if (y > LevelLibrary.highestInfiniteY - 2000) {
+            if (y > LevelLibrary.getHighestYInInfinite() - 2000) {
                 LevelData data = LevelLibrary.addToInfiniteLevel(platforms, checkpoints, faucets);
                 updateLists(data);
             }
@@ -715,14 +715,14 @@ public class FirstScreen implements Screen {
 
         //platforms
         for(Platform p : platforms){
-            shapeRenderer.setColor(p.isBoundaryWall ? Color.DARK_GRAY : Color.WHITE);
-            shapeRenderer.rect(p.x, p.y, p.width, p.height);
+            shapeRenderer.setColor(p.isBoundaryWall() ? Color.DARK_GRAY : Color.WHITE);
+            shapeRenderer.rect(p.getX(), p.getY(), p.getWidth(), p.getHeight());
         }
 
         //checkpoints
         for(Checkpoint c : checkpoints) {
-            shapeRenderer.setColor(c.activated ? new Color(0, 1, 0, 0.6f) : new Color(1, 0.35f, 0.3f, 0.6f));
-            shapeRenderer.rect(c.x, c.y, playerWidth * 2, playerHeight * 2);
+            shapeRenderer.setColor(c.isActivated() ? new Color(0, 1, 0, 0.6f) : new Color(1, 0.35f, 0.3f, 0.6f));
+            shapeRenderer.rect(c.getX(), c.getY(), c.getWidth(), c.getHeight());
         }
 
         //winzone
@@ -737,23 +737,23 @@ public class FirstScreen implements Screen {
         for(Faucet f : faucets){
             shapeRenderer.identity(); // reset any prior transform
 
-            float centerX = f.x + f.width / 2f;
-            float centerY = f.y + f.height / 2f;
+            float centerX = f.getX() + f.getWidth() / 2f;
+            float centerY = f.getY() + f.getHeight() / 2f;
 
             shapeRenderer.translate(centerX, centerY, 0);
-            shapeRenderer.rotate(0, 0, 1, -f.rotation); // rotate around z-axis by faucetRotation degrees
+            shapeRenderer.rotate(0, 0, 1, -f.getRotation()); // rotate around z-axis by faucetRotation degrees
             shapeRenderer.translate(-centerX, -centerY, 0);
 
             Color color;
-            if(f.turnedOff){
+            if(f.isTurnedOff()){
                 color = Color.GRAY;
-            } else if(f.progress > faucetInteractionTime / 2){
+            } else if(f.getProgress() > faucetInteractionTime / 2){
                 color = new Color(0.85f, 0.7f, 0.7f, 1f);
             } else{
                 color = new Color(1f, 0.6f, 0.6f, 1f);
             }
             shapeRenderer.setColor(color);
-            shapeRenderer.rect(f.x, f.y, f.width, f.height);
+            shapeRenderer.rect(f.getX(), f.getY(), f.getWidth(), f.getHeight());
 
             shapeRenderer.identity(); // reset so it doesn't affect anything drawn after
         }
@@ -793,8 +793,8 @@ public class FirstScreen implements Screen {
 
     private void restart(){
         if(currCheckpoint != null){
-            x = currCheckpoint.x;
-            y = currCheckpoint.y;
+            x = currCheckpoint.getX();
+            y = currCheckpoint.getY();
             waterLevel = Math.min(deathWaterLevel, y - checkpointMinWaterBuffer);
         } else {
             x = 0;
@@ -808,7 +808,7 @@ public class FirstScreen implements Screen {
             //reset checkpoints
             if(checkpoints != null) {
                 for (Checkpoint c : checkpoints) {
-                    c.activated = false;
+                    c.setActivated(false);
                 }
             }
         }
@@ -831,41 +831,41 @@ public class FirstScreen implements Screen {
         lastWallRight = false;
 
         for(Faucet f : faucets){
-            f.turnedOff = false; //reset
-            f.rotation = 0;
-            f.progress = 0;
+            f.setTurnedOff(false); //reset
+            f.setRotation(0);
+            f.setProgress(0);
         }
     }
 
     private void loadLevel(LevelType levelType){
         currentLevel = levelType;
 
-        LevelData data = LevelLibrary.ALL_LEVELS.get(levelType);
-        platforms = data.platforms;
-        checkpoints = data.checkpoints;
-        waterTriggerZone = data.waterTriggerZone;
-        waterFixZone = data.waterFixZone;
-        winZone = data.winZone;
-        waterRise = data.waterStartsActive;
-        faucets = data.faucets;
-        x = data.startPoint.x;
-        y = data.startPoint.y;
+        LevelData data = LevelLibrary.getAllLevels().get(levelType);
+        platforms = data.getPlatforms();
+        checkpoints = data.getCheckpoints();
+        waterTriggerZone = data.getWaterTriggerZone();
+        waterFixZone = data.getWaterFixZone();
+        winZone = data.getWinZone();
+        waterRise = data.isWaterStartsActive();
+        faucets = data.getFaucets();
+        x = data.getStartPoint().x;
+        y = data.getStartPoint().y;
     }
 
     private void updateLists(LevelData data){
-        platforms.addAll(data.platforms);
-        checkpoints.addAll(data.checkpoints);
-        faucets.addAll(data.faucets);
+        platforms.addAll(data.getPlatforms());
+        checkpoints.addAll(data.getCheckpoints());
+        faucets.addAll(data.getFaucets());
 
         //remove anything under death water level
         List<Platform> platformsUnderWater =
-            platforms.stream().filter(platform -> platform.y < deathWaterLevel).toList();
+            platforms.stream().filter(platform -> platform.getY() < deathWaterLevel).toList();
 
         List<Checkpoint> checkpointsUnderWater =
-            checkpoints.stream().filter(checkpoint -> checkpoint.y < deathWaterLevel).toList();
+            checkpoints.stream().filter(checkpoint -> checkpoint.getY() < deathWaterLevel).toList();
 
         List<Faucet> faucetsUnderWater =
-            faucets.stream().filter(faucet -> faucet.y < deathWaterLevel).toList();
+            faucets.stream().filter(faucet -> faucet.getY() < deathWaterLevel).toList();
 
         if(!platformsUnderWater.isEmpty()){
             for(Platform p : platformsUnderWater){
@@ -1000,8 +1000,8 @@ public class FirstScreen implements Screen {
         if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER)){
             time = 0f;
             timeAtDeath = 0f;
-            LevelData data = LevelLibrary.ALL_LEVELS.get(currentLevel);
-            LevelType next = data.nextLevel;
+            LevelData data = LevelLibrary.getAllLevels().get(currentLevel);
+            LevelType next = data.getNextLevel();
             if(next != null){
                 if(currentLevel == LevelType.TUTORIAL){
                     infiniteUnlocked = true;
@@ -1009,9 +1009,9 @@ public class FirstScreen implements Screen {
                 deathWaterLevel = -50f;
                 currCheckpoint = null;
                 checkpoints = null;
-                LevelData nextLevel = LevelLibrary.ALL_LEVELS.get(next);
-                x = nextLevel.startPoint.x;
-                y = nextLevel.startPoint.y;
+                LevelData nextLevel = LevelLibrary.getAllLevels().get(next);
+                x = nextLevel.getStartPoint().x;
+                y = nextLevel.getStartPoint().y;
                 currentLevel = next;
                 loadLevel(next);
                 restart();

@@ -1,8 +1,11 @@
 package com.hancockt.lol;
 
 public class Platform {
-    int x,y,width,height;
-    boolean isBoundaryWall = false; //so can't wall jump boundary walls
+    private int x;
+    private int y;
+    private final int width;
+    private final int height;
+    private boolean isBoundaryWall = false; //so can't wall jump boundary walls
 
     public Platform(int x, int y, int width, int height){
         this.x = x;
@@ -13,5 +16,37 @@ public class Platform {
 
     public Platform(float x, float y, float width, float height) {
         this((int) x, (int) y, (int) width, (int) height);
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public boolean isBoundaryWall() {
+        return isBoundaryWall;
+    }
+
+    public void setBoundaryWall(boolean boundaryWall) {
+        isBoundaryWall = boundaryWall;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
     }
 }

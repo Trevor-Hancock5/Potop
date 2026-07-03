@@ -1,12 +1,15 @@
 package com.hancockt.lol;
 
 public class Faucet {
-    float x,y,width,height;
-    boolean turnedOff;
-    float speedReduction;
-    float progress;
-    boolean winFaucet;
-    float rotation = 0f;
+    private float x;
+    private float y;
+    private float width;
+    private float height;
+    private boolean turnedOff;
+    private float speedReduction;
+    private float progress;
+    private boolean winFaucet;
+    private float rotation = 0f;
 
     public Faucet(float x, float y, float width, float height, float speedReduction, boolean winFaucet){
         this.x = x;
@@ -17,5 +20,53 @@ public class Faucet {
         this.speedReduction = speedReduction;
         progress = 0;
         this.winFaucet = winFaucet;
+    }
+
+    public float getX() {
+        return x;
+    }
+
+    public float getY() {
+        return y;
+    }
+
+    public float getWidth() {
+        return width;
+    }
+
+    public float getHeight() {
+        return height;
+    }
+
+    public boolean isTurnedOff() {
+        return turnedOff;
+    }
+
+    public float getSpeedReduction() {
+        return speedReduction;
+    }
+
+    public float getProgress() {
+        return progress;
+    }
+
+    public boolean isWinFaucet() {
+        return winFaucet;
+    }
+
+    public float getRotation() {
+        return rotation;
+    }
+
+    public void setTurnedOff(boolean turnedOff) {
+        this.turnedOff = turnedOff;
+    }
+
+    public void setProgress(float progress) {
+        this.progress = progress;
+    }
+
+    public void setRotation(float rotation) {
+        this.rotation = rotation;
     }
 }
