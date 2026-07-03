@@ -1,10 +1,3 @@
-/*
- * Course: CSC1110A-111
- * Fall 2024
- * Assignment
- * Name: Trevor Hancock
- * Last Updated: 6/24/2026
- */
 package com.hancockt.lol;
 
 public class Faucet {

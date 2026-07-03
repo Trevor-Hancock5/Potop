@@ -4,8 +4,20 @@ V3 - Into space
 (This is to avoid scope creep and not releasing/polishing anything until my entire idea is fleshed out. Instead
 polish/release often and frequently)
 
+Story mode
 
-Physics breaks on 180hz monitor, had to switch to 60hz monitor.
+Maybe unlock underwater mode by beating the game
+
+Take inspiration - geometry dash is kinda similar
+
+
+
+Clean the code and documentation up!
+- Update faucets and checkpoints, so that for platforms you can enable checkpoints OR faucets and then it's just placed
+on it. This way you don't need locations, you just need to connect it to the platform index!
+
+
+
 
 
 Themes for game jams: 'Spin to win' & 'Limited power'
@@ -27,10 +39,6 @@ Reference:
     - [(0,0); (1750,140); {(300,-20,100,20), (900,-20,100,20), (1200,60,100,20), (1650,120,100,20)}]
 
 
-
-
-- FAUCETS!!! -> Water stream???
-- make infinite mode infinite!
 - Improve screens! (allow to click smth to generate a new seed for infinite mode)
 Review from playtest:
 - settings!
@@ -48,12 +56,8 @@ collisions), but you are still holding in and you jump off the platform. So mayb
 
 TODO later!
 - level set up (ordering and stuff)
-- pause screen/logic and next level/retry level screen
-- get friend to play it and give feedback
-- fixes?
-- add faucets for spin to win
 - more modules and levels
-- screen winning and level selection/progression
+- level selection/progression
 - art
 - sound effects
 - death screen, menu screen, settings
@@ -61,9 +65,6 @@ TODO later!
 is massive and then jaws music comes on and he goes quiet. His legal name is Mr. Stick Man, but he calls himself MC for
 Main Character because he knows he is. Why wouldn't he be?)
 - clean up code: state machines and flyweight pattern (platforms)?
-
-Game jam submission page: His legal name is Mr. Stick Man, but he calls himself MC for Main Character because he knows
-he is. Why wouldn't he be?
 
 
 

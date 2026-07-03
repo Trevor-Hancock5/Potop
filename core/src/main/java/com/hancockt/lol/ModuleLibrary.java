@@ -1,10 +1,3 @@
-/*
- * Course: CSC1110A-111
- * Fall 2024
- * Assignment
- * Name: Trevor Hancock
- * Last Updated: 6/16/2026
- */
 package com.hancockt.lol;
 
 import com.badlogic.gdx.math.Vector2;
@@ -60,7 +53,7 @@ public class ModuleLibrary {
                 new Platform[]{
                     new Platform(25,60,30,30),
                     new Platform(0,175,85,15),
-                    new Platform(40,275,75,15),
+                    new Platform(15,275,90,15),
                     new Platform(440,220,150,80),
                     new Platform(540,375,100,15)
                 }
@@ -70,23 +63,23 @@ public class ModuleLibrary {
                 "falls",
                 new Vector2(1350,440),
                 new Platform[]{
-                    new Platform(45, 85, 65, 15),
-                    new Platform(45, 185, 65, 15),
-                    new Platform(45, 285, 65, 15),
-                    new Platform(45, 385, 65, 15),
-                    new Platform(45, 485, 65, 15),
-                    new Platform(45, 585, 65, 15),
-                    new Platform(45, 685, 65, 15),
-                    new Platform(45, 785, 65, 15),
-                    new Platform(45, 885, 65, 15),
-                    new Platform(45, 985, 65, 15),
-                    new Platform(45, 1085, 65, 15),
-                    new Platform(45, 1185, 65, 15),
-                    new Platform(45, 1285, 65, 15),
-                    new Platform(45, 1385, 65, 15),
-                    new Platform(45, 1485, 65, 15),
-                    new Platform(45, 1585, 65, 15),
-                    new Platform(45, 1685, 65, 15),
+                    new Platform(30, 70, 130, 15),
+                    new Platform(30, 165, 130, 15),
+                    new Platform(30, 260, 130, 15),
+                    new Platform(30, 350, 130, 15),
+                    new Platform(30, 445, 130, 15),
+                    new Platform(30, 535, 130, 15),
+                    new Platform(30, 630, 130, 15),
+                    new Platform(30, 725, 130, 15),
+                    new Platform(30, 820, 130, 15),
+                    new Platform(30, 915, 130, 15),
+                    new Platform(30, 1010, 130, 15),
+                    new Platform(30, 1105, 130, 15),
+                    new Platform(30, 1200, 130, 15),
+                    new Platform(30, 1295, 130, 15),
+                    new Platform(30, 1390, 130, 15),
+                    new Platform(30, 1485, 130, 15),
+                    new Platform(30, 1580, 130, 15),
                     new Platform(400,1000,150,150),
                     new Platform(1150,410,200,30)
                 }

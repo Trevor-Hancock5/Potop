@@ -10,17 +10,10 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.maps.MapLayer;
-import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TmxMapLoader;
-import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,93 +21,95 @@ import java.util.List;
 /** First screen of the application. Displayed after the application is created. */
 public class FirstScreen implements Screen {
     //Rendering
-    ShapeRenderer shapeRenderer;
-    SpriteBatch batch;
-    BitmapFont font;
-    OrthographicCamera camera;
-    Viewport viewport;
-    OrthographicCamera hudCam;
-    float viewportWidth = 800f;
-    float viewportHeight = 480f;
-    float screenShakeAccumulation;
-    LevelType currentLevel;
-    GameState state = GameState.MENU; //start with menu
-    GlyphLayout layout = new GlyphLayout(); // create once, reuse
+    private ShapeRenderer shapeRenderer;
+    private SpriteBatch batch;
+    private BitmapFont font;
+    private OrthographicCamera camera;
+    private Viewport viewport;
+    private OrthographicCamera hudCam;
+    private final float viewportWidth = 800f;
+    private final float viewportHeight = 480f;
+    private float screenShakeAccumulation;
+    private LevelType currentLevel;
+    private GameState state = GameState.MENU; //start with menu
+    private final GlyphLayout layout = new GlyphLayout(); // create once, reuse
 
     //Player
-    float x,y;
-    float prevX, prevY;
-    float velocityY;
-    float velocityX;
-    boolean onGround = false;
-    boolean isDead = false;
-    float score;
-    float coyoteSeconds; //number of seconds off ground
-    float wallCoyoteSeconds; //number of seconds off wall
-    float jumpBuffer; // number of seconds since pressed jump
-    boolean justLanded = false; //for screen shake
-    float impactVelocity; //velocity when landing! use for screen shake
-    boolean touchingWallLeft = false;
-    boolean touchingWallRight = false;
-    boolean lastWallLeft = false;
-    boolean lastWallRight = false;
-    float wallJumpCooldown = 0f;
-    Checkpoint currCheckpoint; //current checkpoint player has made it to
-    float deathWaterLevel; //water level when user hit current checkpoint
-    Rectangle winZone;
-    boolean infiniteUnlocked = false;
+    private float x;
+    private float y;
+    private float velocityY;
+    private float velocityX;
+    private boolean onGround = false;
+    private boolean isDead = false;
+    private float score;
+    private float coyoteSeconds; //number of seconds off ground
+    private float wallCoyoteSeconds; //number of seconds off wall
+    private float jumpBuffer; // number of seconds since pressed jump
+    private boolean justLanded = false; //for screen shake
+    private float impactVelocity; //velocity when landing! use for screen shake
+    private boolean touchingWallLeft = false;
+    private boolean touchingWallRight = false;
+    private boolean lastWallLeft = false;
+    private boolean lastWallRight = false;
+    private float wallJumpCooldown = 0f;
+    private Checkpoint currCheckpoint; //current checkpoint player has made it to
+    private float deathWaterLevel; //water level when user hit current checkpoint
+    private Rectangle winZone;
+    private boolean infiniteUnlocked = false;
 
     //PLAYER TUNING!
-    int accelerationX = 1600;
-    int maxSpeedX = 425;
-    int maxFallSpeed = -1200;
-    float groundFriction = 0.935f;
-    float airFriction = 0.99f;
-    float gravity = 1000f;
-    float fallGravityMultiplier = 1.6f;
-    float jump_force = 400f;
-    float jump_hold_force = 200f;
-    int playerWidth = 20;
-    int playerHeight = 50;
-    float cameraLerpSpeed = .3f;
-    float cameraDeadZoneDivisor = 5f;
-    float coyoteThreshold = 0.1f; //Can be off platform for x seconds and still jump
-    float jumpBufferThreshold = 0.1f;
-    float downforceFallAcceleration = -300f;
-    float screenShake = 0.3f; //time of shaking
-    float screenShakeIntensity = 2f;
-    float collisionThreshold = 10f; //number of pixels into platform and still pop out one side
-    float nudgeSpeed = 50f;
-    float nudgeThreshold = 5f;
-    float airControlDivisor = 6f;
-    float wallSlideMaxSpeed = -115f;
-    float wallProximity = 5f; //how many pixels count as on wall
-    float wallJumpCooldownThreshold = 0.25f; //seconds until wall jump again - prevents wall scaling
-    float collisionPlayerHeightDivisor = 10f; //What amount of player height needs to be above a platform to land on top
-    float checkpointMinWaterBuffer = 200f; //how far under checkpoint water starts at a minimum!
-    float maxWaterRiseSpeed = 50f;
-    float faucetInteractionTime = 1.5f; //seconds
-    float faucetRange = 30f; //how close to faucet to interact
-    float faucetRotationSpeed = 240f; //degrees per second it spins
+    private final int accelerationX = 1600;
+    private final int maxSpeedX = 425;
+    private final int maxFallSpeed = -1200;
+    private final float groundFriction = 0.935f;
+    private final float airFriction = 0.99f;
+    private final float gravity = 1000f;
+    private final float fallGravityMultiplier = 1.6f;
+    private final float jumpForce = 400f;
+    private final float jumpHoldForce = 200f;
+    private final int playerWidth = 20;
+    private final int playerHeight = 50;
+    private final float cameraLerpSpeed = .3f;
+    private final float cameraDeadZoneDivisor = 5f;
+    private final float coyoteThreshold = 0.1f; //Can be off platform for x seconds and still jump
+    private final float jumpBufferThreshold = 0.1f;
+    private final float downforceFallAcceleration = -300f;
+    private final float screenShake = 0.3f; //time of shaking
+    private final float screenShakeIntensity = 2f;
+    private final float collisionThreshold = 5f; //number of pixels into platform and still pop out one side
+    private final float nudgeSpeed = 50f;
+    private final float nudgeThreshold = 5f;
+    private final float airControlDivisor = 6f;
+    private final float wallSlideMaxSpeed = -115f;
+    private final float wallProximity = 5f; //how many pixels count as on wall
+    private final float wallJumpCooldownThreshold = 0.25f; //seconds until wall jump again - prevents wall scaling
+    private final float collisionPlayerHeightDivisor = 10f; //What amount of player height needs to be above a platform to land on top
+    private final float checkpointMinWaterBuffer = 200f; //how far under checkpoint water starts at a minimum!
+    private final float maxWaterRiseSpeed = 50f;
+    private final float faucetInteractionTime = 1.5f; //seconds
+    private final float faucetRange = 30f; //how close to faucet to interact
+    private final float faucetRotationSpeed = 240f; //degrees per second it spins
 
     //water
-    float waterLevel;
-    float water_rise_speed;
-    Rectangle waterTriggerZone;
-    Rectangle waterFixZone;
+    private float waterLevel;
+    private float waterRiseSpeed;
+    private Rectangle waterTriggerZone;
+    private Rectangle waterFixZone;
 
-    List<Platform> platforms;
-    List<Float> deathXValues;
-    List<Checkpoint> checkpoints;
-    List<Faucet> faucets;
-    boolean pressedI = false;
-    boolean pressedN = false;
+    private List<Platform> platforms;
+    private List<Float> deathXValues;
+    private List<Checkpoint> checkpoints;
+    private List<Faucet> faucets;
+    private boolean pressedI = false;
+    private boolean pressedN = false;
+    private float time = 0f;
+    private float timeAtDeath = 0f;
 
     //game reference
-    lol game;
+    private final lol game;
 
     // Controls
-    boolean waterRise = false;
+    private boolean waterRise = false;
 
 
     public FirstScreen(lol game, LevelType type){
@@ -145,37 +140,37 @@ public class FirstScreen implements Screen {
     @Override
     public void render(float delta) {
         clearScreen();
-        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) Gdx.app.exit();
+        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
+            Gdx.app.exit();
+        }
 
-        switch(state){
+        switch(state) {
             case MENU:
                 handleMenuInput();
                 drawMenu();
-                return; //skip everything else
+                break; //skip everything else
             case PAUSE:
                 handlePauseInput();
                 drawShapes(); //still draw game in background
                 drawHUD();
                 drawPauseOverlay();
-                return;
+                break;
             case DEATH:
                 drawShapes();
                 drawHUD();
                 drawDeathText();
                 drawDeathOverlay();
                 handleDeathInput();
-                return;
+                break;
             case WIN:
                 handleWinInput();
                 drawShapes();
                 drawHUD();
                 drawWinOverlay();
-                return;
+                break;
             case PLAYING:
                 if(!isDead){
                     updatePhysics(delta);
-                } else{
-                    waterLevel += water_rise_speed * 10 * delta;
                 }
 
                 if(isDead || !deathXValues.isEmpty()){
@@ -187,14 +182,7 @@ public class FirstScreen implements Screen {
                 }
 
                 if(Gdx.input.isKeyPressed(Input.Keys.Q)){
-                    if(currentLevel == LevelType.INFINITE){
-                        deathWaterLevel = -50f;
-                        deathXValues = new ArrayList<>(); //reset
-                        LevelLibrary.regenerateInfinite();
-                        loadLevel(LevelType.INFINITE); //regenerate!
-                    }
-                    currCheckpoint = null;
-                    restart();
+                    onQ();
                 }
 
                 if(Gdx.input.isKeyJustPressed(Input.Keys.P)){
@@ -206,12 +194,12 @@ public class FirstScreen implements Screen {
                 drawHUD();
 
                 //Instructions
-                if(currentLevel == LevelType.TUTORIAL){
-                    List<String> text = new ArrayList<>();
-                    List<Float> xValues = new ArrayList<>();
-                    List<Float> yValues = new ArrayList<>();
-                    List<Float> scaleValues = new ArrayList<>();
+                List<String> text = new ArrayList<>();
+                List<Float> xValues = new ArrayList<>();
+                List<Float> yValues = new ArrayList<>();
+                List<Float> scaleValues = new ArrayList<>();
 
+                if(currentLevel == LevelType.TUTORIAL){
                     text.add("Watch out for the water\nOr you DROWN");
                     xValues.add(-125f);
                     yValues.add(50f);
@@ -264,11 +252,6 @@ public class FirstScreen implements Screen {
                 }
 
                 if(currentLevel == LevelType.INFINITE){
-                    List<String> text = new ArrayList<>();
-                    List<Float> xValues = new ArrayList<>();
-                    List<Float> yValues = new ArrayList<>();
-                    List<Float> scaleValues = new ArrayList<>();
-
                     text.add("INFINITE MODE");
                     xValues.add(45f);
                     yValues.add(175f);
@@ -286,6 +269,7 @@ public class FirstScreen implements Screen {
 
                     drawText(text, xValues, yValues, scaleValues);
                 }
+                break;
         }
 
     }
@@ -305,7 +289,7 @@ public class FirstScreen implements Screen {
     }
 
     private void clearScreen(){
-        Gdx.gl.glClearColor(0,0,0,1);
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
     }
 
@@ -318,8 +302,8 @@ public class FirstScreen implements Screen {
         }
 
         //update previous x,y values to not tunnel through platforms
-        prevX = x;
-        prevY = y;
+        float prevX = x;
+        float prevY = y;
 
         //update wall jump cooldown
         wallJumpCooldown += delta;
@@ -331,7 +315,7 @@ public class FirstScreen implements Screen {
         //Holding jump
         if ((Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.SPACE)
             || Gdx.input.isKeyPressed(Input.Keys.W)) && !onGround && velocityY > 0) {
-            velocityY += jump_hold_force * delta;
+            velocityY += jumpHoldForce * delta;
         }
 
         //Or holding down
@@ -405,7 +389,7 @@ public class FirstScreen implements Screen {
                 collisionPoint = p.x + p.width - collisionThreshold;
             }
             if (playerRect.overlaps(platformRect) && velocityX < 0 && prevX + (float) (playerWidth / 2) >= collisionPoint
-                    && y + (float)(playerHeight / collisionPlayerHeightDivisor) < p.y + p.height) {
+                    && y + (playerHeight / collisionPlayerHeightDivisor) < p.y + p.height) {
                 x = p.x + p.width;
                 velocityX = 0;
                 touchingWallRight = true;
@@ -418,7 +402,7 @@ public class FirstScreen implements Screen {
                 collisionPoint = p.x + collisionThreshold;
             }
             if (playerRect.overlaps(platformRect) && velocityX > 0 && prevX + (float) (playerWidth / 2) <= collisionPoint
-                    && y + (float)(playerHeight / collisionPlayerHeightDivisor) < p.y + p.height) {
+                    && y + (playerHeight / collisionPlayerHeightDivisor) < p.y + p.height) {
                 x = p.x - playerWidth;
                 velocityX = 0;
                 touchingWallLeft = true;
@@ -429,28 +413,22 @@ public class FirstScreen implements Screen {
         //check if on wall
         boolean onBoundingWall = false;
         for (Platform p : platforms){
-            if (y + playerHeight < p.y || y > p.y + p.height) continue; //not same height, skip!
+            if (y + playerHeight < p.y || y > p.y + p.height) {
+                continue; //not same height, skip!
+            }
 
             //left of player, right of wall
             float distToRightWall = x - (p.x + p.width);
             if (distToRightWall >= 0 && distToRightWall < wallProximity && velocityX <= 0){
                 touchingWallRight = true;
-                if(p.isBoundaryWall){
-                    onBoundingWall = true;
-                } else{
-                    onBoundingWall = false;
-                }
+                onBoundingWall = p.isBoundaryWall;
             }
 
             //right of player, left of wall
             float distToLeftWall = p.x - (x + playerWidth);
             if(distToLeftWall >= 0 && distToLeftWall < wallProximity && velocityX >= 0){
                 touchingWallLeft = true;
-                if(p.isBoundaryWall){
-                    onBoundingWall = true;
-                } else{
-                    onBoundingWall = false;
-                }
+                onBoundingWall = p.isBoundaryWall;
             }
         }
 
@@ -487,22 +465,23 @@ public class FirstScreen implements Screen {
             boolean holdingAway = (wasRight && (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)))
                        || (wasLeft && (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)));
 
-            float upForce, sideForce;
+            float upForce;
+            float sideForce;
             if(holdingInto){
                 if(onBoundingWall) {
-                    upForce = jump_force * .5f;
-                    sideForce = jump_force * .15f;
+                    upForce = jumpForce * .5f;
+                    sideForce = jumpForce * .15f;
                 } else{
-                    upForce = jump_force * .8f;
-                    sideForce = jump_force * .1f;
+                    upForce = jumpForce * .8f;
+                    sideForce = jumpForce * .1f;
                 }
             } else if (holdingAway){
-                upForce = jump_force * .6f;
-                sideForce = jump_force * 1.2f;
+                upForce = jumpForce * .6f;
+                sideForce = jumpForce * 1.2f;
             } else{
                 //not into or away
-                upForce = jump_force;
-                sideForce = .85f * jump_force;
+                upForce = jumpForce;
+                sideForce = .85f * jumpForce;
             }
 
             velocityY = upForce;
@@ -530,7 +509,7 @@ public class FirstScreen implements Screen {
 
         //danger boost
         float distanceFromWater = y - waterLevel;
-        float dangerBoost = Math.max (0, 1 - (distanceFromWater / 400f));
+        float dangerBoost = Math.max(0, 1 - (distanceFromWater / 400f));
         dangerBoost = 1 + (dangerBoost / 4);
 
         //horizontal movement
@@ -551,8 +530,10 @@ public class FirstScreen implements Screen {
         }
 
         //friction & velocity cap
-        velocityX *= onGround ? currFriction : airFriction;
-        velocityX = Math.max(-maxSpeedX, Math.min(maxSpeedX, velocityX));
+        float frameGroundFriction = (float) Math.pow(currFriction, delta * 60);
+        float frameAirFriction = (float) Math.pow(airFriction, delta * 60);
+        velocityX *= onGround ? frameGroundFriction : frameAirFriction;
+        velocityX = Math.clamp(velocityX, -maxSpeedX, maxSpeedX);
 
         //Jumping
         if ((Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)
@@ -560,24 +541,24 @@ public class FirstScreen implements Screen {
                     && (onGround || coyoteSeconds <= coyoteThreshold)) {
             coyoteSeconds = 100; //reset so can't double jump
             jumpBuffer = 100; //reset so can't double jump!
-            velocityY = jump_force * dangerBoost;
+            velocityY = jumpForce * dangerBoost;
             onGround = false;
             justLanded = false;
             screenShakeAccumulation = 0;
 
             // Form of dash when you jump
             float speedRatio = Math.abs(velocityX) / maxSpeedX; // 0 to 1
-            velocityX *= (1f + speedRatio * 0.5f);
+            velocityX *= 1f + (speedRatio * 0.5f);
         }
 
         //rising water
         if(waterRise) {
             if(currentLevel == LevelType.INFINITE) {
-                if(water_rise_speed <= maxWaterRiseSpeed) {
-                    water_rise_speed += 2 * delta;
+                if(waterRiseSpeed <= maxWaterRiseSpeed) {
+                    waterRiseSpeed += 2 * delta;
                 }
             }
-            waterLevel += water_rise_speed * delta;
+            waterLevel += waterRiseSpeed * delta;
         }
 
 
@@ -591,10 +572,12 @@ public class FirstScreen implements Screen {
                     if (c.order > currCheckpoint.order) {
                         currCheckpoint = c;
                         deathWaterLevel = waterLevel;
+                        timeAtDeath = time;
                     }
                 } else{
                     currCheckpoint = c;
                     deathWaterLevel = waterLevel;
+                    timeAtDeath = time;
                 }
             }
         }
@@ -620,7 +603,7 @@ public class FirstScreen implements Screen {
             if(nearFaucet.progress > faucetInteractionTime){
                 nearFaucet.turnedOff = true;
                 nearFaucet.rotation = 360;
-                water_rise_speed -= nearFaucet.speedReduction;
+                waterRiseSpeed -= nearFaucet.speedReduction;
                 if(nearFaucet.winFaucet){
                     finishedFinalFaucet = true;
                 }
@@ -650,12 +633,12 @@ public class FirstScreen implements Screen {
         }
 
         //Check win condition before death
-        if(winZone != null && winZone.overlaps(playerRectFinal) && finishedFinalFaucet){
+        if(finishedFinalFaucet){
             state = GameState.WIN;
         }
 
         //death check
-        Rectangle waterRect = new Rectangle (-50000, 0, 100000, waterLevel);
+        Rectangle waterRect = new Rectangle(-50000, 0, 100000, waterLevel);
 
         if(waterRect.overlaps(playerRectFinal)){
             if(!isDead){
@@ -671,14 +654,28 @@ public class FirstScreen implements Screen {
         }
 
         // reset flags for wall slide/jump
-        if(touchingWallLeft) lastWallLeft = true;
-        if(touchingWallRight) lastWallRight = true;
+        if(touchingWallLeft) {
+            lastWallLeft = true;
+        }
+        if(touchingWallRight) {
+            lastWallRight = true;
+        }
 
         touchingWallLeft = false;
         touchingWallRight = false;
 
         //update score LAST
         score = Math.max(score, y);
+
+        time += delta;
+
+        //update infinite level if needed
+        if(currentLevel == LevelType.INFINITE) {
+            if (y > LevelLibrary.highestInfiniteY - 2000) {
+                LevelData data = LevelLibrary.addToInfiniteLevel(platforms, checkpoints, faucets);
+                updateLists(data);
+            }
+        }
     }
 
     private void updateCamera(float delta) {
@@ -724,7 +721,7 @@ public class FirstScreen implements Screen {
 
         //checkpoints
         for(Checkpoint c : checkpoints) {
-            shapeRenderer.setColor(c.activated ? new Color(0,1,0,0.6f) : new Color(1,0.35f,0.3f,0.6f));
+            shapeRenderer.setColor(c.activated ? new Color(0, 1, 0, 0.6f) : new Color(1, 0.35f, 0.3f, 0.6f));
             shapeRenderer.rect(c.x, c.y, playerWidth * 2, playerHeight * 2);
         }
 
@@ -815,10 +812,11 @@ public class FirstScreen implements Screen {
                 }
             }
         }
+        time = timeAtDeath;
         velocityY = 0;
         velocityX = 0;
         // scale the reset speed with how high the checkpoint/respawn point is
-        water_rise_speed = Math.min(50f, 8f + (y / 200f)); //full speed always after ~8k height
+        waterRiseSpeed = Math.min(50f, 8f + (y / 200f)); //full speed always after ~8k height
         onGround = false;
         isDead = false;
         coyoteSeconds = 100; //reset
@@ -852,8 +850,40 @@ public class FirstScreen implements Screen {
         faucets = data.faucets;
         x = data.startPoint.x;
         y = data.startPoint.y;
+    }
 
-        //TODO - implement logic for next level
+    private void updateLists(LevelData data){
+        platforms.addAll(data.platforms);
+        checkpoints.addAll(data.checkpoints);
+        faucets.addAll(data.faucets);
+
+        //remove anything under death water level
+        List<Platform> platformsUnderWater =
+            platforms.stream().filter(platform -> platform.y < deathWaterLevel).toList();
+
+        List<Checkpoint> checkpointsUnderWater =
+            checkpoints.stream().filter(checkpoint -> checkpoint.y < deathWaterLevel).toList();
+
+        List<Faucet> faucetsUnderWater =
+            faucets.stream().filter(faucet -> faucet.y < deathWaterLevel).toList();
+
+        if(!platformsUnderWater.isEmpty()){
+            for(Platform p : platformsUnderWater){
+                platforms.remove(p);
+            }
+        }
+
+        if(!checkpointsUnderWater.isEmpty()){
+            for (Checkpoint c : checkpointsUnderWater){
+                checkpoints.remove(c);
+            }
+        }
+
+        if(!faucetsUnderWater.isEmpty()){
+            for(Faucet f : faucetsUnderWater){
+                faucets.remove(f);
+            }
+        }
     }
 
     private void drawHUD(){
@@ -861,7 +891,11 @@ public class FirstScreen implements Screen {
         batch.begin();
 
         font.getData().setScale(1.25f);
-        font.draw(batch, "Score: " + Math.round(score), viewportWidth - 125, viewportHeight - 10);
+        if(currentLevel == LevelType.INFINITE) {
+            font.draw(batch, "Score: " + Math.round(score), viewportWidth - 125, viewportHeight - 10);
+        } else{
+            font.draw(batch, "Time: " + time, viewportWidth - 125, viewportHeight - 10);
+        }
         font.getData().setScale(1f); //reset
 
         batch.end();
@@ -945,6 +979,11 @@ public class FirstScreen implements Screen {
             restart();
             state = GameState.PLAYING;
         }
+
+        if(Gdx.input.isKeyJustPressed(Input.Keys.Q)){
+            onQ();
+            state = GameState.PLAYING;
+        }
     }
 
     private void drawWinOverlay(){
@@ -959,6 +998,8 @@ public class FirstScreen implements Screen {
 
     private void handleWinInput(){
         if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER)){
+            time = 0f;
+            timeAtDeath = 0f;
             LevelData data = LevelLibrary.ALL_LEVELS.get(currentLevel);
             LevelType next = data.nextLevel;
             if(next != null){
@@ -979,23 +1020,43 @@ public class FirstScreen implements Screen {
                 state = GameState.MENU;
             }
         }
+
+        if(Gdx.input.isKeyJustPressed(Input.Keys.Q)){
+            onQ();
+            state = GameState.PLAYING;
+        }
+    }
+
+    private void onQ(){
+        if (currentLevel == LevelType.INFINITE) {
+            deathWaterLevel = -50f;
+            deathXValues = new ArrayList<>(); //reset
+            LevelLibrary.regenerateInfinite();
+            loadLevel(LevelType.INFINITE); //regenerate!
+        }
+        timeAtDeath = 0f;
+        time = 0f;
+        currCheckpoint = null;
+        restart();
     }
 
     @Override
     public void resize(int width, int height) {
-        if(width <= 0 || height <= 0) return;
+        if(width <= 0 || height <= 0) {
+            return;
+        }
 
         viewport.update(width, height, true);
     }
 
     @Override
-    public void pause() {}
+    public void pause() { }
 
     @Override
-    public void resume() {}
+    public void resume() { }
 
     @Override
-    public void hide() {}
+    public void hide() { }
 
     @Override
     public void dispose() {

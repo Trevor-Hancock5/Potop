@@ -1,10 +1,3 @@
-/*
- * Course: CSC1110A-111
- * Fall 2024
- * Assignment
- * Name: Trevor Hancock
- * Last Updated: 6/21/2026
- */
 package com.hancockt.lol;
 
 import com.badlogic.gdx.math.Rectangle;
@@ -15,6 +8,11 @@ import java.util.*;
 public class LevelLibrary {
     public static Map<LevelType, LevelData> ALL_LEVELS = new HashMap<>();
     public static Random rng;
+    public static int highestInfiniteY = 0;
+    private static int bandHeight = 250;
+    private static Platform highestPlatform;
+    private static float levelWidth = 3000;
+
 
     static {
         ALL_LEVELS.put(LevelType.TUTORIAL, buildTutorialLevel());
@@ -22,7 +20,7 @@ public class LevelLibrary {
     }
 
     private static LevelData buildTutorialLevel(){
-        //PR = 41s
+        //PR = 33.487s
         List<Checkpoint> checkpoints = new ArrayList<>();
         checkpoints.add(new Checkpoint(1930, 265, 1));
         checkpoints.add(new Checkpoint(3580, 285, 2));
@@ -71,17 +69,33 @@ public class LevelLibrary {
         List<Faucet> faucets = new ArrayList<>();
 
         //just call generate band for each band until height
-        Platform highestPlatform = new Platform(0,0,75,25);
-        float levelWidth = 3000;
-        for(int i = 0; i <= 19000; i += 250) {
-            highestPlatform = generateBand(platforms, checkpoints, i, 250, levelWidth, highestPlatform, faucets);
+        highestPlatform = new Platform(0,0,75,25);
+        for(int i = 0; i <= 2000; i += bandHeight) {
+            highestPlatform = generateBand(platforms, checkpoints, i, bandHeight, levelWidth, highestPlatform, faucets);
         }
-        Platform leftWall = new Platform(-40, 0, 40, 20_000);
-        Platform rightWall = new Platform(levelWidth, 0, 40, 20_000);
-        leftWall.isBoundaryWall = true;
-        rightWall.isBoundaryWall = true;
-        platforms.add(leftWall);
-        platforms.add(rightWall);
+        Rectangle waterTriggerZone = null;
+        Rectangle waterFixZone = null;
+        Rectangle winZone = null;
+
+
+        Vector2 startPoint = new Vector2(0,0);
+        boolean waterStartsActive = true;
+        LevelType nextLevel = null;
+
+        return new LevelData(
+            LevelType.INFINITE, checkpoints, waterTriggerZone, waterFixZone, winZone, platforms, startPoint,
+            waterStartsActive, nextLevel, faucets
+        );
+    }
+
+    public static LevelData addToInfiniteLevel(List<Platform> platforms, List<Checkpoint> checkpoints,
+                                               List<Faucet> faucets){
+        //Add another 2000 height to the infinite level
+        int maxAdditionY = highestInfiniteY + 2000;
+        for(int i = highestInfiniteY; i < maxAdditionY; i += bandHeight){
+            highestPlatform = generateBand(platforms, checkpoints, highestInfiniteY, bandHeight, levelWidth,
+                highestPlatform, faucets);
+        }
         Rectangle waterTriggerZone = null;
         Rectangle waterFixZone = null;
         Rectangle winZone = null;
@@ -130,7 +144,13 @@ public class LevelLibrary {
             faucets.add(new Faucet(faucetX, faucetY, faucetDimensions, faucetDimensions, speedReduction, false));
         }
 
-        //TODO - TUNE THIS ENTIRE SECTION HERE!
+        //Add boundary walls
+        Platform leftWall = new Platform(-40, bandY, 40, bandHeight);
+        Platform rightWall = new Platform(levelWidth, bandY, 40, bandHeight);
+        leftWall.isBoundaryWall = true;
+        rightWall.isBoundaryWall = true;
+        platforms.add(leftWall);
+        platforms.add(rightWall);
 
         float bandArea = levelWidth * bandHeight;
         float decayMultiplier = bandY / 1000;
@@ -140,6 +160,8 @@ public class LevelLibrary {
         float minCoverageRatio = 0.02f;
         float coverageDecay = 0.02f;
         float coverageRatio = Math.max(minCoverageRatio, baseCoverageRatio - (decayMultiplier * coverageDecay));
+
+        float numberReachability = 4;
 
         //width and height
         float baseMaxWidth = 300;
@@ -168,6 +190,7 @@ public class LevelLibrary {
         //for overlapping, since only platforms in this band can overlap other ones
         List<Platform> bandPlatforms = new ArrayList<>();
         boolean faucetOverlap = false;
+        int numReachable = 0;
         for(int i = 0; i < numPlatforms; i++) {
             Platform p;
             int attempts = 0;
@@ -231,7 +254,15 @@ public class LevelLibrary {
                 }
 
                 //check reachability - need at least one. First one added is reachable!
-                reachable = checkReachability(p, highestPlatform) || reachable; // once true, stays true until next band
+                boolean thisReachable = checkReachability(p, highestPlatform); // once true, stays true
+                if(thisReachable){
+                    numReachable++;
+                }
+
+                if(numReachable > numberReachability){
+                    reachable = true;
+                }
+                // until next band
             } while (faucetOverlap || (!reachable && attempts < 50));
 
             platforms.add(p);
@@ -248,12 +279,13 @@ public class LevelLibrary {
             }
         }
 
+        highestInfiniteY = (int) (bandY + bandHeight);
         return highestPlatform;
     }
 
     private static boolean checkReachability(Platform currPlatform, Platform highestPlatform){
         //check horizontal
-        int horizontalMax = 325; //TODO - tune
+        int horizontalMax = 325;
         if(currPlatform.x > highestPlatform.x){
             //check if right side of highest platform is within reach of left side of current platform
             if(currPlatform.x - (highestPlatform.x + highestPlatform.width) > horizontalMax){
@@ -267,7 +299,7 @@ public class LevelLibrary {
         }
 
         //check vertical
-        int verticalMax = 100; //TODO - tune
+        int verticalMax = 100;
         if(Math.abs((currPlatform.y + currPlatform.height) - (highestPlatform.y + highestPlatform.height)) > verticalMax){
             return false;
         }
