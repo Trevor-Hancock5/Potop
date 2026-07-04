@@ -129,7 +129,7 @@ public class PhysicsEngine {
             if (playerRect.overlaps(platformRect) && velocityX < 0 && prevX + (float) (playerWidth / 2) >= collisionPoint
                     && y + (playerHeight / collisionPlayerHeightDivisor) < p.getY() + p.getHeight()) {
                 x = p.getX() + p.getWidth();
-                velocityX = 0;
+                velocityX = -1;
                 touchingWallRight = true;
             }
 
@@ -142,7 +142,7 @@ public class PhysicsEngine {
             if (playerRect.overlaps(platformRect) && velocityX > 0 && prevX + (float) (playerWidth / 2) <= collisionPoint
                     && y + (playerHeight / collisionPlayerHeightDivisor) < p.getY() + p.getHeight()) {
                 x = p.getX() - playerWidth;
-                velocityX = 0;
+                velocityX = 1;
                 touchingWallLeft = true;
             }
 

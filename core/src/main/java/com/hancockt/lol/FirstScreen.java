@@ -89,8 +89,6 @@ public class FirstScreen implements Screen {
     }
 
     //REMEMBER: Everything in here is made 60 times a second!
-    //Reward commiting to jumps
-    //maybe in 'tutorial' say once you jump, you commit!
 
     @Override
     public void render(float delta) {
@@ -148,135 +146,10 @@ public class FirstScreen implements Screen {
                 updateCamera(delta);
                 drawHUD();
 
-                //Instructions
-                List<String> text = new ArrayList<>();
-                List<Float> xValues = new ArrayList<>();
-                List<Float> yValues = new ArrayList<>();
-                List<Float> scaleValues = new ArrayList<>();
-
-                if(currentLevel == LevelType.TUTORIAL){
-                    text.add("Watch out for the water\nOr you DROWN");
-                    xValues.add(-125f);
-                    yValues.add(50f);
-                    scaleValues.add(0.75f);
-
-                    text.add("WASD / Arrow Keys to move\nW / UP /SPACE to jump\nP to PAUSE\nQ to COMPLETELY " +
-                        "RESTART\nESC " +
-                        "to EXIT game");
-                    xValues.add(50f);
-                    yValues.add(145f);
-                    scaleValues.add(0.75f);
-
-                    text.add("Hold UP / W / SPACE\njump higher");
-                    xValues.add(800f);
-                    yValues.add(225f);
-                    scaleValues.add(0.75f);
-
-                    text.add("CHECKPOINT\n\nHold DOWN / S\nslow down or fall faster");
-                    xValues.add(1900f);
-                    yValues.add(425f);
-                    scaleValues.add(0.75f);
-
-                    text.add("JUUUUMMMMPPPPPP");
-                    xValues.add(4925f);
-                    yValues.add(1875f);
-                    scaleValues.add(1f);
-
-                    text.add("You can WALL JUMP in 3 ways:\n- Just JUMP to go diagonal\n- Hold INTO the wall " +
-                        "and jump to climb\n- Hold AWAY from the wall and jump to fling sideways");
-                    xValues.add(5925f);
-                    yValues.add(1275f);
-                    scaleValues.add(0.75f);
-
-                    text.add("As the water gets closer to you\nyou jump higher and move faster!");
-                    xValues.add(6225f);
-                    yValues.add(1900f);
-                    scaleValues.add(0.75f);
-
-                    text.add("Hold E or SHIFT to turn the faucet\n to slow down the water!");
-                    xValues.add(6740f);
-                    yValues.add(2090f);
-                    scaleValues.add(0.75f);
-
-                    text.add("Finish the faucet to WIN!");
-                    xValues.add(8085f);
-                    yValues.add(2245f);
-                    scaleValues.add(0.75f);
-
-                    drawText(text, xValues, yValues, scaleValues);
-                }
-
-                if(currentLevel == LevelType.INFINITE){
-                    text.add("INFINITE MODE");
-                    xValues.add(45f);
-                    yValues.add(175f);
-                    scaleValues.add(1f);
-
-                    text.add("Warning: Water rises faster and faster");
-                    xValues.add(5f);
-                    yValues.add(160f);
-                    scaleValues.add(0.75f);
-
-                    text.add("Click Q to regenerate");
-                    xValues.add(5f);
-                    yValues.add(140f);
-                    scaleValues.add(0.75f);
-
-                    drawText(text, xValues, yValues, scaleValues);
-                }
+                instructions();
                 break;
         }
 
-    }
-
-    private void drawText(List<String> text, List<Float> xPos, List<Float> yPos, List<Float> scale){
-        batch.begin();
-        batch.setProjectionMatrix(camera.combined);
-
-        for(int i = 0; i < text.size(); i++) {
-            font.getData().setScale(scale.get(i));
-
-            font.draw(batch, text.get(i), xPos.get(i), yPos.get(i));
-        }
-
-        batch.end();
-        font.getData().setScale(1f); //reset
-    }
-
-    private void clearScreen(){
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-    }
-
-    private void updateCamera(float delta) {
-        float deadzone = camera.viewportWidth / cameraDeadZoneDivisor;
-        float deadzoneRight = camera.position.x + (deadzone / 2);
-        float deadzoneLeft = camera.position.x - (deadzone / 2);
-
-        float targetX = camera.position.x; //default is to stay put
-
-        if(x < deadzoneLeft){
-            targetX = x + (deadzone / 2);
-        } else if (x > deadzoneRight){
-            targetX = x - (deadzone / 2);
-        }
-
-        float vertLookAhead = velocityY * 0.1f;
-        float targetY = isDead ? Math.max(waterLevel, 240) : Math.max(y+25+vertLookAhead, 240);
-
-        camera.position.x += (targetX - camera.position.x) * cameraLerpSpeed;
-        camera.position.y += (targetY - camera.position.y) * (cameraLerpSpeed / 3);
-
-        if(justLanded && screenShakeAccumulation < screenShake){
-            if(impactVelocity / maxFallSpeed > 0.5){
-                screenShakeAccumulation += delta / 2;
-            } else {
-                screenShakeAccumulation += delta;
-            }
-            camera.position.x += (float) ((Math.random() - 0.5) * (screenShakeIntensity * (2 + impactVelocity / maxFallSpeed)));
-            camera.position.y += (float) ((Math.random() - 0.5) * (screenShakeIntensity * (2 + impactVelocity / maxFallSpeed)));
-        }
-        camera.update();
     }
 
     private void drawShapes(){
@@ -300,8 +173,6 @@ public class FirstScreen implements Screen {
             shapeRenderer.setColor(Color.GOLDENROD);
             shapeRenderer.rect(winZone.x, winZone.y, winZone.width, winZone.height);
         }
-
-
 
         //faucets
         for(Faucet f : faucets){
@@ -373,20 +244,176 @@ public class FirstScreen implements Screen {
         batch.end();
     }
 
-    private void restart(){
-        PlayerData.reset(checkpoints, waterLevel, currentLevel);
+    private void drawHUD(){
+        batch.setProjectionMatrix(hudCam.combined);
+        batch.begin();
+
+        font.getData().setScale(1.25f);
+        if(currentLevel == LevelType.INFINITE) {
+            font.draw(batch, "Score: " + Math.round(score), viewportWidth - 125, viewportHeight - 10);
+        } else{
+            font.draw(batch, "Time: " + time, viewportWidth - 125, viewportHeight - 10);
+        }
+
+        font.getData().setScale(1f); //reset
+
+        batch.end();
+    }
+
+    private void instructions(){
+        //Instructions
+        List<String> text = new ArrayList<>();
+        List<Float> xValues = new ArrayList<>();
+        List<Float> yValues = new ArrayList<>();
+        List<Float> scaleValues = new ArrayList<>();
+
+        if (currentLevel == LevelType.TUTORIAL) {
+            text.add("Watch out for the water\nOr you DROWN");
+            xValues.add(-125f);
+            yValues.add(50f);
+            scaleValues.add(0.75f);
+
+            text.add("WASD / Arrow Keys to move\nW / UP /SPACE to jump\nP to PAUSE\nQ to COMPLETELY " +
+                "RESTART\nESC " +
+                "to EXIT game");
+            xValues.add(50f);
+            yValues.add(145f);
+            scaleValues.add(0.75f);
+
+            text.add("Hold UP / W / SPACE\njump higher");
+            xValues.add(800f);
+            yValues.add(225f);
+            scaleValues.add(0.75f);
+
+            text.add("CHECKPOINT\n\nHold DOWN / S\nslow down or fall faster");
+            xValues.add(1900f);
+            yValues.add(425f);
+            scaleValues.add(0.75f);
+
+            text.add("JUUUUMMMMPPPPPP");
+            xValues.add(4925f);
+            yValues.add(1875f);
+            scaleValues.add(1f);
+
+            text.add("You can WALL JUMP in 3 ways:\n- Just JUMP to go diagonal\n- Hold INTO the wall " +
+                "and jump to climb\n- Hold AWAY from the wall and jump to fling sideways");
+            xValues.add(5925f);
+            yValues.add(1275f);
+            scaleValues.add(0.75f);
+
+            text.add("As the water gets closer to you\nyou jump higher and move faster!");
+            xValues.add(6225f);
+            yValues.add(1900f);
+            scaleValues.add(0.75f);
+
+            text.add("Hold E or SHIFT to turn the faucet\n to slow down the water!");
+            xValues.add(6740f);
+            yValues.add(2090f);
+            scaleValues.add(0.75f);
+
+            text.add("Finish the faucet to WIN!");
+            xValues.add(8085f);
+            yValues.add(2245f);
+            scaleValues.add(0.75f);
+
+            drawText(text, xValues, yValues, scaleValues);
+        }
+
+        if (currentLevel == LevelType.INFINITE) {
+            text.add("INFINITE MODE");
+            xValues.add(45f);
+            yValues.add(175f);
+            scaleValues.add(1f);
+
+            text.add("Warning: Water rises faster and faster");
+            xValues.add(5f);
+            yValues.add(160f);
+            scaleValues.add(0.75f);
+
+            text.add("Click Q to regenerate");
+            xValues.add(5f);
+            yValues.add(140f);
+            scaleValues.add(0.75f);
+
+            drawText(text, xValues, yValues, scaleValues);
+        }
+    }
+
+    private void drawText(List<String> text, List<Float> xPos, List<Float> yPos, List<Float> scale){
+        batch.begin();
+        batch.setProjectionMatrix(camera.combined);
+
+        for(int i = 0; i < text.size(); i++) {
+            font.getData().setScale(scale.get(i));
+
+            font.draw(batch, text.get(i), xPos.get(i), yPos.get(i));
+        }
+
+        batch.end();
+        font.getData().setScale(1f); //reset
+    }
+
+    private void clearScreen(){
+        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+    }
+
+    private void updateCamera(float delta) {
+        float deadzone = camera.viewportWidth / cameraDeadZoneDivisor;
+        float deadzoneRight = camera.position.x + (deadzone / 2);
+        float deadzoneLeft = camera.position.x - (deadzone / 2);
+
+        float targetX = camera.position.x; //default is to stay put
+
+        if(x < deadzoneLeft){
+            targetX = x + (deadzone / 2);
+        } else if (x > deadzoneRight){
+            targetX = x - (deadzone / 2);
+        }
+
+        float vertLookAhead = velocityY * 0.1f;
+        float targetY = isDead ? Math.max(waterLevel, 240) : Math.max(y+25+vertLookAhead, 240);
+
+        camera.position.x += (targetX - camera.position.x) * cameraLerpSpeed;
+        camera.position.y += (targetY - camera.position.y) * (cameraLerpSpeed / 3);
+
+        if(justLanded && screenShakeAccumulation < screenShake){
+            if(impactVelocity / maxFallSpeed > 0.5){
+                screenShakeAccumulation += delta / 2;
+            } else {
+                screenShakeAccumulation += delta;
+            }
+            camera.position.x += (float) ((Math.random() - 0.5) * (screenShakeIntensity * (2 + impactVelocity / maxFallSpeed)));
+            camera.position.y += (float) ((Math.random() - 0.5) * (screenShakeIntensity * (2 + impactVelocity / maxFallSpeed)));
+        }
+        camera.update();
+    }
+
+    private void drawCenteredText(String text, float yOffset, float scale){
+        font.getData().setScale(scale);
+
+        layout.setText(font, text);
+        float x = (viewportWidth - layout.width) / 2;
+        float y = (viewportHeight - layout.height) / 2 + yOffset;
+        font.draw(batch, text, x, y);
+
+        font.getData().setScale(1f); //reset
+    }
+
+    private void restart() {
+        waterLevel = PlayerData.reset(checkpoints, waterLevel, currentLevel);
 
         time = timeAtDeath;
         waterRiseSpeed = Math.min(50f, 8f + (y / 200f)); //full speed always after ~8k height
         screenShakeAccumulation = 0;
-        for(Faucet f : faucets){
+        for (Faucet f : faucets) {
             f.setTurnedOff(false); //reset
             f.setRotation(0);
             f.setProgress(0);
         }
     }
 
-    private void loadLevel(LevelType levelType){
+    private void loadLevel(LevelType levelType) {
         currentLevel = levelType;
 
         LevelData data = LevelLibrary.getAllLevels().get(levelType);
@@ -401,7 +428,7 @@ public class FirstScreen implements Screen {
         y = data.getStartPoint().y;
     }
 
-    public static void updateLists(LevelData data){
+    public static void updateLists(LevelData data) {
         platforms.addAll(data.getPlatforms());
         checkpoints.addAll(data.getCheckpoints());
         faucets.addAll(data.getFaucets());
@@ -416,49 +443,23 @@ public class FirstScreen implements Screen {
         List<Faucet> faucetsUnderWater =
             faucets.stream().filter(faucet -> faucet.getY() < deathWaterLevel).toList();
 
-        if(!platformsUnderWater.isEmpty()){
-            for(Platform p : platformsUnderWater){
+        if (!platformsUnderWater.isEmpty()) {
+            for (Platform p : platformsUnderWater) {
                 platforms.remove(p);
             }
         }
 
-        if(!checkpointsUnderWater.isEmpty()){
-            for (Checkpoint c : checkpointsUnderWater){
+        if (!checkpointsUnderWater.isEmpty()) {
+            for (Checkpoint c : checkpointsUnderWater) {
                 checkpoints.remove(c);
             }
         }
 
-        if(!faucetsUnderWater.isEmpty()){
-            for(Faucet f : faucetsUnderWater){
+        if (!faucetsUnderWater.isEmpty()) {
+            for (Faucet f : faucetsUnderWater) {
                 faucets.remove(f);
             }
         }
-    }
-
-    private void drawHUD(){
-        batch.setProjectionMatrix(hudCam.combined);
-        batch.begin();
-
-        font.getData().setScale(1.25f);
-        if(currentLevel == LevelType.INFINITE) {
-            font.draw(batch, "Score: " + Math.round(score), viewportWidth - 125, viewportHeight - 10);
-        } else{
-            font.draw(batch, "Time: " + time, viewportWidth - 125, viewportHeight - 10);
-        }
-        font.getData().setScale(1f); //reset
-
-        batch.end();
-    }
-
-    private void drawCenteredText(String text, float yOffset, float scale){
-        font.getData().setScale(scale);
-
-        layout.setText(font, text);
-        float x = (viewportWidth - layout.width) / 2;
-        float y = (viewportHeight - layout.height) / 2 + yOffset;
-        font.draw(batch, text, x, y);
-
-        font.getData().setScale(1f); //reset
     }
 
     private void drawMenu(){

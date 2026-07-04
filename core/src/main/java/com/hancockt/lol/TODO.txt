@@ -14,17 +14,6 @@ Reference:
 
 
 TODO:
-- Add state design pattern and flyweight design pattern (for platforms, checkpoints, and faucets)
-- Refactor all of FirstScreen.java
-
-- Allow platforms to have faucets/checkpoints attached to them
-
-- fix it so when you shift to the top of a block, you don't get launched off immediately
-    - Corner buffering where you shift over the top of the corner when wall jumping
-    - but when shift on top, reduce speed maybe so not jump off
-- or when jump into wall, which forces you vertically above platform, instead of falling straight down onto the wall,
-    then bump the player horizontally to land on the platform!
-
 - improve infinite mode, make it better! - resolve overlapping. high score
 - add functionality to see random seed, and be able to add random seed to use (surround in try/catch)
     - check it's same everytime!
@@ -54,6 +43,7 @@ TODO:
 - Add UW mechanics (only on after beat all AW sections)
     - wet/exhausted state after going in water (after first contact with water)
 - art (better water too)
+- Add flyweight pattern, so art is only loaded once for all of the same platforms, checkpoints, faucets, ...
 - music
 - sound effects
 

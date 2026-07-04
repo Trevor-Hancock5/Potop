@@ -27,7 +27,7 @@ public class PlayerData {
     public static final int playerWidth = 20;
     public static final int playerHeight = 50;
 
-    public static void reset(List<Checkpoint> checkpoints, float waterLevel, LevelType currentLevel){
+    public static float reset(List<Checkpoint> checkpoints, float waterLevel, LevelType currentLevel){
         float checkpointMinWaterBuffer = 200f; //how far under checkpoint water starts at a minimum!
 
         if(currCheckpoint != null){
@@ -64,5 +64,6 @@ public class PlayerData {
         touchingWallLeft = false;
         lastWallLeft = false;
         lastWallRight = false;
+        return waterLevel;
     }
 }

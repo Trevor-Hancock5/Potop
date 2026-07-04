@@ -22,7 +22,7 @@ public class Checkpoint {
     }
 
     public Checkpoint(float x, float y, int order){
-        this(x, y, 40, 100, order); //default width and height
+        this(x, y, 40, 100, false, order); //default width and height
     }
 
     public float getX() {
