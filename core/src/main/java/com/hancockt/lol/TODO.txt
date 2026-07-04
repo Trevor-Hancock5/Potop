@@ -1,34 +1,6 @@
 V1 - AW section ONLY!
 V2 - build the UW section
-V3 - Into space
-(This is to avoid scope creep and not releasing/polishing anything until my entire idea is fleshed out. Instead
-polish/release often and frequently)
 
-Story mode
-
-Maybe unlock underwater mode by beating the game
-
-Take inspiration - geometry dash is kinda similar
-
-
-
-Clean the code and documentation up!
-- Update faucets and checkpoints, so that for platforms you can enable checkpoints OR faucets and then it's just placed
-on it. This way you don't need locations, you just need to connect it to the platform index!
-
-
-
-
-
-Themes for game jams: 'Spin to win' & 'Limited power'
-Spin to win - there are faucets along route that slow water rise speed. But then a master faucet
-at the top that turns off all water (including the base water rise speed). Turning that
-off wins you the level. To turn a faucet off, you have to stand there and hold a button
-while the water rises (trigger animation) and spin the faucet off. The master takes a bit longer.
-Limited power - jumps are commited, you have limited power in the air. No double jump,
-no dash, no grapple. The only boost is adrenaline!
-
-Remember: Route choice for player expression, water rising for risk, and checkpoints (built with memories?) for rewards
 
 Make modules for mechanics:
     - [start; end platform; and geometry of platforms in btwn]
@@ -39,43 +11,51 @@ Reference:
     - [(0,0); (1750,140); {(300,-20,100,20), (900,-20,100,20), (1200,60,100,20), (1650,120,100,20)}]
 
 
-- Improve screens! (allow to click smth to generate a new seed for infinite mode)
-Review from playtest:
-- settings!
-- Should have some personality even for game jam (add smiley face to MC and the lol bodies)
-- be able to look further in front of you to check for platforms
-- better water (make it look more like water, maybe geometric pattern?)
-- improve collision, not so shifty
-- When wall jumping into a wall, it usually just barely gets high enough and then shifts to the top (maybe fixed by
-collisions), but you are still holding in and you jump off the platform. So maybe corner buffer and then reduce speed so
- not jump off.
-- When someone jumps to get on top of wall but hits edge of wall, and then move up high enough to be above the platform.
- So then maybe bump then in that direction horizontally to land on top of the platform
 
 
+TODO:
+- Add state design pattern and flyweight design pattern (for platforms, checkpoints, and faucets)
+- Refactor all of FirstScreen.java
 
-TODO later!
-- level set up (ordering and stuff)
-- more modules and levels
-- level selection/progression
-- art
+- Allow platforms to have faucets/checkpoints attached to them
+
+- fix it so when you shift to the top of a block, you don't get launched off immediately
+    - Corner buffering where you shift over the top of the corner when wall jumping
+    - but when shift on top, reduce speed maybe so not jump off
+- or when jump into wall, which forces you vertically above platform, instead of falling straight down onto the wall,
+    then bump the player horizontally to land on the platform!
+
+- improve infinite mode, make it better! - resolve overlapping. high score
+- add functionality to see random seed, and be able to add random seed to use (surround in try/catch)
+    - check it's same everytime!
+
+- add more modules and levels
+- Look further in front?
+
+- object pooling for rectangles (make them once and re-use them!)
+- controller support, also support for mobile!
+- tutorial skip option
+- Add settings! (dialogue on/off,
+- Add screens: pause for controls, credits screen, menu screen, level selection
+- different control options!
+
+- save/load system for progress
+- Use AssetManager for art and music (to load all at once at start time to optimize performance)
+- moving platforms, and crumbling platforms?
+- death counter
+- transitions between levels
+- something happening on death! (like screen tensing up) -> particle effects for water
+- water speed up in infinite mode
+- "Fine I'll do it myself" mode, recorded positions for levels after LOTS of deaths?
+- Add dialogue
+   - dialogue/memories (make big deal of first time player hits water (cold, stickman yelling for help and at you.) 'lol'
+    is massive and then jaws music comes on and he goes quiet. His legal name is Mr. Stick Man, but he calls himself MC for
+    Main Character because he knows he is. Why wouldn't he be?)
+- Add UW mechanics (only on after beat all AW sections)
+    - wet/exhausted state after going in water (after first contact with water)
+- art (better water too)
+- music
 - sound effects
-- death screen, menu screen, settings
-- dialogue/memories (make big deal of first time player hits water (cold, stickman yelling for help and at you.) 'lol'
-is massive and then jaws music comes on and he goes quiet. His legal name is Mr. Stick Man, but he calls himself MC for
-Main Character because he knows he is. Why wouldn't he be?)
-- clean up code: state machines and flyweight pattern (platforms)?
-
-
-
-
-Infinite mode polish:
-- use modules
-- Resolve same-band platform overlaps by shifting the newer platform along whichever axis (x or y) minimizes
-  displacement, rather than rejecting and retrying placement. Basically, remove weird gaps!
-- high scores
-
-
 
 
 
@@ -88,29 +68,3 @@ Start UW mechanics!
 10. breath mechanic! - air bar?
 11. underwater state - physics for floating and variable float speed based on breath held
 12. surface escape and water debuff (slower and worse)
-
-
-
-better mechanic:
-
-AW = above water stuff
-BW = below water stuff
-
-So you are stick man and you are trying to avoid the rising water, going up and up and up.
-- eventually, the water (probably) catches you and you turn into 'lol' and look like youre sinking.
-  you need to take a breath and hold it before you get dragged under. You hit, turn to lol, float for a second
-  then a shark or something drags you under the water. And now you have to float back to the surface (which is
-  still rising) to continue the level. But the floating part is hard. There are air gaps you have to stop at and use
-  but if you knock into anything you lose air. The less air, the slower you float; the more air, the fast you float
-  up. Once on surface, you have a short time to reach a platform before you are dragged back down, also if you float up
-  too slowly, the sharks drag you further down (where you already used the air).
-- You have a hold breath, breath in, breath out keys. You want to breathe out then in, and hold before going under
-  the water. Then you hold your breath the whole time and let it out to slow down if you need to navigate to an
-  air pocket, then breathe in and hold. If you accidently stop holding your breath, you slowly leak air out.
-  If you accidently breathe in while under water, you cough it out along with all your air. very short time to get
-  air.
-- After being in the water for the first time, you move slower and jump not as high. Why? Because you are soaking wet
-  and exhausted. so falling into the water, makes it all harder!
-- !!! - But this does mean, that after you fall, the only way to get past a section may be to fall into the water and
-  rise above it! Some levels should be impossible without going under water (with maybe one like expert jump or play or
-  smth - like super hard or the water)

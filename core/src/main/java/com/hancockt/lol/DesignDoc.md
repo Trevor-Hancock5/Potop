@@ -1,6 +1,84 @@
-## The MC — Design Doc
+# The MC — Design Doc
 
 ---
+
+## Mantra
++ Make the simple stuff GREAT! 
+
+---
+
+## Elevator Pitch
++ A Fast-Moving 2D minimalistic platformer where you escape rising water by climbing higher and higher, and turning 
+  faucets off as you go!
+
+---
+
+## Core Gameplay Loop
+1. Advance through levels, hitting chechkpoints and turning off faucets
+2. Complete the tutorial to unlock infinite mode
+3. Finish all other levels to unlock underwater mode
+4. Re-attempt levels in UW mode and do the new UW levels
+
+---
+
+## Player Mechanics
++ Move
++ Jump
++ Friction-stop or fall-fast
++ Turn faucets
++ Wall-jump
+  + Jump into wall
+  + Jump diagonally away from wall
+  + Jump directly away from wall
++ Closer to water, higher jump
+
+---
+
+## Goal
+Get to the end of the level and turn the winning faucet!
+
+---
+
+## Mechanic
+AW = above water stuff
+BW = below water stuff
+
+So you are stick man and you are trying to avoid the rising water, going up and up and up.
+- eventually, the water (probably) catches you and you turn into 'lol' and look like youre sinking.
+  you need to take a breath and hold it before you get dragged under. You hit, turn to lol, float for a second
+  then a shark or something drags you under the water. And now you have to float back to the surface (which is
+  still rising) to continue the level. But the floating part is hard. There are air gaps you have to stop at and use
+  but if you knock into anything you lose air. The less air, the slower you float; the more air, the fast you float
+  up. Once on surface, you have a short time to reach a platform before you are dragged back down, also if you float up
+  too slowly, the sharks drag you further down (where you already used the air).
+- You have a hold breath, breath in, breath out keys. You want to breathe out then in, and hold before going under
+  the water. Then you hold your breath the whole time and let it out to slow down if you need to navigate to an
+  air pocket, then breathe in and hold. If you accidently stop holding your breath, you slowly leak air out.
+  If you accidently breathe in while under water, you cough it out along with all your air. very short time to get
+  air.
+- After being in the water for the first time, you move slower and jump not as high. Why? Because you are soaking wet
+  and exhausted. so falling into the water, makes it all harder!
+- !!! - But this does mean, that after you fall, the only way to get past a section may be to fall into the water and
+  rise above it! Some levels should be impossible without going under water (with maybe one like expert jump or play or
+  smth - like super hard or the water)
+
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## What It Is
 Stick man climbs through a Noah's flood. Water always rises. He always has something to say about it.

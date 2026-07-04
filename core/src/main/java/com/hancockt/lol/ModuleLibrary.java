@@ -53,7 +53,7 @@ public class ModuleLibrary {
                 new Platform[]{
                     new Platform(25,60,30,30),
                     new Platform(0,175,85,15),
-                    new Platform(15,275,90,15),
+                    new Platform(15,265,90,15),
                     new Platform(440,220,150,80),
                     new Platform(540,375,100,15)
                 }
