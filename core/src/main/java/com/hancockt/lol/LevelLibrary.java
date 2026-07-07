@@ -8,6 +8,7 @@ import java.util.*;
 public class LevelLibrary {
     private static final Map<LevelType, LevelData> ALL_LEVELS = new HashMap<>();
     private static Random rng;
+    private static long seed;
     private static int highestInfiniteY = 0;
     private static final int BAND_HEIGHT = 250;
     private static Platform highestPlatform;
@@ -70,7 +71,8 @@ public class LevelLibrary {
 
     private static LevelData buildInfiniteLevel(){
         //use seeds for reproduceability in infinite mode and leaderboard
-        rng = new Random(System.currentTimeMillis());
+        seed = System.currentTimeMillis();
+        rng = new Random(seed);
 
         List<Checkpoint> checkpoints = new ArrayList<>();
         List<Platform> platforms = new ArrayList<>();
@@ -93,7 +95,7 @@ public class LevelLibrary {
         //Add another 2000 height to the infinite level
         int maxAdditionY = highestInfiniteY + 2000;
         for(int i = highestInfiniteY; i < maxAdditionY; i += BAND_HEIGHT){
-            highestPlatform = generateBand(platforms, checkpoints, highestInfiniteY, BAND_HEIGHT, LEVEL_WIDTH,
+            highestPlatform = generateBand(platforms, checkpoints, i, BAND_HEIGHT, LEVEL_WIDTH,
                 highestPlatform, faucets);
         }
 
@@ -153,8 +155,6 @@ public class LevelLibrary {
         float coverageDecay = 0.02f;
         float coverageRatio = Math.max(minCoverageRatio, baseCoverageRatio - (decayMultiplier * coverageDecay));
 
-        float numberReachability = 4;
-
         //width and height
         float baseMaxWidth = 300;
         float baseMaxHeight = 150;
@@ -181,19 +181,22 @@ public class LevelLibrary {
 
         //for overlapping, since only platforms in this band can overlap other ones
         List<Platform> bandPlatforms = new ArrayList<>();
-        boolean faucetOverlap = false;
         int numReachable = 0;
         for(int i = 0; i < numPlatforms; i++) {
             Platform p;
             int attempts = 0;
+            boolean overlapsFaucet;
+            boolean overlapsCheckpoint;
+            boolean needsRetry;
+
             do {
+                needsRetry = false;
                 attempts++;
                 float width = rng.nextFloat(minWidth, maxWidth); //20 and max width!
                 float height = rng.nextFloat(minHeight, maxHeight); // 10 and max height!
                 float xVal = rng.nextFloat(levelWidth - width); //btwn 0 and (levelWidth - width)
                 float yVal = rng.nextFloat(bandY, Math.max(bandY, bandY + bandHeight - height)); //btwn bandY and
-                // (bandY + bandHeight -
-                // height)
+                // (bandY + bandHeight - height)
 
                 p = new Platform(xVal, yVal, width, height);
 
@@ -202,62 +205,35 @@ public class LevelLibrary {
                     Rectangle currP = new Rectangle(p.getX(), p.getY(), p.getWidth(), p.getHeight());
                     Rectangle bandP = new Rectangle(bp.getX(), bp.getY(), bp.getWidth(), bp.getHeight());
 
-                    Rectangle check = null;
-                    Checkpoint c1 = null;
-                    if(!checkpoints.isEmpty()) {
-                        c1 = checkpoints.getLast();
-                        check = new Rectangle(c1.getX(), c1.getY(), c1.getWidth(), c1.getHeight());
-                    }
-
-                    Rectangle faucet = null;
-                    Faucet f;
-                    if(!faucets.isEmpty()) {
-                        f = faucets.getLast();
-                        faucet = new Rectangle(f.getX(), f.getY(), f.getWidth(), f.getHeight());
-                        if(currP.overlaps(faucet)){
-                            continue;
-                        }
-                    }
-
                     boolean overlapPlatform = currP.overlaps(bandP);
-                    boolean overlapCheckpoint = check != null && currP.overlaps(check);
-                    if(overlapPlatform || overlapCheckpoint){
-                        float moveThreshold = 0.7f;
-                        if(rng.nextFloat() > moveThreshold){
-                            //move platform vertically
-                            if(!overlapCheckpoint && bp.getY() + bp.getHeight() + p.getHeight() > bandY + bandHeight){
-                                //move down
-                                p.setY(bp.getY() - p.getHeight());
-                            } else{
-                                //move up
-                                if (c1 != null) {
-                                    p.setY((int) Math.max(bp.getY() + bp.getHeight(), c1.getY() + c1.getHeight()));
-                                }
-                            }
-                        } else{
-                            //move platform horizontally
-                            if(bp.getX() + bp.getWidth() + p.getWidth() > levelWidth){
-                                //move left
-                                p.setX(bp.getX() - p.getWidth());
-                            } else{
-                                //move right
-                                p.setX(bp.getX() + bp.getWidth());
-                            }
-                        }
+                    if(overlapPlatform){
+                        needsRetry = true;
+                        break;
                     }
+                }
+
+                // after the bandPlatforms overlap loop, before the reachability check
+                overlapsFaucet = false;
+                if (!faucets.isEmpty()) {
+                    Faucet f = faucets.getLast();
+                    Rectangle faucetRect = new Rectangle(f.getX(), f.getY(), f.getWidth() * 2, f.getHeight() * 2);
+                    overlapsFaucet = new Rectangle(p.getX(), p.getY(), p.getWidth(), p.getHeight()).overlaps(faucetRect);
+                }
+
+                overlapsCheckpoint = false;
+                if (!checkpoints.isEmpty()) {
+                    Checkpoint c = checkpoints.getLast();
+                    Rectangle checkRect = new Rectangle(c.getX(), c.getY(), c.getWidth() * 2, c.getHeight() * 2);
+                    overlapsCheckpoint = new Rectangle(p.getX(), p.getY(), p.getWidth(), p.getHeight()).overlaps(checkRect);
                 }
 
                 //check reachability - need at least one. First one added is reachable!
-                boolean thisReachable = checkReachability(p, highestPlatform); // once true, stays true
-                if(thisReachable){
-                    numReachable++;
-                }
-
-                if(numReachable > numberReachability){
+                if(checkReachability(p, highestPlatform)){
                     reachable = true;
                 }
+
                 // until next band
-            } while (faucetOverlap || (!reachable && attempts < 50));
+            } while ((attempts < 50) && (needsRetry || overlapsFaucet || overlapsCheckpoint || !reachable));
 
             platforms.add(p);
             bandPlatforms.add(p);
@@ -325,5 +301,9 @@ public class LevelLibrary {
 
     public static void regenerateInfinite(){
         ALL_LEVELS.put(LevelType.INFINITE, buildInfiniteLevel());
+    }
+
+    public static long getRng(){
+        return seed;
     }
 }

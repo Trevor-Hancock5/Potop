@@ -14,9 +14,10 @@ Reference:
 
 
 TODO:
-- improve infinite mode, make it better! - resolve overlapping. high score
 - add functionality to see random seed, and be able to add random seed to use (surround in try/catch)
     - check it's same everytime!
+
+- When you wall jump but stuck inside another wall, it shifts to the other wall's inside. Weird
 
 - add more modules and levels
 - Look further in front?
