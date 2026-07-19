@@ -2,6 +2,36 @@ V1 - AW section ONLY!
 V2 - build the UW section
 
 
+
+V1 MVP:
+Title: JKJ (just keep jumping)
+
+16x16 world grid!
+use multiples of 16 for pixel art dimensions!
+- needs art (make everything in a geometric minimalist style?)
+    + Look up a palette to use (4-5 colors max) and use it everywhere - capp 5.
+    - MC (run, jump, fall, idle, death)
+    - leave lol as text
+    - faucet (no animation, spins in game)
+    - water (triangles, or something. Minimalistic water look with geometric look? Maybe just animate top edge)
+    - JKJ logo
+    - checkpoint (2 versions - inactive/active)
+    - boundary walls (repeating pattern - geometric minimalistic)
+    - platforms/background (only if time permits, maybe just top edge of platforms and repeating pattern for background)
+    - win zone
+
+    replace /lwjgl3/icons/* with JKJ logo!
+
+- implement art
+- improve screens
+- try shipping to android for sister
+
+
+
+
+
+
+
 Make modules for mechanics:
     - [start; end platform; and geometry of platforms in btwn]
     - Assume starting point is on a platform! (end of last platform, but 0,0)

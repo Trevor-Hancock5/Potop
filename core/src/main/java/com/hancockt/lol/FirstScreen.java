@@ -65,6 +65,7 @@ public class FirstScreen implements Screen {
 
     // Controls
     public static boolean waterRise = false;
+    private static boolean enteringSeed = false;
 
 
     public FirstScreen(lol game, LevelType type){
@@ -140,6 +141,13 @@ public class FirstScreen implements Screen {
 
                 if(Gdx.input.isKeyJustPressed(Input.Keys.P)){
                     state = GameState.PAUSE;
+                }
+
+                //infinite mode seed input
+                if(currentLevel == LevelType.INFINITE){
+                    if(Gdx.input.isKeyJustPressed(Input.Keys.T)){
+                        enteringSeed = true;
+                    }
                 }
 
                 drawShapes();
@@ -248,17 +256,22 @@ public class FirstScreen implements Screen {
         batch.setProjectionMatrix(hudCam.combined);
         batch.begin();
 
-        if(Gdx.input.isKeyPressed(Input.Keys.L)){
-            font.getData().setScale(2);
-            font.draw(batch, "Seed: " + LevelLibrary.getRng(), viewportWidth / 2, viewportHeight / 2);
-        }
+        if(enteringSeed){
+            //TODO? Maybe change this to be in the paused state or change state to paused???
+        } else {
 
-        font.getData().setScale(1.25f);
-        if(currentLevel == LevelType.INFINITE) {
-            font.draw(batch, "Score: " + y, viewportWidth - 175, viewportHeight - 30);
-            font.draw(batch, "High Score: " + Math.round(score), viewportWidth - 175, viewportHeight - 10);
-        } else{
-            font.draw(batch, "Time: " + time, viewportWidth - 125, viewportHeight - 10);
+            if (Gdx.input.isKeyPressed(Input.Keys.L)) {
+                font.getData().setScale(2);
+                font.draw(batch, "Seed: " + LevelLibrary.getRng(), viewportWidth / 2, viewportHeight / 2);
+            }
+
+            font.getData().setScale(1.25f);
+            if (currentLevel == LevelType.INFINITE) {
+                font.draw(batch, "Score: " + y, viewportWidth - 175, viewportHeight - 30);
+                font.draw(batch, "High Score: " + Math.round(score), viewportWidth - 175, viewportHeight - 10);
+            } else {
+                font.draw(batch, "Time: " + time, viewportWidth - 125, viewportHeight - 10);
+            }
         }
 
         font.getData().setScale(1f); //reset

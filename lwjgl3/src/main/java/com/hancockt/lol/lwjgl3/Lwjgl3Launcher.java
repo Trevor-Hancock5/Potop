@@ -2,6 +2,7 @@ package com.hancockt.lol.lwjgl3;
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+import com.badlogic.gdx.graphics.Texture;
 import com.hancockt.lol.lol;
 
 /** Launches the desktop (LWJGL3) application. */
@@ -39,6 +40,12 @@ public class Lwjgl3Launcher {
         //// You can change these files; they are in lwjgl3/src/main/resources/ .
         //// They can also be loaded from the root of assets/ .
         configuration.setWindowIcon("libgdx128.png", "libgdx64.png", "libgdx32.png", "libgdx16.png");
+
+//TODO - something to do with not blurry pixel art
+//        texture.setFilter(
+//            Texture.TextureFilter.Nearest,
+//            Texture.TextureFilter.Nearest
+//        );
 
         //// This could improve compatibility with Windows machines with buggy OpenGL drivers, Macs
         //// with Apple Silicon that have to emulate compatibility with OpenGL anyway, and more.
