@@ -6,6 +6,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -62,6 +63,7 @@ public class FirstScreen implements Screen {
 
     //game reference
     private final lol game;
+    private GameAssets gameAssets = new GameAssets();
 
     // Controls
     public static boolean waterRise = false;
@@ -78,6 +80,8 @@ public class FirstScreen implements Screen {
         shapeRenderer = new ShapeRenderer();
         batch = new SpriteBatch();
         font = new BitmapFont();
+
+        gameAssets.load();
 
         camera = new OrthographicCamera();
         viewport = new ExtendViewport(viewportWidth, viewportHeight, camera);
@@ -161,84 +165,152 @@ public class FirstScreen implements Screen {
     }
 
     private void drawShapes(){
+        //Draw sprites first
+        drawSprites();
+
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
-        //platforms
-        for(Platform p : platforms){
-            shapeRenderer.setColor(p.isBoundaryWall() ? Color.DARK_GRAY : Color.WHITE);
-            shapeRenderer.rect(p.getX(), p.getY(), p.getWidth(), p.getHeight());
-        }
-
-        //checkpoints
-        for(Checkpoint c : checkpoints) {
-            shapeRenderer.setColor(c.isActivated() ? new Color(0, 1, 0, 0.6f) : new Color(1, 0.35f, 0.3f, 0.6f));
-            shapeRenderer.rect(c.getX(), c.getY(), c.getWidth(), c.getHeight());
-        }
-
-        //winzone
-        if(winZone != null && currentLevel != LevelType.TUTORIAL) {
-            shapeRenderer.setColor(Color.GOLDENROD);
-            shapeRenderer.rect(winZone.x, winZone.y, winZone.width, winZone.height);
-        }
-
-        //faucets
-        for(Faucet f : faucets){
-            shapeRenderer.identity(); // reset any prior transform
-
-            float centerX = f.getX() + f.getWidth() / 2f;
-            float centerY = f.getY() + f.getHeight() / 2f;
-
-            shapeRenderer.translate(centerX, centerY, 0);
-            shapeRenderer.rotate(0, 0, 1, -f.getRotation()); // rotate around z-axis by faucetRotation degrees
-            shapeRenderer.translate(-centerX, -centerY, 0);
-
-            Color color;
-            if(f.isTurnedOff()){
-                if(f.isWinFaucet()){
-                    color = new Color(1f, 0.8431f, 0f, 1f);
-                } else {
-                    color = Color.GRAY;
-                }
-            } else if(f.getProgress() > faucetInteractionTime / 2){
-                if(f.isWinFaucet()){
-                    color = new Color(1f, 0.9255f, 0.4541f, 1f);
-                } else {
-                    color = new Color(0.85f, 0.7f, 0.7f, 1f);
-                }
-            } else{
-                if(f.isWinFaucet()){
-                    color = new Color(0.8314f, 0.6863f, 0.2157f, 1f);
-                } else {
-                    color = new Color(1f, 0.6f, 0.6f, 1f);
-                }
-            }
-            shapeRenderer.setColor(color);
-            shapeRenderer.rect(f.getX(), f.getY(), f.getWidth(), f.getHeight());
-
-            shapeRenderer.identity(); // reset so it doesn't affect anything drawn after
-        }
-
-        // player
-        if(!isDead){
-            shapeRenderer.setColor(Color.OLIVE);
-            shapeRenderer.rect(x, y, playerWidth, playerHeight);
-            shapeRenderer.setColor(Color.LIGHT_GRAY);
-            shapeRenderer.rect(x + 5, y + playerHeight - 15, 3, 9); //left eye
-            shapeRenderer.rect(x + playerWidth - 8, y + playerHeight - 15, 3, 9); //right eye
-
-            //smile
-            shapeRenderer.rect(x + 5, y + (float) playerHeight / 2, 10, 4);
-            shapeRenderer.rect(x + 3, y + (float) playerHeight / 2 + 4, 14, 2);
-        }
-
-        //water
+        //water should be drawn last!
         shapeRenderer.setColor(new Color(17/255f, 132/255f, 214/255f, .65f));
 
         float camLeft = camera.position.x - camera.viewportWidth / 2;
         shapeRenderer.rect(camLeft, 0, camera.viewportWidth, waterLevel);
 
         shapeRenderer.end();
+
+
+//
+//        shapeRenderer.setProjectionMatrix(camera.combined);
+//        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+//
+//        //platforms
+//        for(Platform p : platforms){
+//            shapeRenderer.setColor(p.isBoundaryWall() ? Color.DARK_GRAY : Color.WHITE);
+//            shapeRenderer.rect(p.getX(), p.getY(), p.getWidth(), p.getHeight());
+//        }
+//
+//        //checkpoints
+//        for(Checkpoint c : checkpoints) {
+//            shapeRenderer.setColor(c.isActivated() ? new Color(0, 1, 0, 0.6f) : new Color(1, 0.35f, 0.3f, 0.6f));
+//            shapeRenderer.rect(c.getX(), c.getY(), c.getWidth(), c.getHeight());
+//        }
+//
+//        //winzone
+//        if(winZone != null && currentLevel != LevelType.TUTORIAL) {
+//            shapeRenderer.setColor(Color.GOLDENROD);
+//            shapeRenderer.rect(winZone.x, winZone.y, winZone.width, winZone.height);
+//        }
+//
+//        //faucets
+//        for(Faucet f : faucets){
+//            shapeRenderer.identity(); // reset any prior transform
+//
+//            float centerX = f.getX() + f.getWidth() / 2f;
+//            float centerY = f.getY() + f.getHeight() / 2f;
+//
+//            shapeRenderer.translate(centerX, centerY, 0);
+//            shapeRenderer.rotate(0, 0, 1, -f.getRotation()); // rotate around z-axis by faucetRotation degrees
+//            shapeRenderer.translate(-centerX, -centerY, 0);
+//
+//            Color color;
+//            if(f.isTurnedOff()){
+//                if(f.isWinFaucet()){
+//                    color = new Color(1f, 0.8431f, 0f, 1f);
+//                } else {
+//                    color = Color.GRAY;
+//                }
+//            } else if(f.getProgress() > faucetInteractionTime / 2){
+//                if(f.isWinFaucet()){
+//                    color = new Color(1f, 0.9255f, 0.4541f, 1f);
+//                } else {
+//                    color = new Color(0.85f, 0.7f, 0.7f, 1f);
+//                }
+//            } else{
+//                if(f.isWinFaucet()){
+//                    color = new Color(0.8314f, 0.6863f, 0.2157f, 1f);
+//                } else {
+//                    color = new Color(1f, 0.6f, 0.6f, 1f);
+//                }
+//            }
+//            shapeRenderer.setColor(color);
+//            shapeRenderer.rect(f.getX(), f.getY(), f.getWidth(), f.getHeight());
+//
+//            shapeRenderer.identity(); // reset so it doesn't affect anything drawn after
+//        }
+//
+//        // player
+//        if(!isDead){
+//            shapeRenderer.setColor(Color.OLIVE);
+//            shapeRenderer.rect(x, y, playerWidth, playerHeight);
+//            shapeRenderer.setColor(Color.LIGHT_GRAY);
+//            shapeRenderer.rect(x + 5, y + playerHeight - 15, 3, 9); //left eye
+//            shapeRenderer.rect(x + playerWidth - 8, y + playerHeight - 15, 3, 9); //right eye
+//
+//            //smile
+//            shapeRenderer.rect(x + 5, y + (float) playerHeight / 2, 10, 4);
+//            shapeRenderer.rect(x + 3, y + (float) playerHeight / 2 + 4, 14, 2);
+//        }
+    }
+
+    private void drawSprites(){
+        batch.setProjectionMatrix(camera.combined);
+        batch.begin();
+
+        //platforms
+        for(Platform p : platforms){
+            Texture asset = p.isBoundaryWall() ? gameAssets.boundaryWall : gameAssets.platform;
+            batch.draw(asset, p.getX(), p.getY(), p.getWidth(), p.getHeight());
+        }
+
+        //checkpoints
+        for(Checkpoint c : checkpoints){
+            Texture asset = c.isActivated() ? gameAssets.checkpoint_active : gameAssets.checkpoint_inactive;
+            batch.draw(asset, c.getX(), c.getY(), c.getWidth(), c.getHeight());
+        }
+
+        // faucets
+        for (Faucet f : faucets) {
+            Texture texture = f.isWinFaucet() ? gameAssets.winFaucet : gameAssets.faucet;
+
+            float width = f.getWidth();
+            float height = f.getHeight();
+            float originX = width / 2f;  // rotate around center
+            float originY = height / 2f;
+
+//            // tint based on state, same logic as your old color code
+//            if (f.isTurnedOff()) {
+//                batch.setColor(f.isWinFaucet() ? new Color(1f, 0.8431f, 0f, 1f) : Color.GRAY);
+//            } else if (f.getProgress() > faucetInteractionTime / 2) {
+//                batch.setColor(f.isWinFaucet() ? new Color(1f, 0.9255f, 0.4541f, 1f) : new Color(0.85f, 0.7f, 0.7f, 1f));
+//            } else {
+//                batch.setColor(f.isWinFaucet() ? new Color(0.8314f, 0.6863f, 0.2157f, 1f) : new Color(1f, 0.6f, 0.6f, 1f));
+//            }
+
+            batch.draw(
+                texture,
+                f.getX(), f.getY(),          // position
+                originX, originY,             // origin point for rotation
+                width, height,                // size
+                1f, 1f,                       // scaleX, scaleY
+                -f.getRotation(),             // rotation in degrees
+                0, 0,                         // source x, y in texture
+                texture.getWidth(), texture.getHeight(), // source width, height
+                false, false                  // flipX, flipY
+            );
+
+//            batch.setColor(Color.WHITE); // reset tint so other sprites aren't affected
+        }
+
+        //MC
+        if(!isDead){
+            batch.draw(gameAssets.mc, x, y, playerWidth, playerHeight);
+        }
+
+        batch.end();
     }
 
     private void drawDeathText() {
@@ -485,11 +557,28 @@ public class FirstScreen implements Screen {
         batch.setProjectionMatrix(hudCam.combined);
         batch.begin();
 
-        drawCenteredText("The MC", 70, 2);
-        drawCenteredText("Press SPACE to start tutorial", 10, 1);
-        drawCenteredText("Press I to start infinite (Must complete tutorial first)", -10, 1);
+        // logo centered
+        float logoW = 200;
+        float logoH = 100;
+        batch.draw(gameAssets.logo,
+            (viewportWidth - logoW) / 2f,
+            viewportHeight / 2f + 20,
+            logoW, logoH);
+
+        // existing text below
+        drawCenteredText("Press SPACE to start tutorial", -35, 1f);
+        drawCenteredText("Press I for Infinite Mode", -55, 1f);
 
         batch.end();
+
+//        batch.setProjectionMatrix(hudCam.combined);
+//        batch.begin();
+//
+//        drawCenteredText("The MC", 70, 2);
+//        drawCenteredText("Press SPACE to start tutorial", 10, 1);
+//        drawCenteredText("Press I to start infinite (Must complete tutorial first)", -10, 1);
+//
+//        batch.end();
     }
 
     private void handleMenuInput(){
@@ -632,5 +721,6 @@ public class FirstScreen implements Screen {
         shapeRenderer.dispose();
         batch.dispose();
         font.dispose();
+        gameAssets.dispose();
     }
 }

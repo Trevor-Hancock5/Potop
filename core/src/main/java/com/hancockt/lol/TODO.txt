@@ -1,36 +1,87 @@
-V1 - AW section ONLY!
-V2 - build the UW section
+POTOP
+
+
+- Art
+- Music
+- Better UI
+- New Levels
+- Dialogue
+- Improve Infinite mode generation
+- Add juice: Add animations for feedback and responsiveness
+
+Wouldn't it be cool list:
+- Shipped to android option
+- Secret levels
+- Skins
+- Collectibles/coins
+- Enemies/bosses
+- Leaderboard (inspiration from subway surfers)
+- More movement mechanics
+- Game dev logs to get audience - the time where 3 platforms to test mechanics
+- moving platforms, and crumbling platforms?
+- transitions between levels
+- "Fine I'll do it myself" mode, recorded positions for levels after LOTS of deaths?
+    - After X deaths on the same section, stickman breaks the fourth wall: "really? you can't do this?" then "fine, I'll
+     do it myself." He then completes the section using the developer's recorded inputs — real positions, real timings,
+     looks authentically human. Once through the hard section, control returns to the player.
+    - Player can decline it. Stickman is annoyed if they do.
 
 
 
-V1 MVP:
-Title: JKJ (just keep jumping)
 
-16x16 world grid!
-use multiples of 16 for pixel art dimensions!
-- needs art (make everything in a geometric minimalist style?)
-    + Look up a palette to use (4-5 colors max) and use it everywhere - capp 5.
-    - MC (run, jump, fall, idle, death)
-    - leave lol as text
-    - faucet (no animation, spins in game)
-    - water (triangles, or something. Minimalistic water look with geometric look? Maybe just animate top edge)
-    - JKJ logo
-    - checkpoint (2 versions - inactive/active)
-    - boundary walls (repeating pattern - geometric minimalistic)
-    - platforms/background (only if time permits, maybe just top edge of platforms and repeating pattern for background)
-    - win zone
 
-    replace /lwjgl3/icons/* with JKJ logo!
+ART
++ Look up a palette to use (4-5 colors max) and use it everywhere - capp 5.
+- Spark (idle - roast marshmallow?, run, jump, fall, death - splash and flame goes out and arms pop up)
+    - put in sass and attitude using posture and face expression.
+    - Do matchsticks as stickman but match head as a flame. Fire afro. Try a smile, either on the fire or the fire
+      afro is above the head.
+    - flame afro shows how close you are to the water. 3 sizes. Animate all? Add later.
+    - change death that it happens when his flame goes out, so the head.
+    - unlimited animation ideas: could show relighting the flame after hit water
+- leave lol as text
+- faucet (no animation, spins in game)
+- water (triangles, or something. Minimalistic water look with geometric look? Maybe just animate top edge)
+- POTOP logo - do word POTOP but bottom half of letters has waves in it and for the T it is the main character
+- checkpoint (2 versions - inactive/active)
+- boundary walls (repeating pattern - geometric minimalistic)
+- platforms/background (only if time permits, maybe just top edge of platforms and repeating pattern for background)
+- win zone
+
+Need feedback for faucet. Make platform, higher resolution, so good when big and still good when small!
+
 
 - implement art
-- improve screens
-- try shipping to android for sister
+    - replace /lwjgl3/icons/* with JKJ logo!
+    - Use AssetManager for art and music (to load all at once at start time to optimize performance)
+
+
+
+MUSIC
+-One simple track background music to start. you make it! Should be hardcore to match Spark or it should be really light
+ to kinda be opposite of it.
+- Tools: LMMS, bosca ceoil, or beep box
+
+For sound effects use audacity
+- Water sound when closer and heartbeat when really close
 
 
 
 
+BETTER UI
+- Maybe making art for buttons! And option to change refresh rate to fix for advanced monitors.
+- keep track of details - number of total deaths in campaign, speed of completing. Faucets and checkpoints in inifinite
+mode, score, time, score/minute.
+- add functionality to see random seed, and be able to add random seed to use (surround in try/catch)
+    - check it's same everytime!
+- Add settings! - dialogue on/off
+- Add screens: pause for controls, credits screen, menu screen, level selection
+- different control options!
 
 
+
+NEW LEVELS
+- is modules for levels really the best? (how to build multiple paths using modules?) handmade levels might be better.
 
 Make modules for mechanics:
     - [start; end platform; and geometry of platforms in btwn]
@@ -39,53 +90,29 @@ Make modules for mechanics:
 Reference:
 - variable jumps - small jump vs large jump
     - [(0,0); (1750,140); {(300,-20,100,20), (900,-20,100,20), (1200,60,100,20), (1650,120,100,20)}]
+- tutorial skip option
+
+player size = 20 x 50
+pixels/seconds horizontal: 400
+pixels/seconds falling: 1200 (max cap!)
+comfortable jump gap (no vert): 300
+comfortable jump gap (diag): 200 x 80
+max jump gap (no vert): 600
+max jump gap (diag): 350 x 60
+comfortable jump height: 75
+max jump height: 108
+danger boost: 1.25x
 
 
 
-
-TODO:
-- add functionality to see random seed, and be able to add random seed to use (surround in try/catch)
-    - check it's same everytime!
-
+BUGS
 - When you wall jump but stuck inside another wall, it shifts to the other wall's inside. Weird
-
-- add more modules and levels
 - Look further in front?
+- save/load system for progress
 
+
+
+
+NICE TO HAVE
 - object pooling for rectangles (make them once and re-use them!)
 - controller support, also support for mobile!
-- tutorial skip option
-- Add settings! (dialogue on/off,
-- Add screens: pause for controls, credits screen, menu screen, level selection
-- different control options!
-
-- save/load system for progress
-- Use AssetManager for art and music (to load all at once at start time to optimize performance)
-- moving platforms, and crumbling platforms?
-- death counter
-- transitions between levels
-- something happening on death! (like screen tensing up) -> particle effects for water
-- water speed up in infinite mode
-- "Fine I'll do it myself" mode, recorded positions for levels after LOTS of deaths?
-- Add dialogue
-   - dialogue/memories (make big deal of first time player hits water (cold, stickman yelling for help and at you.) 'lol'
-    is massive and then jaws music comes on and he goes quiet. His legal name is Mr. Stick Man, but he calls himself MC for
-    Main Character because he knows he is. Why wouldn't he be?)
-- Add UW mechanics (only on after beat all AW sections)
-    - wet/exhausted state after going in water (after first contact with water)
-- art (better water too)
-- Add flyweight pattern, so art is only loaded once for all of the same platforms, checkpoints, faucets, ...
-- music
-- sound effects
-
-
-
-
-
-Start UW mechanics!
-7. Change death condition - isCaught, then dead with the breath
-8. Let lol float, then get dragged under (a variable amount, maybe depending how high or ...)
-9. shark drag you down or something - whirl pool
-10. breath mechanic! - air bar?
-11. underwater state - physics for floating and variable float speed based on breath held
-12. surface escape and water debuff (slower and worse)

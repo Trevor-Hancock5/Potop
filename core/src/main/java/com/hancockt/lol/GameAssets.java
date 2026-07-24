@@ -14,14 +14,14 @@ public class GameAssets {
     public Texture winFaucet;
 
     public void load(){
-        mc = new Texture(Gdx.files.internal("mc.png"));
-        faucet = new Texture(Gdx.files.internal("faucet.png"));
-        logo = new Texture(Gdx.files.internal("logo.png"));
-        checkpoint_inactive = new Texture(Gdx.files.internal("checkpoint_inactive.png"));
-        checkpoint_active = new Texture(Gdx.files.internal("checkpoint_active.png"));
-        platform = new Texture(Gdx.files.internal("platform.png"));
-        boundaryWall = new Texture(Gdx.files.internal("boundaryWall.png"));
-        winFaucet = new Texture(Gdx.files.internal("winFaucet.png"));
+        mc = new Texture(Gdx.files.internal("pixelArt/mc.png"));
+        faucet = new Texture(Gdx.files.internal("pixelArt/faucet.png"));
+        logo = new Texture(Gdx.files.internal("pixelArt/logo.png"));
+        checkpoint_inactive = new Texture(Gdx.files.internal("pixelArt/checkpoint_inactive.png"));
+        checkpoint_active = new Texture(Gdx.files.internal("pixelArt/checkpoint_active.png"));
+        platform = new Texture(Gdx.files.internal("pixelArt/platform.png"));
+        boundaryWall = new Texture(Gdx.files.internal("pixelArt/boundaryWall.png"));
+        winFaucet = new Texture(Gdx.files.internal("pixelArt/winFaucet.png"));
     }
 
     public void dispose(){
