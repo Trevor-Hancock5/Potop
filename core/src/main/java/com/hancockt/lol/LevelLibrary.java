@@ -105,6 +105,7 @@ public class LevelLibrary {
         );
     }
 
+    //todo - maybe more checkpoints when higher?
     private static Platform generateBand(List<Platform> platforms, List<Checkpoint> checkpoints, float bandY,
                                      float bandHeight, float levelWidth, Platform highestPlatform,
                                          List<Faucet> faucets){

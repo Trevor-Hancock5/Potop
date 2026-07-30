@@ -290,6 +290,18 @@ public class FirstScreen implements Screen {
 //                batch.setColor(f.isWinFaucet() ? new Color(0.8314f, 0.6863f, 0.2157f, 1f) : new Color(1f, 0.6f, 0.6f, 1f));
 //            }
 
+            //Tint based on state for regular faucets
+            if(!f.isWinFaucet() && f.getProgress() > 0){
+                float ratio = f.getProgress() / faucetInteractionTime;
+                float gray = 0.3f;
+
+                float r = 1 - ratio * (1 - gray);
+                float g = 1 - ratio * (1 - gray);
+                float b = 1 - ratio * (1 - gray);
+
+                batch.setColor(r,g,b,1f);
+            }
+
             batch.draw(
                 texture,
                 f.getX(), f.getY(),          // position
@@ -302,7 +314,7 @@ public class FirstScreen implements Screen {
                 false, false                  // flipX, flipY
             );
 
-//            batch.setColor(Color.WHITE); // reset tint so other sprites aren't affected
+            batch.setColor(Color.WHITE); // reset tint so other sprites aren't affected
         }
 
         //MC
