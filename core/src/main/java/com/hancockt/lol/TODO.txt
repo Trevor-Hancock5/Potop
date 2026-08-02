@@ -1,26 +1,42 @@
 POTOP
 
-- Add collectibles (matches) spawning throughout infinite mode — more frequent higher up
-- Build upgrade shop UI screen
+- Art
+- Ship MVP, get 5-10 playtesters, anonymous survey
+- Adjust and adapt!
+- Add collectibles (matches) spawning throughout infinite mode — more frequent higher up (and slight chance of firewood
+collectible)
+    - checkpoints and faucets (manually used) get large bonus
+    - make it so that if there is a match nearby there is a higher likelihood for another to spawn, and less likely if
+    not. This makes it so that they are in patches!
 - Implement persistent currency system (matches saved between runs)
-- Implement mechanical upgrades: movement speed, jump height, friction — reduce base values first so upgrades feel meaningful
-- Implement collectible spawn rate / value upgrades
-- Implement tools: magnet, auto-checkpoint, auto-spin faucet, bigger platforms (one run), sodium tip, pro start (set Y height + water offset)
-- Implement permanent upgrades (mega expensive): platform size, start height — these cost firewood not matches
-- Build factory system: unlocks at 15k height first reached, base firewood rate tied to tutorial PB + infinite high score
-- Build R&D system: spend matches to start a project, cumulative score threshold to complete (reduced each run), unlocks upgrade routes
-- Implement prestige currency (firewood) — factory only, never earned in run, used for permanent upgrades only
-- Add rare in-run firewood drop — tiny chance, slightly higher as player goes higher, zero chance above 15k, zero chance after factory purchased. Allows bad players to eventually buy factory with 1 firewood + lots of matches
+- Make restart better or infinite mode cycle better (flares!)
+    - Implement flare system — 3 free restarts per run, upgradeable to 10 via permanent upgrade, two-tap confirm to prevent accidents, prompt to buy on empty
+    - Implement flare purchase with matches (cheap, hoverboard equivalent)
+- Better UI
+- Save/load system for all persistent progress (matches, firewood, upgrades, factory state, high scores, flare stock)
+- Build upgrade shop UI screen
+- Implement mechanical upgrades (speed, jump, friction; and reduce starting values); tools (magnet, auto checkpoint and
+faucet, bigger platforms for a run, sodium tip - one safety from water during run, pro start - up high with set distance
+ from water); and permanent upgrades (very expensive, platform size, start height, and maybe match spawn rate. These use
+  firewood not matches)
+- implement presige currency - firewood. Very rare in run, factory makes it. Remove chance in-run after factory unlocked
+- Factory system: unlocks once set height reached or you found one rare firewood, and then big cost of matches to get.
+Firewood rate is based on tutorial PB + infinite high score. Upgrade factory using R&D, spend matches to start project
+then you need to pass a cumulative score threshold (reduced each run) to complete it. This also unlocks different
+upgrade routes - upgrade tree!!
+
+- Another playtest with anonymous feedback. Try to get new people along with the previous!
+
+POLISH POLISH
+- Dialogue
+- Improve Infinite mode generation
+- polish tutorial!!!
+- Music (lengthen music! Maybe different ones for different areas)
+- Add juice: Add animations for feedback and responsiveness
 - Implement Spark random non-cooperation mechanic — crosses arms, refuses to move, never triggers in danger zone
 - Build Lawyer tool — disables non-cooperation for one run
 - Implement cosmetic tinting system — separate batch.draw calls for body and flame so each can be tinted independently
 - Build cosmetic unlock tree — purchases unlock adjacent options (blue flame → bunsen burner → science student → ...)
-- Implement flare system — 3 free restarts per run, upgradeable to 10 via permanent upgrade, two-tap confirm to prevent accidents, prompt to buy on empty
-- Implement flare purchase with matches (cheap, hoverboard equivalent)
-- Faucet manual spin gives large match bonus — auto-spin tool gives none
-- Checkpoint manual activation gives large match bonus — auto-checkpoint tool gives none
-- Save/load system for all persistent progress (matches, firewood, upgrades, factory state, high scores, flare stock)
-- Anonymous playtest survey after art and music done — 5-10 players
 
 
 
@@ -32,17 +48,6 @@ POTOP
 
 
 
-
-
-- Art
-- Music
-- Better UI
-- New Levels. Try making one level, see if it's good. But maybe just have tutorial (with story) before infinite mode.
-- Dialogue
-- Improve Infinite mode generation
-- add collectibles: matches?
-- polish tutorial!!!
-- Add juice: Add animations for feedback and responsiveness
 
 Wouldn't it be cool list:
 - Shipped to android option
