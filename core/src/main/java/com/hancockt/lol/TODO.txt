@@ -1,7 +1,32 @@
 POTOP
 
-- Art
+
+TO learn and practice:
+- music theory: major and minor scales, chords (major, minor, diminished), chord progressions, rhythms and time
+signatures, melody writing, bass lines, and cadence. How to properly loop a song. Also make 20 small songs to practice.
+- Marketing: how to determine audience, study how a game is marketed and how people heard about it, start marketing
+before your game is done, learn how to market and how YOU WANT to market, make an elevator pitch, psychology of
+customers. To practice make trailers, design capsule art, social posts, and take screenshots and then combine in
+different variations to make various marketing strats. Check out chris zukowski.
+- practice lots of pixel art and animating!
+
+Break tasks down!
+
+- Art:
+    - implement art and animations into game
+    - wall jump animation, 3 types
+    - no need for left vs right variation, just use a flag or something for whether to mirror the animation!
+        - remove run right and implement mirroring!
+    - bring in potop animaiton too
+    - death needs to be fixed, dies when head hits water!
+    - fix jump animation, legs don't work as it should = (
+    - instead make it so that jump and fall animation is just the flame, so then it is just put on top of Spark whether
+    running or not. So that when they are either falling or jumping, it still looks like they are running. Cause
+    otherwise it's almost just constant jump/fall animation
+    - why spark dissappears sometimes. Find where to put default!!! BECAUSE END OF ANIMATION!!!
+- timer to one decimal.
 - Ship MVP, get 5-10 playtesters, anonymous survey
+    - make demo page, create anonymous survey, message at least 20 people, get their feedback
 - Adjust and adapt!
 - Add collectibles (matches) spawning throughout infinite mode — more frequent higher up (and slight chance of firewood
 collectible)
@@ -30,7 +55,7 @@ upgrade routes - upgrade tree!!
 POLISH POLISH
 - Dialogue
 - Improve Infinite mode generation
-- polish tutorial!!!
+- polish tutorial!!! - use other characters to describe
 - Music (lengthen music! Maybe different ones for different areas)
 - Add juice: Add animations for feedback and responsiveness
 - Implement Spark random non-cooperation mechanic — crosses arms, refuses to move, never triggers in danger zone

@@ -140,8 +140,8 @@ public class LevelLibrary {
         }
 
         //Add boundary walls
-        Platform leftWall = new Platform(-40, bandY, 40, bandHeight);
-        Platform rightWall = new Platform(levelWidth, bandY, 40, bandHeight);
+        Platform leftWall = new Platform(-500, bandY, 500, bandHeight);
+        Platform rightWall = new Platform(levelWidth, bandY, 500, bandHeight);
         leftWall.setBoundaryWall(true);
         rightWall.setBoundaryWall(true);
         platforms.add(leftWall);

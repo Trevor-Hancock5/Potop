@@ -3,7 +3,6 @@ package com.hancockt.lol;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -11,6 +10,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.TimeUtils;
@@ -23,7 +23,7 @@ import java.util.List;
 import static com.hancockt.lol.PlayerData.*;
 
 /** First screen of the application. Displayed after the application is created. */
-public class FirstScreen implements Screen {
+public class GameScreen implements Screen {
     //Rendering
     private ShapeRenderer shapeRenderer;
     private SpriteBatch batch;
@@ -35,7 +35,7 @@ public class FirstScreen implements Screen {
     private final float viewportHeight = 480f;
     public static float screenShakeAccumulation;
     public static LevelType currentLevel;
-    public static GameState state = GameState.MENU; //start with menu
+    public static GameState gameState = GameState.MENU; //start with menu
     private final GlyphLayout layout = new GlyphLayout(); // create once, reuse
 
     //PLAYER TUNING!
@@ -71,7 +71,7 @@ public class FirstScreen implements Screen {
     private static boolean enteringSeed = false;
 
 
-    public FirstScreen(lol game, LevelType type){
+    public GameScreen(lol game, LevelType type){
         this.game = game;
         currentLevel = type;
     }
@@ -103,7 +103,11 @@ public class FirstScreen implements Screen {
             Gdx.app.exit();
         }
 
-        switch(state) {
+        //update animations!
+        gameAssets.checkpointAnimator.update(delta);
+        gameAssets.sparkAnimator.update(delta);
+
+        switch(gameState) {
             case MENU:
                 handleMenuInput();
                 drawMenu();
@@ -115,6 +119,7 @@ public class FirstScreen implements Screen {
                 drawPauseOverlay();
                 break;
             case DEATH:
+                gameAssets.sparkAnimator.play(AnimationKey.DEATH);
                 drawShapes();
                 drawHUD();
                 drawDeathText();
@@ -129,7 +134,8 @@ public class FirstScreen implements Screen {
                 break;
             case PLAYING:
                 if(!isDead){
-                    PhysicsEngine.updatePhysics(delta);
+                    AnimationKey sparkAnimationState = PhysicsEngine.updatePhysics(delta);
+                    gameAssets.sparkAnimator.play(sparkAnimationState);
                 }
 
                 if(isDead || !deathXValues.isEmpty()){
@@ -145,7 +151,7 @@ public class FirstScreen implements Screen {
                 }
 
                 if(Gdx.input.isKeyJustPressed(Input.Keys.P)){
-                    state = GameState.PAUSE;
+                    gameState = GameState.PAUSE;
                 }
 
                 //infinite mode seed input
@@ -154,7 +160,6 @@ public class FirstScreen implements Screen {
                         enteringSeed = true;
                     }
                 }
-
                 drawShapes();
                 updateCamera(delta);
                 drawHUD();
@@ -182,79 +187,6 @@ public class FirstScreen implements Screen {
         shapeRenderer.rect(camLeft, 0, camera.viewportWidth, waterLevel);
 
         shapeRenderer.end();
-
-
-//
-//        shapeRenderer.setProjectionMatrix(camera.combined);
-//        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-//
-//        //platforms
-//        for(Platform p : platforms){
-//            shapeRenderer.setColor(p.isBoundaryWall() ? Color.DARK_GRAY : Color.WHITE);
-//            shapeRenderer.rect(p.getX(), p.getY(), p.getWidth(), p.getHeight());
-//        }
-//
-//        //checkpoints
-//        for(Checkpoint c : checkpoints) {
-//            shapeRenderer.setColor(c.isActivated() ? new Color(0, 1, 0, 0.6f) : new Color(1, 0.35f, 0.3f, 0.6f));
-//            shapeRenderer.rect(c.getX(), c.getY(), c.getWidth(), c.getHeight());
-//        }
-//
-//        //winzone
-//        if(winZone != null && currentLevel != LevelType.TUTORIAL) {
-//            shapeRenderer.setColor(Color.GOLDENROD);
-//            shapeRenderer.rect(winZone.x, winZone.y, winZone.width, winZone.height);
-//        }
-//
-//        //faucets
-//        for(Faucet f : faucets){
-//            shapeRenderer.identity(); // reset any prior transform
-//
-//            float centerX = f.getX() + f.getWidth() / 2f;
-//            float centerY = f.getY() + f.getHeight() / 2f;
-//
-//            shapeRenderer.translate(centerX, centerY, 0);
-//            shapeRenderer.rotate(0, 0, 1, -f.getRotation()); // rotate around z-axis by faucetRotation degrees
-//            shapeRenderer.translate(-centerX, -centerY, 0);
-//
-//            Color color;
-//            if(f.isTurnedOff()){
-//                if(f.isWinFaucet()){
-//                    color = new Color(1f, 0.8431f, 0f, 1f);
-//                } else {
-//                    color = Color.GRAY;
-//                }
-//            } else if(f.getProgress() > faucetInteractionTime / 2){
-//                if(f.isWinFaucet()){
-//                    color = new Color(1f, 0.9255f, 0.4541f, 1f);
-//                } else {
-//                    color = new Color(0.85f, 0.7f, 0.7f, 1f);
-//                }
-//            } else{
-//                if(f.isWinFaucet()){
-//                    color = new Color(0.8314f, 0.6863f, 0.2157f, 1f);
-//                } else {
-//                    color = new Color(1f, 0.6f, 0.6f, 1f);
-//                }
-//            }
-//            shapeRenderer.setColor(color);
-//            shapeRenderer.rect(f.getX(), f.getY(), f.getWidth(), f.getHeight());
-//
-//            shapeRenderer.identity(); // reset so it doesn't affect anything drawn after
-//        }
-//
-//        // player
-//        if(!isDead){
-//            shapeRenderer.setColor(Color.OLIVE);
-//            shapeRenderer.rect(x, y, playerWidth, playerHeight);
-//            shapeRenderer.setColor(Color.LIGHT_GRAY);
-//            shapeRenderer.rect(x + 5, y + playerHeight - 15, 3, 9); //left eye
-//            shapeRenderer.rect(x + playerWidth - 8, y + playerHeight - 15, 3, 9); //right eye
-//
-//            //smile
-//            shapeRenderer.rect(x + 5, y + (float) playerHeight / 2, 10, 4);
-//            shapeRenderer.rect(x + 3, y + (float) playerHeight / 2 + 4, 14, 2);
-//        }
     }
 
     private void drawSprites(){
@@ -269,8 +201,14 @@ public class FirstScreen implements Screen {
 
         //checkpoints
         for(Checkpoint c : checkpoints){
-            Texture asset = c.isActivated() ? gameAssets.checkpoint_active : gameAssets.checkpoint_inactive;
-            batch.draw(asset, c.getX(), c.getY(), c.getWidth(), c.getHeight());
+            if(c.isActivated()){
+                gameAssets.checkpointAnimator.play(AnimationKey.CHECKPOINT_ACTIVE);
+                TextureRegion asset = gameAssets.checkpointAnimator.getCurrentFrame();
+                batch.draw(asset, c.getX(), c.getY(), c.getWidth(), c.getHeight());
+            } else {
+                Texture asset = gameAssets.checkpoint_inactive;
+                batch.draw(asset, c.getX(), c.getY(), c.getWidth(), c.getHeight());
+            }
         }
 
         // faucets
@@ -294,7 +232,7 @@ public class FirstScreen implements Screen {
             //Tint based on state for regular faucets
             if(!f.isWinFaucet() && f.getProgress() > 0){
                 float ratio = f.getProgress() / faucetInteractionTime;
-                float gray = 0.3f;
+                float gray = 0.5f;
 
                 float r = 1 - ratio * (1 - gray);
                 float g = 1 - ratio * (1 - gray);
@@ -318,10 +256,8 @@ public class FirstScreen implements Screen {
             batch.setColor(Color.WHITE); // reset tint so other sprites aren't affected
         }
 
-        //MC
-        if(!isDead){
-            batch.draw(gameAssets.mc, x, y, playerWidth, playerHeight);
-        }
+        //SPARK
+        batch.draw(gameAssets.sparkAnimator.getCurrentFrame(), x, y, playerWidth, playerHeight);
 
         batch.end();
     }
@@ -598,13 +534,13 @@ public class FirstScreen implements Screen {
         if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
             loadLevel(LevelType.TUTORIAL);
             restart();
-            state = GameState.PLAYING;
+            gameState = GameState.PLAYING;
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.I)){
             if(infiniteUnlocked) {
                 loadLevel(LevelType.INFINITE);
                 restart();
-                state = GameState.PLAYING;
+                gameState = GameState.PLAYING;
             }
             pressedI = true;
         }
@@ -615,7 +551,7 @@ public class FirstScreen implements Screen {
             //Skip straight to infinite mode
             loadLevel(LevelType.INFINITE);
             restart();
-            state = GameState.PLAYING;
+            gameState = GameState.PLAYING;
         }
     }
 
@@ -631,7 +567,7 @@ public class FirstScreen implements Screen {
 
     private void handlePauseInput(){
         if(Gdx.input.isKeyJustPressed(Input.Keys.P)){
-            state = GameState.PLAYING;
+            gameState = GameState.PLAYING;
         }
     }
 
@@ -648,12 +584,12 @@ public class FirstScreen implements Screen {
     private void handleDeathInput(){
         if(Gdx.input.isKeyJustPressed(Input.Keys.R)){
             restart();
-            state = GameState.PLAYING;
+            gameState = GameState.PLAYING;
         }
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.Q)){
             onQ();
-            state = GameState.PLAYING;
+            gameState = GameState.PLAYING;
         }
     }
 
@@ -686,15 +622,15 @@ public class FirstScreen implements Screen {
                 currentLevel = next;
                 loadLevel(next);
                 restart();
-                state = GameState.PLAYING;
+                gameState = GameState.PLAYING;
             } else{
-                state = GameState.MENU;
+                gameState = GameState.MENU;
             }
         }
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.Q)){
             onQ();
-            state = GameState.PLAYING;
+            gameState = GameState.PLAYING;
         }
     }
 

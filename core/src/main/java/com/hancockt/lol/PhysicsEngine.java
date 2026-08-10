@@ -5,7 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Rectangle;
 
 import static com.hancockt.lol.PlayerData.*;
-import static com.hancockt.lol.FirstScreen.*;
+import static com.hancockt.lol.GameScreen.*;
 
 public class PhysicsEngine {
     private static final int accelerationX = 1600;
@@ -31,7 +31,11 @@ public class PhysicsEngine {
     private static final float faucetRange = 30f; //how close to faucet to interact
     private static final float faucetRotationSpeed = 240f; //degrees per second it spins
 
-    public static void updatePhysics(float delta){
+    /// Returns state of Spark (player) for animating
+    public static AnimationKey updatePhysics(float delta){
+        //initialize animationKey variable to return - default to idle
+        AnimationKey currAnimation = AnimationKey.IDLE;
+
         //update jump buffer
         jumpBuffer += delta;
         if(Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)
@@ -372,7 +376,7 @@ public class PhysicsEngine {
 
         //Check win condition before death
         if(finishedFinalFaucet){
-            state = GameState.WIN;
+            gameState = GameState.WIN;
         }
 
         //death check
@@ -383,7 +387,7 @@ public class PhysicsEngine {
                 deathXValues.add(x);
             }
             isDead = true;
-            state = GameState.DEATH;
+            gameState = GameState.DEATH;
             for(Faucet f : faucets){
                 f.setTurnedOff(false);
                 f.setRotation(0);
@@ -411,8 +415,27 @@ public class PhysicsEngine {
         if(currentLevel == LevelType.INFINITE) {
             if (y > LevelLibrary.getHighestYInInfinite() - 2000) {
                 LevelData data = LevelLibrary.addToInfiniteLevel(platforms, checkpoints, faucets);
-                FirstScreen.updateLists(data);
+                GameScreen.updateLists(data);
             }
         }
+
+        //update animation from least to most important (to choose which animation is shown - default is idle!)
+        if(velocityX < -50){
+            currAnimation = AnimationKey.RUN_LEFT;
+        } else if(velocityX > 50){
+            currAnimation = AnimationKey.RUN_RIGHT;
+        }
+
+        if(velocityY < -100){
+            currAnimation = AnimationKey.FALL;
+        } else if(velocityY > 0){
+            currAnimation = AnimationKey.JUMP;
+        }
+
+        if(isDead){
+            currAnimation = AnimationKey.DEATH;
+        }
+
+        return currAnimation;
     }
 }
