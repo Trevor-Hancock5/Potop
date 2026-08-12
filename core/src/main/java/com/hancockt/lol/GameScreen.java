@@ -291,7 +291,7 @@ public class GameScreen implements Screen {
                 font.draw(batch, "Score: " + y, viewportWidth - 175, viewportHeight - 30);
                 font.draw(batch, "High Score: " + Math.round(score), viewportWidth - 175, viewportHeight - 10);
             } else {
-                font.draw(batch, "Time: " + time, viewportWidth - 125, viewportHeight - 10);
+                font.draw(batch, "Time: " + String.format("%.1f", time), viewportWidth - 125, viewportHeight - 10);
             }
         }
 

@@ -1,33 +1,37 @@
 POTOP
 
-
-TO learn and practice:
-- music theory: major and minor scales, chords (major, minor, diminished), chord progressions, rhythms and time
-signatures, melody writing, bass lines, and cadence. How to properly loop a song. Also make 20 small songs to practice.
-- Marketing: how to determine audience, study how a game is marketed and how people heard about it, start marketing
-before your game is done, learn how to market and how YOU WANT to market, make an elevator pitch, psychology of
-customers. To practice make trailers, design capsule art, social posts, and take screenshots and then combine in
-different variations to make various marketing strats. Check out chris zukowski.
-- practice lots of pixel art and animating!
-
 Break tasks down!
 
 - Art:
-    - implement art and animations into game
-    - wall jump animation, 3 types
-    - no need for left vs right variation, just use a flag or something for whether to mirror the animation!
-        - remove run right and implement mirroring!
-    - bring in potop animaiton too
-    - death needs to be fixed, dies when head hits water!
-    - fix jump animation, legs don't work as it should = (
-    - instead make it so that jump and fall animation is just the flame, so then it is just put on top of Spark whether
-    running or not. So that when they are either falling or jumping, it still looks like they are running. Cause
-    otherwise it's almost just constant jump/fall animation
-    - why spark dissappears sometimes. Find where to put default!!! BECAUSE END OF ANIMATION!!!
-- timer to one decimal.
-- Ship MVP, get 5-10 playtesters, anonymous survey
-    - make demo page, create anonymous survey, message at least 20 people, get their feedback
-- Adjust and adapt!
+    + make animations work into game
+    + fix Potop animation and implement in game
+    + change so death happens when head hits water
+    + fix spark dissappearing, add default - likely due to end of animation
+    + try adjusting platform transparency to look like gel (so makes sense when going through platforms
++ Adjust jump height controls: should be a bigger difference between tap and hold jump!
++ If easy and simple, try to make it work in browser!
+- ship mvp and get feedback
+    - Once the animations don't look buggy - all (+) bullets above - (don't need all animations in or best yet), do the
+    following:
+    - Create anonymous survey optimized for good feedback
+    - Create demo page (private? - so just demo people have access)
+    - Make message to explain game, what you are looking for, and what they need to do (ensure overall idea is in place)
+    - send to at least 20 people with private demo link/access!
+    - look through feedback and analyze what needs to change
+    - add to dos here
+
+- prioritize these:
+
+- Art:
+    - make wall jump animations, 3 types, and when sliding on wall (hit into wall then slide down), spark spinning
+    faucet animation
+    - implement left/right variation (and remove run_right animation) - mirroring
+    - use Spark spinnning as loading animation
+    - separate fire from body (for "skins" later on)
+    - fix jump animation (legs wrong)
+    - would separating fire afro animation from body animation work (so can run and jump, not jump OR run)?
+- Actual music, ensure good loop
+- Fix so that it works with different hz monitors
 - Add collectibles (matches) spawning throughout infinite mode — more frequent higher up (and slight chance of firewood
 collectible)
     - checkpoints and faucets (manually used) get large bonus
@@ -53,6 +57,9 @@ upgrade routes - upgrade tree!!
 - Another playtest with anonymous feedback. Try to get new people along with the previous!
 
 POLISH POLISH
+- Final game: add analytics tracking and sending. Send update (playtime, deaths, restarts, currency, # times opened, etc
+.) that sends when 'checkpoints' are reached, so game open, game close, death, interaction. This way I can have accurate
+ and useful data to use for improving this game and knowledge for future games.
 - Dialogue
 - Improve Infinite mode generation
 - polish tutorial!!! - use other characters to describe
@@ -66,6 +73,14 @@ POLISH POLISH
 
 
 
+TO LEARN and practice:
+- music theory: major and minor scales, chords (major, minor, diminished), chord progressions, rhythms and time
+signatures, melody writing, bass lines, and cadence. How to properly loop a song. Also make 20 small songs to practice.
+- Marketing: how to determine audience, study how a game is marketed and how people heard about it, start marketing
+before your game is done, learn how to market and how YOU WANT to market, make an elevator pitch, psychology of
+customers. To practice make trailers, design capsule art, social posts, and take screenshots and then combine in
+different variations to make various marketing strats. Check out chris zukowski.
+- practice lots of pixel art and animating!
 
 
 
