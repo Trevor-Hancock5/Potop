@@ -7,7 +7,5 @@ public enum AnimationKey {
     JUMP,
     FALL,
     DEATH,
-    CHECKPOINT_ACTIVE,
-    SPARK,
-    CHECKPOINT
+    CHECKPOINT_ACTIVE
 }

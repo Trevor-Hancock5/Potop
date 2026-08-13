@@ -3,12 +3,8 @@ POTOP
 Break tasks down!
 
 - Art:
-    + make animations work into game
     + fix Potop animation and implement in game
-    + change so death happens when head hits water
-    + fix spark dissappearing, add default - likely due to end of animation
-    + try adjusting platform transparency to look like gel (so makes sense when going through platforms
-+ Adjust jump height controls: should be a bigger difference between tap and hold jump!
++ The point in where 2 boundary platforms meet, you are able to land on it!! (and the wall jump is opposite
 + If easy and simple, try to make it work in browser!
 - ship mvp and get feedback
     - Once the animations don't look buggy - all (+) bullets above - (don't need all animations in or best yet), do the
@@ -22,6 +18,8 @@ Break tasks down!
 
 - prioritize these:
 
+- maybe do it so that there is transition in infinite mode, where it goes from big squares, to long and skinny, to tall
+and skinny
 - Art:
     - make wall jump animations, 3 types, and when sliding on wall (hit into wall then slide down), spark spinning
     faucet animation

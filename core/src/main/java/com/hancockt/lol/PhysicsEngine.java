@@ -14,8 +14,8 @@ public class PhysicsEngine {
     private static final float airFriction = 0.99f;
     private static final float gravity = 1000f;
     private static final float fallGravityMultiplier = 1.6f;
-    private static final float jumpForce = 400f;
-    private static final float jumpHoldForce = 200f;
+    private static final float jumpForce = 350f;
+    private static final float jumpHoldForce = 350f;
     private static final float coyoteThreshold = 0.1f; //Can be off platform for x seconds and still jump
     private static final float jumpBufferThreshold = 0.1f;
     private static final float downforceFallAcceleration = -300f;
@@ -382,7 +382,8 @@ public class PhysicsEngine {
         //death check
         Rectangle waterRect = new Rectangle(-50000, 0, 100000, waterLevel);
 
-        if(waterRect.overlaps(playerRectFinal)){
+        //Only dead if head hits water (because flame afro!), so top 15 pixels of player rect
+        if(waterRect.overlaps(playerRectFinal) && waterLevel >= y + playerHeight - 15){
             if(!isDead){
                 deathXValues.add(x);
             }

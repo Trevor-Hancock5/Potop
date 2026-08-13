@@ -47,11 +47,11 @@ public class GameAssets {
         TextureRegion[] runLeft = sliceRow(spark, 1, 9, 32, 64);
         TextureRegion[] jump = sliceRow(spark, 2, 11, 32, 64);
         TextureRegion[] fall = sliceRow(spark, 3, 7, 32, 64);
-        TextureRegion[] death = sliceRow(spark, 4, 5, 32, 64);
+        TextureRegion[] death = sliceRow(spark, 4, 6, 32, 64);
         TextureRegion[] runRight = sliceRow(spark, 5, 9, 32, 64);
 
         //get default frame
-        TextureRegion defaultFrame = idle[0];
+        TextureRegion defaultFrame = idle[0]; //(maybe default to last frame of current animation)
 
         //create animations
         Animation<TextureRegion> idleAnimation = new Animation<>(0.1f, idle);
@@ -63,14 +63,14 @@ public class GameAssets {
 
         //set looping if so
         idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
-        runLeftAnimation.setPlayMode(Animation.PlayMode.NORMAL);
+        runLeftAnimation.setPlayMode(Animation.PlayMode.LOOP_PINGPONG);
         jumpAnimation.setPlayMode(Animation.PlayMode.NORMAL);
         fallAnimation.setPlayMode(Animation.PlayMode.NORMAL);
         deathAnimation.setPlayMode(Animation.PlayMode.NORMAL);
-        runRightAnimation.setPlayMode(Animation.PlayMode.NORMAL);
+        runRightAnimation.setPlayMode(Animation.PlayMode.LOOP_PINGPONG);
 
         //set up animator object
-        sparkAnimator = new SpriteAnimator(defaultFrame, AnimationKey.SPARK);
+        sparkAnimator = new SpriteAnimator(defaultFrame);
         sparkAnimator.register(AnimationKey.IDLE, idleAnimation);
         sparkAnimator.register(AnimationKey.RUN_LEFT, runLeftAnimation);
         sparkAnimator.register(AnimationKey.JUMP, jumpAnimation);
@@ -83,14 +83,16 @@ public class GameAssets {
         TextureRegion[] checkpoint = sliceRow(checkpoint_active, 0, 6, 40, 100);
         Animation<TextureRegion> checkpointAnimation = new Animation<>(0.1f, checkpoint);
         checkpointAnimation.setPlayMode(Animation.PlayMode.LOOP);
-        checkpointAnimator = new SpriteAnimator(new TextureRegion(checkpoint_inactive), AnimationKey.SPARK);
+        checkpointAnimator = new SpriteAnimator(new TextureRegion(checkpoint_inactive));
         checkpointAnimator.register(AnimationKey.CHECKPOINT_ACTIVE, checkpointAnimation);
 
     }
 
     private TextureRegion[] sliceRow(Texture texture, int row, int frameCount, int frameWidth, int frameHeight){
         TextureRegion[][] ret = TextureRegion.split(texture, frameWidth, frameHeight);
-        return ret[row];
+        TextureRegion[] frames = new TextureRegion[frameCount];
+        System.arraycopy(ret[row], 0, frames, 0, frameCount);
+        return frames;
     }
 
     public void dispose(){

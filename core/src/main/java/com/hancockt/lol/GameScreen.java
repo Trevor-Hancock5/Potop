@@ -7,10 +7,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.TimeUtils;
@@ -429,9 +426,10 @@ public class GameScreen implements Screen {
         camera.update();
     }
 
-    private void drawCenteredText(String text, float yOffset, float scale){
+    private void drawCenteredText(String text, float yOffset, float scale) {
         font.getData().setScale(scale);
 
+        //batch.draw(); - TODO: surround text with black box, so white on black, or some other contrast
         layout.setText(font, text);
         float x = (viewportWidth - layout.width) / 2;
         float y = (viewportHeight - layout.height) / 2 + yOffset;
@@ -507,16 +505,16 @@ public class GameScreen implements Screen {
         batch.begin();
 
         // logo centered
-        float logoW = 200;
-        float logoH = 100;
+        float logoW = 500;
+        float logoH = 250;
         batch.draw(gameAssets.logo,
             (viewportWidth - logoW) / 2f,
-            viewportHeight / 2f + 20,
+            (viewportHeight - logoH) / 2f + 100f,
             logoW, logoH);
 
         // existing text below
-        drawCenteredText("Press SPACE to start tutorial", -35, 1f);
-        drawCenteredText("Press I for Infinite Mode", -55, 1f);
+        drawCenteredText("Press SPACE to start tutorial", -35, 1.5f);
+        drawCenteredText("Press I for Infinite Mode", -55, 1.5f);
 
         batch.end();
 
