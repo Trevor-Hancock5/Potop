@@ -27,16 +27,18 @@ public class PlayerData {
     public static final int playerWidth = 20;
     public static final int playerHeight = 50;
 
-    public static float reset(List<Checkpoint> checkpoints, float waterLevel, LevelType currentLevel){
+    public static float reset(List<Checkpoint> checkpoints, LevelType currentLevel){
+        float waterLevel;
         float checkpointMinWaterBuffer = 200f; //how far under checkpoint water starts at a minimum!
+        LevelData data = LevelLibrary.getAllLevels().get(currentLevel);
 
         if(currCheckpoint != null){
             x = currCheckpoint.getX();
             y = currCheckpoint.getY();
             waterLevel = Math.min(deathWaterLevel, y - checkpointMinWaterBuffer);
         } else {
-            x = 0;
-            y = 25;
+            x = data.getStartPoint().x;
+            y = data.getStartPoint().y;
             waterLevel = -50f;
             if(currentLevel == LevelType.TUTORIAL){
                 waterLevel = 10f;

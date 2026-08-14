@@ -112,17 +112,19 @@ public class PhysicsEngine {
 
             //Player lands on top
             float collisionPoint = p.getY();
-            if(p.getHeight() > collisionThreshold){
-                collisionPoint = p.getHeight() + p.getY() - collisionThreshold;
-            }
-            if (playerRect.overlaps(platformRect) && velocityY < 0 && prevY + ((float) playerHeight / collisionPlayerHeightDivisor) >= collisionPoint) {
-                impactVelocity = Math.abs(velocityY);
-                y = p.getY() + p.getHeight();
-                velocityY = 0;
-                onGround = true;
-                justLanded = true;
-                lastWallRight = false;
-                lastWallLeft = false;
+            if(!p.isBoundaryWall()) {
+                if (p.getHeight() > collisionThreshold) {
+                    collisionPoint = p.getHeight() + p.getY() - collisionThreshold;
+                }
+                if (playerRect.overlaps(platformRect) && velocityY < 0 && prevY + ((float) playerHeight / collisionPlayerHeightDivisor) >= collisionPoint) {
+                    impactVelocity = Math.abs(velocityY);
+                    y = p.getY() + p.getHeight();
+                    velocityY = 0;
+                    onGround = true;
+                    justLanded = true;
+                    lastWallRight = false;
+                    lastWallLeft = false;
+                }
             }
 
             //left of player hits right side of wall when moving left

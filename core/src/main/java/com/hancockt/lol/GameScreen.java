@@ -439,7 +439,7 @@ public class GameScreen implements Screen {
     }
 
     private void restart() {
-        waterLevel = PlayerData.reset(checkpoints, waterLevel, currentLevel);
+        waterLevel = PlayerData.reset(checkpoints, currentLevel);
 
         time = timeAtDeath;
         waterRiseSpeed = Math.min(50f, 8f + (y / 200f)); //full speed always after ~8k height
