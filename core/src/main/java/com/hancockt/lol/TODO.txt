@@ -1,12 +1,10 @@
 POTOP
+- Focus on getting players to play it rather than earning money, focus on feedback.
+    - goal: 100 people to play it
 
 Break tasks down!
 
-- Art:
-    + fix Potop animation and implement in game
 - ship mvp and get feedback
-    - Once the animations don't look buggy - all (+) bullets above - (don't need all animations in or best yet), do the
-    following:
     - Create anonymous survey optimized for good feedback
     +questions: rating, would play?, most improvement needed, base mechanics fun, any bugs?, thoughts on my direction,
     any ideas on where you want to see it go, want to be in next playtest?, would you be willing to help me with music
@@ -15,17 +13,63 @@ Break tasks down!
     away launch?, any other feedback?
     + have some questions be required and at top, then the rest optional.
 
+    - post on itch publicly, rename game jam game as prototype, then this as (demo)
+    - change The MC to match this (with game jam prototype), and put link to demo
+    - use google forms for the survey, but also add the google forms link on itch too!
+    - good questions: What did you think the goal of the game was?
+What was the most fun part?
+Was there anything confusing or frustrating?
+Was there a point where you felt like you didn't know what to do?
+How likely would you be to play more of this game?
+What would you change?
+Optional: Anything else you want to tell me?
+
     - Create demo page (private? - so just demo people have access)
-    - Make message to explain game, what you are looking for, and what they need to do (ensure overall idea is in place)
+    - Make message to explain game (actually ideally it would be better not to explain, they figure out), what you are
+    looking for, and what they need to do
+    (ensure overall idea is in place)
     - send to at least 20 people with private demo link/access!
     - look through feedback and analyze what needs to change
     - add to dos here
 
-- prioritize these:
 
+
+
+
+
+AFTER DEMO:
+
+- draw afrobonk, must have profile picture ready before final release!
+- learn marketing! yay. start right after demo to have time for a little traction before full release
+    (show difference from game jam to demo as proof of polish)
+    (talk about how you focused on the mechanic polish/tuning first - making everything feel fair)
+    (write substack, summarize for itch, then use interesting parts for reddit and short form content)
+    (music is hard)
+    (sketching transfers to pixel art)
+    (why my game felt great even though it looked terrible)
+    (EVERYTHING MUST LEAD TO ITCH PAGE - update all of it to final release when done)
+    (prototype - demo - full release)
+    - don't share marketing with fam or friends, this is to get strangers interested
+    - game dev club
+    - discord
+    - reddit (experiment most with this) communities.
+        - for each subreddit, understand your audience and then tailor towards that
+        - get players
+        - get feedback
+        - build credibility/relationships (when answering, DO NOT mention your game, just answer from experience)
+    - short form content - post to youtube, tiktok, and other platforms (none on phone!), use either narration or text
+    overlay but focus on gameplay
+    - show your progression (game jam, to demo, to final)
+    - the skill is how to make people curious (how high can you climb)
+    - when adding something interesting, record it and save for later
+    - itch devlogs (worth it?): reddit should be the interesting parts, itch should have the lengthier description
+    - consider substack
+- add a very very secret easter egg, for only the most devout players that says I'm single lol
+    - like bought all upgrades, and like beat thresholds for PR and height.
 - maybe do it so that there is transition in infinite mode, where it goes from big squares, to long and skinny, to tall
 and skinny
 - Art:
+    - finish potop animation (waves and transition to spark)
     - fix jump animation!
     - make wall jump animations, 3 types, and when sliding on wall (hit into wall then slide down), spark spinning
     faucet animation
