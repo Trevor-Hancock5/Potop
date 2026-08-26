@@ -75,6 +75,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
+        Gdx.input.setCursorCatched(true);
         shapeRenderer = new ShapeRenderer();
         batch = new SpriteBatch();
         font = new BitmapFont();
@@ -285,7 +286,7 @@ public class GameScreen implements Screen {
 
             font.getData().setScale(1.25f);
             if (currentLevel == LevelType.INFINITE) {
-                font.draw(batch, "Score: " + y, viewportWidth - 175, viewportHeight - 30);
+                font.draw(batch, "Score: " + Math.round(y), viewportWidth - 175, viewportHeight - 30);
                 font.draw(batch, "High Score: " + Math.round(score), viewportWidth - 175, viewportHeight - 10);
             } else {
                 font.draw(batch, "Time: " + String.format("%.1f", time), viewportWidth - 125, viewportHeight - 10);

@@ -4,25 +4,26 @@ POTOP
 
 Break tasks down!
 
+
+Questions:
+- how  long did you play the demo? -> dropdown (<10, 10-20, 20-30, 30-60, 60+)
+- Rate the demo from 1-10 (enjoyment) -> scale
+- Rate the demo from 1-10 (difficulty) -> scale
+- How likely are you to play the full release of this game? -> scale
+- How fair did the game feel? -> scale
+- what was your favorite part of the game? -> paragraph (!req)
+- Was there a specific point when you were confused or didn't know what to do? If so, what happened? -> paragraph (!req)
+- What would you change or improve about the game? -> paragraph (!req)
+- Any other feedback, comments, questions? -> paragraph (!req)
+- If you wrote a question you'd like me to answer, please note your contact info here. -> short answer (!req)
+
+
 - ship mvp and get feedback
     - Create anonymous survey optimized for good feedback
-    +questions: rating, would play?, most improvement needed, base mechanics fun, any bugs?, thoughts on my direction,
-    any ideas on where you want to see it go, want to be in next playtest?, would you be willing to help me with music
-    (if so give contact info), thoughts for background instead of black, what needs improvement with infinite mode,
-    tutorial?, anything TOO confusing to even understand, feel? too tough/easy, explain 3 wall jumps/should remove hold
-    away launch?, any other feedback?
-    + have some questions be required and at top, then the rest optional.
 
     - post on itch publicly, rename game jam game as prototype, then this as (demo)
     - change The MC to match this (with game jam prototype), and put link to demo
     - use google forms for the survey, but also add the google forms link on itch too!
-    - good questions: What did you think the goal of the game was?
-What was the most fun part?
-Was there anything confusing or frustrating?
-Was there a point where you felt like you didn't know what to do?
-How likely would you be to play more of this game?
-What would you change?
-Optional: Anything else you want to tell me?
 
     - Create demo page (private? - so just demo people have access)
     - Make message to explain game (actually ideally it would be better not to explain, they figure out), what you are
