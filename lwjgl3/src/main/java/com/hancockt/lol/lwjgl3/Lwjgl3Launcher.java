@@ -39,7 +39,7 @@ public class Lwjgl3Launcher {
         configuration.setDecorated(false);
         //// You can change these files; they are in lwjgl3/src/main/resources/ .
         //// They can also be loaded from the root of assets/ .
-        configuration.setWindowIcon("libgdx128.png", "libgdx64.png", "libgdx32.png", "libgdx16.png");
+        configuration.setWindowIcon("taskbar_icon.png");
 
 //TODO - something to do with not blurry pixel art
 //        texture.setFilter(
