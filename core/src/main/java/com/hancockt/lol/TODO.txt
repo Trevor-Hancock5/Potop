@@ -5,33 +5,20 @@ POTOP
 Break tasks down!
 
 
-Questions:
-- how  long did you play the demo? -> dropdown (<10, 10-20, 20-30, 30-60, 60+)
-- Rate the demo from 1-10 (enjoyment) -> scale
-- Rate the demo from 1-10 (difficulty) -> scale
-- How likely are you to play the full release of this game? -> scale
-- How fair did the game feel? -> scale
-- what was your favorite part of the game? -> paragraph (!req)
-- Was there a specific point when you were confused or didn't know what to do? If so, what happened? -> paragraph (!req)
-- What would you change or improve about the game? -> paragraph (!req)
-- Any other feedback, comments, questions? -> paragraph (!req)
-- If you wrote a question you'd like me to answer, please note your contact info here. -> short answer (!req)
-
 
 - ship mvp and get feedback
-    - Create anonymous survey optimized for good feedback
-
     - post on itch publicly, rename game jam game as prototype, then this as (demo)
     - change The MC to match this (with game jam prototype), and put link to demo
-    - use google forms for the survey, but also add the google forms link on itch too!
+    - use google forms for the survey, but also add the google forms link on itch too (https://forms.gle/JHhHPHAu6fhRLzTy9)!
+        - add itch.io link to the survey too!
 
     - Create demo page (private? - so just demo people have access)
     - Make message to explain game (actually ideally it would be better not to explain, they figure out), what you are
-    looking for, and what they need to do
+    looking for, and what they need to do. (Note typing "INF" in menu to skip tutorial)
+        - give directions for how to install and play from itch.io link, and then a reminder to fill out the survey.
     (ensure overall idea is in place)
-    - send to at least 20 people with private demo link/access!
+    - send to at least 20 people with demo link/access!
     - look through feedback and analyze what needs to change
-    - add to dos here
 
 
 
@@ -40,6 +27,8 @@ Questions:
 
 AFTER DEMO:
 
+- Improve UI everywhere.
+- sound effects
 - draw afrobonk, must have profile picture ready before final release!
 - learn marketing! yay. start right after demo to have time for a little traction before full release
     (show difference from game jam to demo as proof of polish)

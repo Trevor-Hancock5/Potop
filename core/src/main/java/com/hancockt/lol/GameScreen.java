@@ -515,7 +515,7 @@ public class GameScreen implements Screen {
 
         // existing text below
         drawCenteredText("Press SPACE to start tutorial", -35, 1.5f);
-        drawCenteredText("Press I for Infinite Mode", -55, 1.5f);
+        drawCenteredText("\nType INF for Infinite Mode", -55, 1.5f);
 
         batch.end();
 
@@ -560,6 +560,8 @@ public class GameScreen implements Screen {
 
         drawCenteredText("PAUSED", 35, 2);
         drawCenteredText("Press P to resume", 0, 1);
+        drawCenteredText("Press M to go to menu", -35, 1);
+        drawCenteredText("Reminder: Press R to restart at previous checkpoint", -70, 1);
 
         batch.end();
     }
@@ -567,6 +569,16 @@ public class GameScreen implements Screen {
     private void handlePauseInput(){
         if(Gdx.input.isKeyJustPressed(Input.Keys.P)){
             gameState = GameState.PLAYING;
+        }
+
+        if(Gdx.input.isKeyJustPressed(Input.Keys.M)){
+            onQ();
+            gameState = GameState.MENU;
+        }
+
+        if(Gdx.input.isKeyJustPressed(Input.Keys.R)){
+            gameState = GameState.PLAYING;
+            restart();
         }
     }
 
