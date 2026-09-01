@@ -4,6 +4,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Rectangle;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.hancockt.lol.PlayerData.*;
 import static com.hancockt.lol.GameScreen.*;
 
@@ -30,6 +33,7 @@ public class PhysicsEngine {
     private static final float maxWaterRiseSpeed = 50f;
     private static final float faucetRange = 30f; //how close to faucet to interact
     private static final float faucetRotationSpeed = 240f; //degrees per second it spins
+    private static final float currencyRange = 8f;
 
     /// Returns state of Spark (player) for animating
     public static AnimationKey updatePhysics(float delta){
@@ -362,6 +366,25 @@ public class PhysicsEngine {
             }
         }
 
+        //check if overlapping currency
+
+        List<Currency> toRemove = new ArrayList<>();
+        for(Currency c : currencies){
+            Rectangle curr = new Rectangle(c.getX() - currencyRange, c.getY() - currencyRange,
+                                            Currency.WIDTH + 2*currencyRange, Currency.HEIGHT + 2*currencyRange);
+            if(playerRectFinal.overlaps(curr)){
+                //TODO - absorb currency, move currency to Spark and update currency count
+                if(!c.isPrestige()) {
+                    numMatches += 1;
+                } else{
+                    numFirewood += 1;
+                }
+                toRemove.add(c);
+            }
+        }
+
+        currencies.removeAll(toRemove);
+
         // for tutorial level danger boost example
         if(waterTriggerZone != null) {
             if (playerRectFinal.overlaps(waterTriggerZone)) {
@@ -417,7 +440,7 @@ public class PhysicsEngine {
         //update infinite level if needed
         if(currentLevel == LevelType.INFINITE) {
             if (y > LevelLibrary.getHighestYInInfinite() - 2000) {
-                LevelData data = LevelLibrary.addToInfiniteLevel(platforms, checkpoints, faucets);
+                LevelData data = LevelLibrary.addToInfiniteLevel(platforms, checkpoints, faucets, currencies);
                 GameScreen.updateLists(data);
             }
         }

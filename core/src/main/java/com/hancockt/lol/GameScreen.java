@@ -54,6 +54,7 @@ public class GameScreen implements Screen {
     public static List<Float> deathXValues;
     public static List<Checkpoint> checkpoints;
     public static List<Faucet> faucets;
+    public static List<Currency> currencies;
     private boolean pressedI = false;
     private boolean pressedN = false;
     public static float time = 0f;
@@ -254,6 +255,12 @@ public class GameScreen implements Screen {
             batch.setColor(Color.WHITE); // reset tint so other sprites aren't affected
         }
 
+        //Currency
+        for(Currency c : currencies){
+            Texture asset = c.isPrestige() ? gameAssets.prestigeCurrency : gameAssets.currency;
+            batch.draw(asset, c.getX(), c.getY(), Currency.WIDTH, Currency.HEIGHT);
+        }
+
         //SPARK
         batch.draw(gameAssets.sparkAnimator.getCurrentFrame(), x, y, playerWidth, playerHeight);
 
@@ -286,8 +293,9 @@ public class GameScreen implements Screen {
 
             font.getData().setScale(1.25f);
             if (currentLevel == LevelType.INFINITE) {
-                font.draw(batch, "Score: " + Math.round(y), viewportWidth - 175, viewportHeight - 30);
-                font.draw(batch, "High Score: " + Math.round(score), viewportWidth - 175, viewportHeight - 10);
+                font.draw(batch, "Score: " + Math.round(y), viewportWidth - 175, viewportHeight - 50);
+                font.draw(batch, "High Score: " + Math.round(score), viewportWidth - 175, viewportHeight - 30);
+                font.draw(batch, "Matches: " + numMatches, viewportWidth - 175, viewportHeight - 10);
             } else {
                 font.draw(batch, "Time: " + String.format("%.1f", time), viewportWidth - 125, viewportHeight - 10);
             }
@@ -463,6 +471,7 @@ public class GameScreen implements Screen {
         winZone = data.getWinZone();
         waterRise = data.isWaterStartsActive();
         faucets = data.getFaucets();
+        currencies = data.getCurrencies();
         x = data.getStartPoint().x;
         y = data.getStartPoint().y;
     }

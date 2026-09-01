@@ -9,6 +9,7 @@ public class LevelData {
     private final LevelType type;
     private final List<Checkpoint> checkpoints;
     private final List<Faucet> faucets;
+    private final List<Currency> currencies;
     private final Rectangle waterTriggerZone;
     private final Rectangle waterFixZone;
     private final Rectangle winZone;
@@ -19,10 +20,12 @@ public class LevelData {
 
     public LevelData(LevelType type, List<Checkpoint> checkpoints, Rectangle waterTriggerZone,
                      Rectangle waterFixZone, Rectangle winZone, List<Platform> platforms,
-                     Vector2 startPoint, boolean waterStartsActive, LevelType nextLevel, List<Faucet> faucets) {
+                     Vector2 startPoint, boolean waterStartsActive, LevelType nextLevel, List<Faucet> faucets,
+                     List<Currency> currencies) {
         this.type = type;
         this.checkpoints = checkpoints;
         this.faucets = faucets;
+        this.currencies = currencies;
         this.waterTriggerZone = waterTriggerZone;
         this.waterFixZone = waterFixZone;
         this.winZone = winZone;
@@ -38,6 +41,10 @@ public class LevelData {
 
     public List<Faucet> getFaucets() {
         return faucets;
+    }
+
+    public List<Currency> getCurrencies(){
+        return currencies;
     }
 
     public Rectangle getWaterTriggerZone() {

@@ -40,6 +40,8 @@ public class LevelLibrary {
         faucets.add(new Faucet(6870, 2015, 25, 25, 10, false));
         faucets.add(new Faucet(8132.5f, 2198, 25, 25, 0, true));
 
+        List<Currency> currencies = new ArrayList<>();
+
         Rectangle waterTriggerZone = new Rectangle(6245, 1800, 50, 1000);
         Rectangle waterFixZone = new Rectangle(6845, 2000, 50, 1000);
         Rectangle winZone = new Rectangle(8132.5f, 2163, 25, 75);
@@ -65,7 +67,7 @@ public class LevelLibrary {
 
         return new LevelData(
             LevelType.TUTORIAL, checkpoints, waterTriggerZone, waterFixZone, winZone, platforms,
-            startPoint, waterStartsActive, nextLevel, faucets
+            startPoint, waterStartsActive, nextLevel, faucets, currencies
         );
     }
 
@@ -77,38 +79,41 @@ public class LevelLibrary {
         List<Checkpoint> checkpoints = new ArrayList<>();
         List<Platform> platforms = new ArrayList<>();
         List<Faucet> faucets = new ArrayList<>();
+        List<Currency> currencies = new ArrayList<>();
 
         //just call generate band for each band until height
         highestPlatform = new Platform(0,0,75,25);
         for(int i = 0; i <= 2000; i += BAND_HEIGHT) {
-            highestPlatform = generateBand(platforms, checkpoints, i, BAND_HEIGHT, LEVEL_WIDTH, highestPlatform, faucets);
+            highestPlatform = generateBand(platforms, checkpoints, i, BAND_HEIGHT, LEVEL_WIDTH, highestPlatform,
+                                            faucets, currencies);
         }
 
         return new LevelData(
             LevelType.INFINITE, checkpoints, null, null, null, platforms, new Vector2(0,0),
-            true, null, faucets
+            true, null, faucets, currencies
         );
     }
 
     public static LevelData addToInfiniteLevel(List<Platform> platforms, List<Checkpoint> checkpoints,
-                                               List<Faucet> faucets){
+                                               List<Faucet> faucets, List<Currency> currencies){
         //Add another 2000 height to the infinite level
         int maxAdditionY = highestInfiniteY + 2000;
         for(int i = highestInfiniteY; i < maxAdditionY; i += BAND_HEIGHT){
             highestPlatform = generateBand(platforms, checkpoints, i, BAND_HEIGHT, LEVEL_WIDTH,
-                highestPlatform, faucets);
+                highestPlatform, faucets, currencies);
         }
 
         return new LevelData(
             LevelType.INFINITE, checkpoints, null, null, null, platforms, new Vector2(0,0),
-            true, null, faucets
+            true, null, faucets, currencies
         );
     }
 
     //todo - maybe more checkpoints when higher?
+    //TODO - rework so that it uses LevelData for lists instead of passing them as arguments!
     private static Platform generateBand(List<Platform> platforms, List<Checkpoint> checkpoints, float bandY,
                                      float bandHeight, float levelWidth, Platform highestPlatform,
-                                         List<Faucet> faucets){
+                                         List<Faucet> faucets, List<Currency> currencies){
         //add checkpoint
         float checkpointHeightDistance = rng.nextFloat(1000, 2000); //add some randomness for kicks and giggles!
         float skipCheckpointThreshold = 0.1f;
@@ -243,15 +248,105 @@ public class LevelLibrary {
         //by having the highest platform update outside the for loop, the do-while loop continually tries to make a
         // platform that the previous band's highest platform can reach
 
-        // check if new highest platform for checkpoint making
+        // check if new highest platform for checkpoint making and add currency!
         for(Platform p : bandPlatforms) {
             if (p.getY() + p.getHeight() > highestPlatform.getY() + highestPlatform.getHeight()) {
                 highestPlatform = p;
+            }
+
+            //TODO - check it doesn't overlap checkpoint/faucet!
+            int currencyWidth = 16;
+
+            //prestige currency chance, super low chance just in case player can't reach factory threshold
+            int maxPrestigeCurrencyThreshold = 10_000;
+            int minPrestigeCurrencyThreshold = 1_000;
+            float chanceDecreaseThreshold = 5_000;
+            boolean hasFactory = false; //TODO - once logic in place, get this dynamically!
+            float prestigeCurrChanceMax = 0.0001f;
+            float prestigeCurrChanceMin = 0.000001f;
+
+            boolean placedPrestige = false;
+            //TODO - don't place if overlapping a platform
+            if(!hasFactory && p.getY() < maxPrestigeCurrencyThreshold && p.getY() > minPrestigeCurrencyThreshold){
+                //The factory unlocks at 10k height or if they get a firewood before that point
+                //So this is for players that can't get to 10k, thus, the lower they are the higher chance it is so they
+                //have the chance to still unlock the factory
+
+                float chance = p.getY() < chanceDecreaseThreshold ? prestigeCurrChanceMax : prestigeCurrChanceMin;
+                if(rng.nextFloat() < chance){
+                    placedPrestige = true;
+                }
+
+                if(placedPrestige){
+                    int placementX = rng.nextInt(p.getX(), p.getX() + p.getWidth() - currencyWidth);
+                    Currency curr = new Currency(placementX, p.getY() + p.getHeight(), true);
+                    if(!checkCurrencyOverlap(curr, platforms, checkpoints, faucets)) {
+                        currencies.add(curr);
+                    }
+                }
+            }
+
+            //standard currency getting placed
+            if(!placedPrestige){
+                //how many can I place on this platform?
+                int maxPlacements = Math.max(p.getWidth() / currencyWidth, 1); //at least 1 possible place on each platform
+
+                //how many do I want to place on this platform
+                int numPlacements = rng.nextInt(maxPlacements + 1); //+1 b/c exclusive bound
+
+                //Do I place the currency? - TODO: make this depend on height, increases as height increases
+                float chanceOfPlacement = 0.05f; // only on 5% of platforms to start
+                float maxChanceOfPlacement = 0.5f;
+                float chance = Math.min(chanceOfPlacement + (bandY / maxPrestigeCurrencyThreshold), maxChanceOfPlacement);
+                if(numPlacements > 0 && rng.nextFloat() <= chance){
+                    //which side do I place from
+                    boolean placeFromLeft = rng.nextBoolean();
+                    Currency curr;
+                    if(placeFromLeft){
+                        for(int i = 0; i < numPlacements; i++){
+                            curr = new Currency(p.getX() + i * Currency.WIDTH, p.getY() + p.getHeight());
+                            if(!checkCurrencyOverlap(curr, platforms, checkpoints, faucets)) {
+                                currencies.add(curr);
+                            }
+                        }
+                    } else{
+                        //From 1 to numPlacements so it doesn't hang over the edge
+                        for(int i = 1; i <= numPlacements; i++){
+                            curr = new Currency(p.getX() + p.getWidth() - i * Currency.WIDTH, p.getY() + p.getHeight());
+                            if(!checkCurrencyOverlap(curr, platforms, checkpoints, faucets)) {
+                                currencies.add(curr);
+                            }
+                        }
+                    }
+                }
             }
         }
 
         highestInfiniteY = (int) (bandY + bandHeight);
         return highestPlatform;
+    }
+
+    private static boolean checkCurrencyOverlap(Currency curr, List<Platform> platforms, List<Checkpoint> checkpoints,
+                                                List<Faucet> faucets){
+        boolean platformOverlap = platforms.stream()
+            .anyMatch(p -> p.getY() > curr.getY()
+                        && p.getY() < curr.getY() + Currency.HEIGHT + PlayerData.playerHeight
+                        && p.getX() < curr.getX() + Currency.WIDTH + PlayerData.playerWidth
+                        && p.getX() + p.getWidth() > curr.getX());
+
+        boolean checkpointOverlap = checkpoints.stream()
+            .anyMatch(c -> c.getY() > curr.getY()
+                && c.getY() < curr.getY() + Currency.HEIGHT + PlayerData.playerHeight
+                && c.getX() < curr.getX() + Currency.WIDTH + PlayerData.playerWidth
+                && c.getX() + c.getWidth() > curr.getX());
+
+        boolean faucetOverlap = faucets.stream()
+            .anyMatch(f -> f.getY() > curr.getY()
+                && f.getY() < curr.getY() + Currency.HEIGHT + PlayerData.playerHeight
+                && f.getX() < curr.getX() + Currency.WIDTH + PlayerData.playerWidth
+                && f.getX() + f.getWidth() > curr.getX());
+
+        return platformOverlap || checkpointOverlap || faucetOverlap;
     }
 
     private static boolean checkReachability(Platform currPlatform, Platform highestPlatform){

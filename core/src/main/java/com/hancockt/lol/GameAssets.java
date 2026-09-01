@@ -13,6 +13,8 @@ public class GameAssets {
     public Texture platform;
     public Texture boundaryWall;
     public Texture winFaucet;
+    public Texture currency;
+    public Texture prestigeCurrency;
 
     public SpriteAnimator sparkAnimator;
     public SpriteAnimator checkpointAnimator;
@@ -27,6 +29,8 @@ public class GameAssets {
         platform = new Texture(Gdx.files.internal("pixelArt/platform.png"));
         boundaryWall = new Texture(Gdx.files.internal("pixelArt/boundaryWall.png"));
         winFaucet = new Texture(Gdx.files.internal("pixelArt/winFaucet.png"));
+        currency = new Texture(Gdx.files.internal("pixelArt/currency.png"));
+        prestigeCurrency = new Texture(Gdx.files.internal("pixelArt/prestigeCurrency1.png"));
 
         //animations
         loadAnimations();

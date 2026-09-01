@@ -24,6 +24,8 @@ public class PlayerData {
     public static Checkpoint currCheckpoint; //current checkpoint player has made it to
     public static float deathWaterLevel; //water level when user hit current checkpoint
     public static boolean infiniteUnlocked = false;
+    public static int numMatches = 0;
+    public static int numFirewood = 0;
     public static final int playerWidth = 20;
     public static final int playerHeight = 50;
 
