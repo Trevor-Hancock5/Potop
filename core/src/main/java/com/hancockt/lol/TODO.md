@@ -4,6 +4,20 @@
 - Need better conversion from impression to view to download!
 
 
+### TO ORGANIZE:
+- Better tutorial
+- More clear how to use checkpoints
+- Have easy, normal, and hard modes 
+  - easy: more checkpoints, faucets, slower water, etc
+  - Maybe for normal, something like this but slightly easier max difficulty for platforms!
+  - hard mode: trick faucets (speed up water), and water faster, and platforms
+- improve infinite mode generation: guarenteed way up in each half of the playing width!
+- No water rising UNTIL input has been received!
+- Different platforms with themes (like swinging - jungle, more friction - sand, lava spouts - volcano, etc.)
+- bigger player so they can see animations?
+- celebration animatoin (spin), and idle roasting marshmallow spin!
+- How to teach controls b/c people don't read!
+
 
 ---
 ## Roguelite
@@ -19,7 +33,7 @@
     - Implement flare purchase with matches (cheap, hoverboard equivalent)
 - Save/load system for all persistent progress (matches, firewood, upgrades, factory state, high scores, flare stock)
 - Build upgrade shop UI screen
-- Implement mechanical upgrades (speed, jump, friction; and reduce starting values); tools (magnet, auto checkpoint and
+- Implement mechanical upgrades (speed, jump, friction - more friction; and reduce starting values); tools (magnet, auto checkpoint and
   faucet, bigger platforms for a run, sodium tip - one safety from water during run, pro start - up high with set distance
   from water); and permanent upgrades (very expensive, platform size, start height, and maybe match spawn rate. These use
   firewood not matches)
