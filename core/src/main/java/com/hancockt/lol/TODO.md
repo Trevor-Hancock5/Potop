@@ -5,20 +5,18 @@
 
 - 25k high score!
 
+
+
+- REDO how PLayerData is used and what it stores!
+- Refactor code before adding upgrades because my goodness that'd be disgusting!
+- Make upgrade class!
+
 ---
 ## Roguelite
-- Add collectibles (matches) spawning throughout infinite mode — more frequent higher up (and slight chance of firewood
-  collectible)
-    - checkpoints and faucets (manually used) get large bonus
-      - So currency needs to splash out and then gravitate into Spark
-    - make it so that if there is a match nearby there is a higher likelihood for another to spawn, and less likely if
-      not. This makes it so that they are in patches!
 - Implement persistent currency system (matches saved between runs)
 - Make restart better or infinite mode cycle better (flares!)
-    - Implement flare system — 3 free restarts per run, upgradeable to 10 via permanent upgrade, two-tap confirm to prevent accidents, prompt to buy on empty
-    - Implement flare purchase with matches (cheap, hoverboard equivalent)
-- Save/load system for all persistent progress (matches, firewood, upgrades, factory state, high scores, flare stock)
-- Build upgrade shop UI screen
+  - Implement flare system — 3 free restarts per run, upgradeable to 10 via permanent upgrade, two-tap confirm to prevent accidents, prompt to buy on empty
+  - Implement flare purchase with matches (cheap, hoverboard equivalent)
 - Implement mechanical upgrades (speed, jump, friction - more friction; and reduce starting values); tools (magnet, auto checkpoint and
   faucet, bigger platforms for a run, sodium tip - one safety from water during run, pro start - up high with set distance
   from water); and permanent upgrades (very expensive, platform size, start height, and maybe match spawn rate. These use
@@ -28,6 +26,8 @@
   Firewood rate is based on tutorial PB + infinite high score. Upgrade factory using R&D, spend matches to start project
   then you need to pass a cumulative score threshold (reduced each run) to complete it. This also unlocks different
   upgrade routes - upgrade tree!!
+- Save/load system for all persistent progress (matches, firewood, upgrades, factory state, high scores, flare stock)
+- Build upgrade shop UI screen
 
 
 ## Music
@@ -49,6 +49,7 @@
 - heat color coming off spark, so changes to background somehow!
 - Different platforms with themes (like swinging - jungle, more friction - sand, lava spouts - volcano, etc.)
 - bigger player so they can see animations?
+- water!
 - celebration animatoin (spin), and idle roasting marshmallow spin!
 - make wall jump animations (climb/jump away)
 - make one version, then add logic for mirroring to match which way it's facing!

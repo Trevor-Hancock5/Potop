@@ -302,12 +302,6 @@ public class GameScreen implements Screen {
                     font.draw(batch, "Time: " + String.format("%.1f", time), viewportWidth - 125, viewportHeight - 10);
                 }
 
-                if(LevelLibrary.prestige) {
-                    font.setColor(Color.GOLD);
-                    font.draw(batch, "Prestige placed at: " + LevelLibrary.prestigeY, viewportWidth - 175, viewportHeight - 70);
-                } else{
-                    font.draw(batch, "nope", viewportWidth - 175, viewportHeight - 70);
-                }
                 font.setColor(Color.WHITE);
             }
         } finally {

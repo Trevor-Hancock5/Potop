@@ -14,9 +14,6 @@ public class LevelLibrary {
     private static Platform highestPlatform;
     private static final float LEVEL_WIDTH = 3000;
 
-    public static float prestigeY;
-    public static boolean prestige;
-
 
     static {
         ALL_LEVELS.put(LevelType.TUTORIAL, buildTutorialLevel());
@@ -283,7 +280,6 @@ public class LevelLibrary {
                     Currency curr = new Currency(placementX, p.getY() + p.getHeight(), true);
                     if(!checkCurrencyOverlap(curr, platforms, checkpoints, faucets)) {
                         currencies.add(curr);
-                        prestigeY = curr.getY();
                     }
                 }
             }
@@ -331,25 +327,6 @@ public class LevelLibrary {
                                                 List<Faucet> faucets){
         Rectangle currencyRectangle = new Rectangle(curr.getX(), curr.getY(),
                                                 Currency.WIDTH, Currency.HEIGHT);
-
-//
-//        boolean platformOverlap = platforms.stream()
-//            .anyMatch(p -> p.getY() > curr.getY()
-//                        && p.getY() < curr.getY() + Currency.HEIGHT + PlayerData.playerHeight
-//                        && p.getX() < curr.getX() + Currency.WIDTH + PlayerData.playerWidth
-//                        && p.getX() + p.getWidth() > curr.getX());
-//
-//        boolean checkpointOverlap = checkpoints.stream()
-//            .anyMatch(c -> c.getY() > curr.getY()
-//                && c.getY() < curr.getY() + Currency.HEIGHT + PlayerData.playerHeight
-//                && c.getX() < curr.getX() + Currency.WIDTH + PlayerData.playerWidth
-//                && c.getX() + c.getWidth() > curr.getX());
-//
-//        boolean faucetOverlap = faucets.stream()
-//            .anyMatch(f -> f.getY() > curr.getY()
-//                && f.getY() < curr.getY() + Currency.HEIGHT + PlayerData.playerHeight
-//                && f.getX() < curr.getX() + Currency.WIDTH + PlayerData.playerWidth
-//                && f.getX() + f.getWidth() > curr.getX());
 
         //base check of overlap
         boolean platformOverlap = platforms.stream()

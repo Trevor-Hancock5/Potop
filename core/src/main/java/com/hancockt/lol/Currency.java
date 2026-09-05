@@ -8,7 +8,7 @@ public class Currency {
     private float explodeVelocityY;
     private float explodeTime;
 
-    public final static float ABSORB_VELOCITY = 200f;
+    public final static float ABSORB_VELOCITY = 300f;
     public final static float WIDTH = 16;
     public final static float HEIGHT = 16;
 
