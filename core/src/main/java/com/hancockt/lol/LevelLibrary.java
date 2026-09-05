@@ -3,6 +3,7 @@ package com.hancockt.lol;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 public class LevelLibrary {
@@ -266,7 +267,6 @@ public class LevelLibrary {
             float prestigeCurrChanceMin = 0.000001f;
 
             boolean placedPrestige = false;
-            //TODO - don't place if overlapping a platform
             if(!hasFactory && p.getY() < maxPrestigeCurrencyThreshold && p.getY() > minPrestigeCurrencyThreshold){
                 //The factory unlocks at 10k height or if they get a firewood before that point
                 //So this is for players that can't get to 10k, thus, the lower they are the higher chance it is so they
@@ -294,7 +294,6 @@ public class LevelLibrary {
                 //how many do I want to place on this platform
                 int numPlacements = rng.nextInt(maxPlacements + 1); //+1 b/c exclusive bound
 
-                //Do I place the currency? - TODO: make this depend on height, increases as height increases
                 float chanceOfPlacement = 0.05f; // only on 5% of platforms to start
                 float maxChanceOfPlacement = 0.5f;
                 float chance = Math.min(chanceOfPlacement + (bandY / maxPrestigeCurrencyThreshold), maxChanceOfPlacement);
@@ -328,23 +327,41 @@ public class LevelLibrary {
 
     private static boolean checkCurrencyOverlap(Currency curr, List<Platform> platforms, List<Checkpoint> checkpoints,
                                                 List<Faucet> faucets){
+        Rectangle currencyRectangle = new Rectangle(curr.getX(), curr.getY(),
+                                                Currency.WIDTH, Currency.HEIGHT);
+
+//
+//        boolean platformOverlap = platforms.stream()
+//            .anyMatch(p -> p.getY() > curr.getY()
+//                        && p.getY() < curr.getY() + Currency.HEIGHT + PlayerData.playerHeight
+//                        && p.getX() < curr.getX() + Currency.WIDTH + PlayerData.playerWidth
+//                        && p.getX() + p.getWidth() > curr.getX());
+//
+//        boolean checkpointOverlap = checkpoints.stream()
+//            .anyMatch(c -> c.getY() > curr.getY()
+//                && c.getY() < curr.getY() + Currency.HEIGHT + PlayerData.playerHeight
+//                && c.getX() < curr.getX() + Currency.WIDTH + PlayerData.playerWidth
+//                && c.getX() + c.getWidth() > curr.getX());
+//
+//        boolean faucetOverlap = faucets.stream()
+//            .anyMatch(f -> f.getY() > curr.getY()
+//                && f.getY() < curr.getY() + Currency.HEIGHT + PlayerData.playerHeight
+//                && f.getX() < curr.getX() + Currency.WIDTH + PlayerData.playerWidth
+//                && f.getX() + f.getWidth() > curr.getX());
+
+        //base check of overlap
         boolean platformOverlap = platforms.stream()
-            .anyMatch(p -> p.getY() > curr.getY()
-                        && p.getY() < curr.getY() + Currency.HEIGHT + PlayerData.playerHeight
-                        && p.getX() < curr.getX() + Currency.WIDTH + PlayerData.playerWidth
-                        && p.getX() + p.getWidth() > curr.getX());
+            .anyMatch(p ->
+                new Rectangle(p.getX(), p.getY() - PlayerData.playerHeight, p.getWidth(), p.getHeight() + PlayerData.playerHeight).overlaps(currencyRectangle));
 
         boolean checkpointOverlap = checkpoints.stream()
-            .anyMatch(c -> c.getY() > curr.getY()
-                && c.getY() < curr.getY() + Currency.HEIGHT + PlayerData.playerHeight
-                && c.getX() < curr.getX() + Currency.WIDTH + PlayerData.playerWidth
-                && c.getX() + c.getWidth() > curr.getX());
+            .anyMatch(c ->
+                new Rectangle(c.getX(), c.getY(), c.getWidth(), c.getHeight()).overlaps(currencyRectangle));
 
         boolean faucetOverlap = faucets.stream()
-            .anyMatch(f -> f.getY() > curr.getY()
-                && f.getY() < curr.getY() + Currency.HEIGHT + PlayerData.playerHeight
-                && f.getX() < curr.getX() + Currency.WIDTH + PlayerData.playerWidth
-                && f.getX() + f.getWidth() > curr.getX());
+            .anyMatch(f ->
+                new Rectangle(f.getX(), f.getY() - 10, f.getWidth(), f.getHeight() + 10).overlaps(currencyRectangle));
+        // -10/+10 because the faucet floats 10 pixels above platform!
 
         return platformOverlap || checkpointOverlap || faucetOverlap;
     }

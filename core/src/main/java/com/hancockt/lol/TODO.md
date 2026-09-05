@@ -5,31 +5,6 @@
 
 - 25k high score!
 
-### TO ORGANIZE:
-- Better tutorial
-- More clear how to use checkpoints
-- Have easy, normal, and hard modes 
-  - easy: more checkpoints, faucets, slower water, etc
-  - Maybe for normal, something like this but slightly easier max difficulty for platforms!
-  - hard mode: trick faucets (speed up water), and water faster, and platforms
-- improve infinite mode generation: guarenteed way up in each half of the playing width!
-- No water rising UNTIL input has been received!
-- Different platforms with themes (like swinging - jungle, more friction - sand, lava spouts - volcano, etc.)
-- bigger player so they can see animations?
-- celebration animatoin (spin), and idle roasting marshmallow spin!
-- How to teach controls b/c people don't read!
-- BUGS: collectibles can spawn inside platforms??? DO a base check that there isn't any overlap with any platforms!
-  - Also the score just dissappears???
-  - improve performance! seems slow! - Make an active platforms/collectibles that is within like 2k above and enough platforms to the previous 2 checkpoints
-  - Split game Screen
-  - read through code
-  - move runtime state into it's own class!
-  - make separate systems (physics, water, spawn, collision, etc.) for maintainability! - each has update()
-  - separate update (game state) from render (drawing)
-  - separate constants out for easier tuning (maybe even a file!)
-  - at high heights, the checkpoints ain't working well!. So check that system!
-
-
 ---
 ## Roguelite
 - Add collectibles (matches) spawning throughout infinite mode — more frequent higher up (and slight chance of firewood
@@ -71,6 +46,9 @@
 ## Art
 - draw afrobonk, must have profile picture ready before final release!
 - Potop animation
+- Different platforms with themes (like swinging - jungle, more friction - sand, lava spouts - volcano, etc.)
+- bigger player so they can see animations?
+- celebration animatoin (spin), and idle roasting marshmallow spin!
 - make wall jump animations (climb/jump away)
 - make one version, then add logic for mirroring to match which way it's facing!
 - use spark spinning as loading animation = )
@@ -108,6 +86,7 @@
 - credits screen
 
 ## Marketing
+- don't start marketing until starting polish!
 - learn marketing! yay. start right after demo to have time for a little traction before full release
     - don't share marketing with fam or friends, this is to get strangers interested
     - discord
@@ -135,6 +114,23 @@
 
 
 ## Misc
+- BUGS: collectibles can spawn inside platforms??? DO a base check that there isn't any overlap with any platforms!
+- improve performance! seems slow! - Make an active platforms/collectibles that is within like 2k above and
+  enough platforms to the previous 2 checkpoints
+- Split game Screen class
+- move runtime state into it's own class!
+- make separate systems (physics, water, spawn, collision, etc.) for maintainability! - each has update()
+- separate update (game state) from render (drawing)
+- separate constants out for easier tuning (maybe even a file!)
+- better tutorial
+- How to teach controls b/c people don't read!
+- More clear how to use checkpoints
+- Have easy, normal, and hard modes
+    - easy: more checkpoints, faucets, slower water, etc
+    - Maybe for normal, something like this but slightly easier max difficulty for platforms!
+    - hard mode: trick faucets (speed up water), and water faster, and platforms
+- improve infinite mode generation: guarenteed way up in each half of the playing width!
+- No water rising UNTIL input has been received!
 - look through feedback and analyze what needs to change
 - Make it so that the built gradle has the name Potop and the logo is Spark (or another one)
 - add a very very secret easter egg, for only the most devout players that says I'm single lol
