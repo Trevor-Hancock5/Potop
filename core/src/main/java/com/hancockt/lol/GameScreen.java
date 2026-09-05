@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 import static com.hancockt.lol.PlayerData.*;
 
@@ -300,6 +301,14 @@ public class GameScreen implements Screen {
                 } else {
                     font.draw(batch, "Time: " + String.format("%.1f", time), viewportWidth - 125, viewportHeight - 10);
                 }
+
+                if(LevelLibrary.prestige) {
+                    font.setColor(Color.GOLD);
+                    font.draw(batch, "Prestige placed at: " + LevelLibrary.prestigeY, viewportWidth - 175, viewportHeight - 70);
+                } else{
+                    font.draw(batch, "nope", viewportWidth - 175, viewportHeight - 70);
+                }
+                font.setColor(Color.WHITE);
             }
         } finally {
             font.getData().setScale(1f); //reset

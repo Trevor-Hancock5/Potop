@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Rectangle;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import static com.hancockt.lol.PlayerData.*;
 import static com.hancockt.lol.GameScreen.*;
@@ -34,6 +35,7 @@ public class PhysicsEngine {
     private static final float faucetRange = 30f; //how close to faucet to interact
     private static final float faucetRotationSpeed = 240f; //degrees per second it spins
     private static final float currencyRange = 8f;
+    private static final Random rng = new Random(LevelLibrary.getRng());
 
     /// Returns state of Spark (player) for animating
     public static AnimationKey updatePhysics(float delta){
@@ -322,6 +324,9 @@ public class PhysicsEngine {
                             currCheckpoint = c;
                             deathWaterLevel = waterLevel;
                             timeAtDeath = time;
+
+                            //TODO - spawn make new currency objects here!
+                            spawnCurrency(25, c.getX(), c.getY(), c.getWidth(), c.getHeight());
                         }
                     } else {
                         if (c.getOrder() > currCheckpoint.getOrder()) {
@@ -363,6 +368,8 @@ public class PhysicsEngine {
                 if(nearFaucet.isWinFaucet()){
                     finishedFinalFaucet = true;
                 }
+                //TODO - spawn/create new currency objects!
+                spawnCurrency(15, nearFaucet.getX(), nearFaucet.getY(), nearFaucet.getWidth(), nearFaucet.getHeight());
             }
         } else if(nearFaucet != null){
             //not holding down, start spinning back
@@ -374,14 +381,37 @@ public class PhysicsEngine {
             }
         }
 
-        //check if overlapping currency
+        //update currency positions and explode times, once time is up, switch velocity towards spark's head
+        float sparkHeadX = x + ((float) playerWidth / 2);
+        float sparkHeadY = y + playerHeight - 15;
+        for (Currency c : currencies){
+            if(c.getExplodeTime() > 0){
+                c.setX(c.getExplodeVelocityX() * delta);
+                c.setY(c.getExplodeVelocityY() * delta);
+                c.updateExplodeTime(delta);
+            } else if (c.getExplodeTime() < 0){
+                //In here means the currency has been in range and must be absorbed to sparks head!
+                float xDirection = Math.signum(sparkHeadX - c.getX()); //Could update to be a fractional value to speed/slow absorption!
+                float yDirection = Math.signum(sparkHeadY - c.getY());
+                c.setX(Currency.ABSORB_VELOCITY * xDirection * delta * rng.nextFloat(1, 1.5f));
+                c.setY(Currency.ABSORB_VELOCITY * yDirection * delta * rng.nextFloat(1, 1.5f));
+            }
+        }
 
+        //check if overlapping currency
+        Rectangle sparkHead = new Rectangle(x + ((float) playerWidth / 4), y + playerHeight - 10,
+                                        (float) playerWidth / 2, 10);
         List<Currency> toRemove = new ArrayList<>();
         for(Currency c : currencies){
             Rectangle curr = new Rectangle(c.getX() - currencyRange, c.getY() - currencyRange,
-                                            Currency.WIDTH + 2*currencyRange, Currency.HEIGHT + 2*currencyRange);
+                Currency.WIDTH + 2*currencyRange, Currency.HEIGHT + 2*currencyRange);
             if(playerRectFinal.overlaps(curr)){
-                //TODO - absorb currency, move currency to Spark and update currency count
+                // This notes it is within range and then the next for loop moves it to absorb!
+                c.updateExplodeTime(delta);
+            }
+
+            if(sparkHead.overlaps(curr) && c.getExplodeTime() < 0){
+                //Check if overlapping spark's head!
                 if(!c.isPrestige()) {
                     numMatches += 1;
                 } else{
@@ -471,5 +501,17 @@ public class PhysicsEngine {
         }
 
         return currAnimation;
+    }
+
+    private static void spawnCurrency(int numOfCurrency, float xRef, float yRef, float width, float height){
+        for(int i = 0; i < numOfCurrency; i++){
+            float xVelo = rng.nextFloat(300, 450) * Math.signum(rng.nextFloat(-1, 1));
+
+            currencies.add(new Currency(xRef + width / 2,
+                yRef + height / 2,
+                false, xVelo,
+                rng.nextFloat(300, 450),
+                rng.nextFloat(0.05f, 0.3f)));
+        }
     }
 }

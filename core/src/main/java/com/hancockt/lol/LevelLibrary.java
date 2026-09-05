@@ -3,7 +3,6 @@ package com.hancockt.lol;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 public class LevelLibrary {
@@ -14,6 +13,9 @@ public class LevelLibrary {
     private static final int BAND_HEIGHT = 250;
     private static Platform highestPlatform;
     private static final float LEVEL_WIDTH = 3000;
+
+    public static float prestigeY;
+    public static boolean prestige;
 
 
     static {
@@ -255,7 +257,6 @@ public class LevelLibrary {
                 highestPlatform = p;
             }
 
-            //TODO - check it doesn't overlap checkpoint/faucet!
             int currencyWidth = 16;
 
             //prestige currency chance, super low chance just in case player can't reach factory threshold
@@ -263,8 +264,8 @@ public class LevelLibrary {
             int minPrestigeCurrencyThreshold = 1_000;
             float chanceDecreaseThreshold = 5_000;
             boolean hasFactory = false; //TODO - once logic in place, get this dynamically!
-            float prestigeCurrChanceMax = 0.0001f;
-            float prestigeCurrChanceMin = 0.000001f;
+            float prestigeCurrChanceMax = 0.001f;
+            float prestigeCurrChanceMin = 0.00001f;
 
             boolean placedPrestige = false;
             if(!hasFactory && p.getY() < maxPrestigeCurrencyThreshold && p.getY() > minPrestigeCurrencyThreshold){
@@ -282,6 +283,7 @@ public class LevelLibrary {
                     Currency curr = new Currency(placementX, p.getY() + p.getHeight(), true);
                     if(!checkCurrencyOverlap(curr, platforms, checkpoints, faucets)) {
                         currencies.add(curr);
+                        prestigeY = curr.getY();
                     }
                 }
             }

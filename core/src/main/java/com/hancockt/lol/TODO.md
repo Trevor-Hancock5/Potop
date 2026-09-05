@@ -38,7 +38,7 @@
   - take a bass line you liked from rhythm practice, then practice melody by adding a second
     instrument on top of the bass. 
   - practice with a third instrument to fill space and 'add texture'
-- sound effects: audacity (tool). Water sound when closer and heartbeat when really close
+- sound effects: audacity (tool). Water sound when closer and heartbeat when really close, collectibles!
 - practice how to do the looping?
 - Either do thematic (so each screen is different music with clean transition), or a single track that repeats
 
@@ -46,6 +46,7 @@
 ## Art
 - draw afrobonk, must have profile picture ready before final release!
 - Potop animation
+- heat color coming off spark, so changes to background somehow!
 - Different platforms with themes (like swinging - jungle, more friction - sand, lava spouts - volcano, etc.)
 - bigger player so they can see animations?
 - celebration animatoin (spin), and idle roasting marshmallow spin!
@@ -69,6 +70,7 @@
 - art for buttons/UI components
 
 ## UI/UX
+- make the currency fly better!
 - sign installation?
 - Improve UI everywhere.
 - Improve loading/creation of infinite mode to improve it
@@ -114,7 +116,8 @@
 
 
 ## Misc
-- BUGS: collectibles can spawn inside platforms??? DO a base check that there isn't any overlap with any platforms!
+- New mechanic! - make it so that when you hit down with 0 y velocity (standing), you flip upside down (no art, just programming?)
+  and then you fall down through the top of the platform?
 - improve performance! seems slow! - Make an active platforms/collectibles that is within like 2k above and
   enough platforms to the previous 2 checkpoints
 - Split game Screen class
@@ -149,3 +152,6 @@
   mode, score, time, score/minute.
 - When you wall jump but stuck inside another wall, it shifts to the other wall's inside. Weird
 - Look further in front?
+- Bug: matches on checkpoints or even platforms, i think this is due to interband generation. So when platforms, 
+  faucets, and checkpoints are added on top of previous band, it doesn't do anything about the currency. Meaning some
+  are inaccessible. So fix that!
