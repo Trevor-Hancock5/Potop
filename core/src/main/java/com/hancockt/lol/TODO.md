@@ -3,6 +3,7 @@
     - goal: 100 people to play it
 - Need better conversion from impression to view to download!
 
+- 25k high score!
 
 ### TO ORGANIZE:
 - Better tutorial
@@ -17,6 +18,16 @@
 - bigger player so they can see animations?
 - celebration animatoin (spin), and idle roasting marshmallow spin!
 - How to teach controls b/c people don't read!
+- BUGS: collectibles can spawn inside platforms??? DO a base check that there isn't any overlap with any platforms!
+  - Also the score just dissappears???
+  - improve performance! seems slow! - Make an active platforms/collectibles that is within like 2k above and enough platforms to the previous 2 checkpoints
+  - Split game Screen
+  - read through code
+  - move runtime state into it's own class!
+  - make separate systems (physics, water, spawn, collision, etc.) for maintainability! - each has update()
+  - separate update (game state) from render (drawing)
+  - separate constants out for easier tuning (maybe even a file!)
+  - at high heights, the checkpoints ain't working well!. So check that system!
 
 
 ---

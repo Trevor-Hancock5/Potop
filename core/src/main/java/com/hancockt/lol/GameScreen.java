@@ -281,29 +281,31 @@ public class GameScreen implements Screen {
     private void drawHUD(){
         batch.setProjectionMatrix(hudCam.combined);
         batch.begin();
-
-        if(enteringSeed){
-            //TODO? Maybe change this to be in the paused state or change state to paused???
-        } else {
-
-            if (Gdx.input.isKeyPressed(Input.Keys.L)) {
-                font.getData().setScale(2);
-                font.draw(batch, "Seed: " + LevelLibrary.getRng(), viewportWidth / 2, viewportHeight / 2);
-            }
-
-            font.getData().setScale(1.25f);
-            if (currentLevel == LevelType.INFINITE) {
-                font.draw(batch, "Score: " + Math.round(y), viewportWidth - 175, viewportHeight - 50);
-                font.draw(batch, "High Score: " + Math.round(score), viewportWidth - 175, viewportHeight - 30);
-                font.draw(batch, "Matches: " + numMatches, viewportWidth - 175, viewportHeight - 10);
+        try {
+            if (enteringSeed) {
+                System.out.println("ERRROR!!!");
+                //TODO? Maybe change this to be in the paused state or change state to paused???
             } else {
-                font.draw(batch, "Time: " + String.format("%.1f", time), viewportWidth - 125, viewportHeight - 10);
+
+                if (Gdx.input.isKeyPressed(Input.Keys.L)) {
+                    font.getData().setScale(2);
+                    font.draw(batch, "Seed: " + LevelLibrary.getRng(), viewportWidth / 2, viewportHeight / 2);
+                }
+
+                font.getData().setScale(1.25f);
+                if (currentLevel == LevelType.INFINITE) {
+                    font.draw(batch, "Score: " + Math.round(y), viewportWidth - 175, viewportHeight - 50);
+                    font.draw(batch, "High Score: " + Math.round(score), viewportWidth - 175, viewportHeight - 30);
+                    font.draw(batch, "Matches: " + numMatches, viewportWidth - 175, viewportHeight - 10);
+                } else {
+                    font.draw(batch, "Time: " + String.format("%.1f", time), viewportWidth - 125, viewportHeight - 10);
+                }
             }
+        } finally {
+            font.getData().setScale(1f); //reset
+
+            batch.end();
         }
-
-        font.getData().setScale(1f); //reset
-
-        batch.end();
     }
 
     private void instructions(){

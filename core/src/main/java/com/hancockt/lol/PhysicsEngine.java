@@ -317,10 +317,18 @@ public class PhysicsEngine {
             if(!c.isActivated() && checkpoint.overlaps(playerRectFinal)){
                 c.setActivated(true);
                 if(currCheckpoint != null) {
-                    if (c.getOrder() > currCheckpoint.getOrder()) {
-                        currCheckpoint = c;
-                        deathWaterLevel = waterLevel;
-                        timeAtDeath = time;
+                    if(currentLevel == LevelType.INFINITE){
+                        if (c.getY() > currCheckpoint.getY()){
+                            currCheckpoint = c;
+                            deathWaterLevel = waterLevel;
+                            timeAtDeath = time;
+                        }
+                    } else {
+                        if (c.getOrder() > currCheckpoint.getOrder()) {
+                            currCheckpoint = c;
+                            deathWaterLevel = waterLevel;
+                            timeAtDeath = time;
+                        }
                     }
                 } else{
                     currCheckpoint = c;
