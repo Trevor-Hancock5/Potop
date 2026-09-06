@@ -261,8 +261,8 @@ public class LevelLibrary {
             int minPrestigeCurrencyThreshold = 1_000;
             float chanceDecreaseThreshold = 5_000;
             boolean hasFactory = false; //TODO - once logic in place, get this dynamically!
-            float prestigeCurrChanceMax = 0.001f;
-            float prestigeCurrChanceMin = 0.00001f;
+            float prestigeCurrChanceMax = 0.0005f;
+            float prestigeCurrChanceMin = 0.000001f;
 
             boolean placedPrestige = false;
             if(!hasFactory && p.getY() < maxPrestigeCurrencyThreshold && p.getY() > minPrestigeCurrencyThreshold){

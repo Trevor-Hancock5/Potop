@@ -4,21 +4,24 @@ public class Currency {
     private float x;
     private float y;
     private boolean prestige;
-    private float explodeVelocityX;
-    private float explodeVelocityY;
+    private float velocityX;
+    private float velocityY;
     private float explodeTime;
+    private float absorbTime;
 
-    public final static float ABSORB_VELOCITY = 300f;
+    public final static float ABSORB_ACCELERATION = 3000f;
+    private final static float MAX_ABSORB_VELOCITY = 800f;
     public final static float WIDTH = 16;
     public final static float HEIGHT = 16;
+    public final static float MAX_ABSORB_TIME = 0.2f;
 
-    public Currency(float x, float y, boolean prestige, float explodeVelocityX, float explodeVelocityY,
+    public Currency(float x, float y, boolean prestige, float velocityX, float velocityY,
                         float explodeTime){
         this.x = x;
         this.y = y;
         this.prestige = prestige;
-        this.explodeVelocityX = explodeVelocityX;
-        this.explodeVelocityY = explodeVelocityY;
+        this.velocityX = velocityX;
+        this.velocityY = velocityY;
         this.explodeTime = explodeTime;
     }
 
@@ -38,11 +41,11 @@ public class Currency {
         return y;
     }
 
-    public void setX(float change){
+    public void moveX(float change){
         x += change;
     }
 
-    public void setY(float change){
+    public void moveY(float change){
         y += change;
     }
 
@@ -62,11 +65,27 @@ public class Currency {
         }
     }
 
-    public float getExplodeVelocityX(){
-        return explodeVelocityX;
+    public float getAbsorbTime(){
+        return absorbTime;
     }
 
-    public float getExplodeVelocityY(){
-        return explodeVelocityY;
+    public void updateAbsorbTime(float delta){
+        absorbTime += delta;
+    }
+
+    public float getVelocityX(){
+        return velocityX;
+    }
+
+    public float getVelocityY(){
+        return velocityY;
+    }
+
+    public void changeVelocityX(float change){
+        velocityX += velocityX + change < MAX_ABSORB_VELOCITY ? change : 0;
+    }
+
+    public void changeVelocityY(float change){
+        velocityY += velocityY + change < MAX_ABSORB_VELOCITY ? change : 0;
     }
 }

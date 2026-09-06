@@ -325,7 +325,6 @@ public class PhysicsEngine {
                             deathWaterLevel = waterLevel;
                             timeAtDeath = time;
 
-                            //TODO - spawn make new currency objects here!
                             spawnCurrency(25, c.getX(), c.getY(), c.getWidth(), c.getHeight());
                         }
                     } else {
@@ -368,7 +367,6 @@ public class PhysicsEngine {
                 if(nearFaucet.isWinFaucet()){
                     finishedFinalFaucet = true;
                 }
-                //TODO - spawn/create new currency objects!
                 spawnCurrency(15, nearFaucet.getX(), nearFaucet.getY(), nearFaucet.getWidth(), nearFaucet.getHeight());
             }
         } else if(nearFaucet != null){
@@ -386,15 +384,41 @@ public class PhysicsEngine {
         float sparkHeadY = y + playerHeight - 15;
         for (Currency c : currencies){
             if(c.getExplodeTime() > 0){
-                c.setX(c.getExplodeVelocityX() * delta);
-                c.setY(c.getExplodeVelocityY() * delta);
+                c.moveX(c.getVelocityX() * delta);
+                c.moveY(c.getVelocityY() * delta);
                 c.updateExplodeTime(delta);
             } else if (c.getExplodeTime() < 0){
-                //In here means the currency has been in range and must be absorbed to sparks head!
-                float xDirection = Math.signum(sparkHeadX - c.getX()); //Could update to be a fractional value to speed/slow absorption!
-                float yDirection = Math.signum(sparkHeadY - c.getY());
-                c.setX(Currency.ABSORB_VELOCITY * xDirection * delta * rng.nextFloat(1, 1.5f));
-                c.setY(Currency.ABSORB_VELOCITY * yDirection * delta * rng.nextFloat(1, 1.5f));
+                float dx = sparkHeadX - c.getX();
+                float dy = sparkHeadY - c.getY();
+
+                float distance = (float) Math.sqrt(dx * dx + dy * dy);
+                float directionX = 0;
+                float directionY = 0;
+                if (distance > 0){
+                    directionX = dx / distance;
+                    directionY = dy / distance;
+                }
+
+                c.updateAbsorbTime(delta);
+
+                if(c.getAbsorbTime() <= Currency.MAX_ABSORB_TIME) {
+                    //better looking
+                    boolean entropy = rng.nextBoolean();
+
+                    if (entropy) {
+                        directionX *= rng.nextFloat(1, 2);
+                        directionY *= rng.nextFloat(1, 2);
+                    }
+                    c.changeVelocityX(directionX * Currency.ABSORB_ACCELERATION * delta);
+                    c.changeVelocityY(directionY * Currency.ABSORB_ACCELERATION * delta);
+                } else {
+                    //quick absorb!
+                    c.changeVelocityX(dx / .2f);
+                    c.changeVelocityY(dy / .2f);
+                }
+
+                c.moveX(c.getVelocityX() * delta);
+                c.moveY(c.getVelocityY() * delta);
             }
         }
 
@@ -511,7 +535,7 @@ public class PhysicsEngine {
                 yRef + height / 2,
                 false, xVelo,
                 rng.nextFloat(300, 450),
-                rng.nextFloat(0.05f, 0.3f)));
+                rng.nextFloat(0.05f, 0.15f)));
         }
     }
 }
