@@ -413,8 +413,10 @@ public class PhysicsEngine {
                     c.changeVelocityY(directionY * Currency.ABSORB_ACCELERATION * delta);
                 } else {
                     //quick absorb!
-                    c.changeVelocityX(dx / .2f);
-                    c.changeVelocityY(dy / .2f);
+                    //time to get absorbed
+                    float t = Math.max((Currency.MAX_ABSORB_TIME * 2) - c.getAbsorbTime(), 0);
+                    c.setVelocityX(dx / t);
+                    c.setVelocityY(dy / t);
                 }
 
                 c.moveX(c.getVelocityX() * delta);

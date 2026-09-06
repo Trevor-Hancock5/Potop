@@ -88,4 +88,12 @@ public class Currency {
     public void changeVelocityY(float change){
         velocityY += velocityY + change < MAX_ABSORB_VELOCITY ? change : 0;
     }
+
+    public void setVelocityX(float velocityX){
+        this.velocityX = velocityX;
+    }
+
+    public void setVelocityY(float velocityY){
+        this.velocityY = velocityY;
+    }
 }
