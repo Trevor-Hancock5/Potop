@@ -26,6 +26,7 @@ public class PhysicsEngine {
     private static final float airFriction = 0.99f;
     private static final float gravity = 1000f;
     private static final float fallGravityMultiplier = 1.6f;
+    public static final int maxFallSpeed = -1200;
     private static final float jumpForce = 350f;
     private static final float jumpHoldForce = 350f;
     private static final float coyoteThreshold = 0.1f; //Can be off platform for x seconds and still jump
@@ -40,10 +41,11 @@ public class PhysicsEngine {
     private static final float wallJumpCooldownThreshold = 0.25f; //seconds until wall jump again - prevents wall scaling
     private static final float collisionPlayerHeightDivisor = 10f; //What amount of player height needs to be above a platform to land on top
     private static final float maxWaterRiseSpeed = 50; // TODO - one location!
+    private static final float currencyRange = 8f;
     private static final float faucetRange = 30f; //how close to faucet to interact
     private static final float faucetRotationSpeed = 240f; //degrees per second it spins
-    private static final float currencyRange = 8f;
-    private static final Random rng = new Random(LevelLibrary.getRng());
+    public static final float faucetInteractionTime = 1.5f; //seconds TODO, owned by faucet!
+    private static final Random rng = LevelLibrary.getRng();
 
     /// Returns state of Spark (player) for animating
     public static AnimationKey updatePhysics(float delta, RunData runData){
@@ -85,7 +87,7 @@ public class PhysicsEngine {
         }
 
         //falling cap speed
-        PlayerData.velocityY = Math.max(GameScreen.maxFallSpeed, PlayerData.velocityY);
+        PlayerData.velocityY = Math.max(maxFallSpeed, PlayerData.velocityY);
 
         //update x and y
         PlayerData.y += PlayerData.velocityY * delta;
@@ -373,7 +375,7 @@ public class PhysicsEngine {
                 || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT))){
             nearFaucet.setProgress(nearFaucet.getProgress() + delta);
             nearFaucet.setRotation(nearFaucet.getRotation() + (faucetRotationSpeed * delta));
-            if(nearFaucet.getProgress() > GameScreen.faucetInteractionTime){
+            if(nearFaucet.getProgress() > faucetInteractionTime){
                 nearFaucet.setTurnedOff(true);
                 nearFaucet.setRotation(360);
                 GameScreen.waterRiseSpeed -= nearFaucet.getSpeedReduction();

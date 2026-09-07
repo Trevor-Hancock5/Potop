@@ -393,7 +393,11 @@ public class LevelLibrary {
         ALL_LEVELS.put(LevelType.INFINITE, buildInfiniteLevel());
     }
 
-    public static long getRng(){
+    public static Random getRng(){
+        return rng;
+    }
+
+    public static long getSeed(){
         return seed;
     }
 }

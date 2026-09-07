@@ -21,12 +21,10 @@ test:
   - Make a single change/refactor, ensure it still works, and commit. then repeat!
 
 Refactor order:  
-1. Runtime state vs player data vs persistent state
-2. Update vs rendering
-3. Small independent systems
-4. Improve gamescreen and physics engine, to use parameters instead of PlayerData.staticVar!
-5. Split GameScreen
-6. Check code style is met
+1. Small independent systems
+2. Improve gamescreen and physics engine, to use parameters instead of PlayerData.staticVar!
+3. Split GameScreen
+4. Check code style is met
 
     - minimize duplicate code
     - move runtime state into it's own class!

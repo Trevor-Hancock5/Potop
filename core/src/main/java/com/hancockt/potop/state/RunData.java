@@ -25,7 +25,7 @@ public class RunData {
     private final List<Platform> platforms; // already built, not modules
     private final Vector2 startPoint;
     private LevelType currentLevel;
-    private LevelType nextLevel;
+    private final LevelType nextLevel;
 
     public RunData(List<Checkpoint> checkpoints, List<Platform> platforms, Vector2 startPoint,
                      List<Faucet> faucets, List<Currency> currencies, LevelType currLevel, LevelType nextLevel) {

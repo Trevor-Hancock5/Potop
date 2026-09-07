@@ -45,12 +45,10 @@ public class GameScreen implements Screen {
     private final GlyphLayout layout = new GlyphLayout(); // create once, reuse
 
     //PLAYER TUNING!
-    public static final int maxFallSpeed = -1200;
     public static final float cameraLerpSpeed = .3f;
     public static final float cameraDeadZoneDivisor = 5f;
     public static final float screenShake = 0.3f; //time of shaking
     public static final float screenShakeIntensity = 2f;
-    public static final float faucetInteractionTime = 1.5f; //seconds TODO, owned by faucet!
 
     //water
     public static float waterLevel;
@@ -102,9 +100,7 @@ public class GameScreen implements Screen {
             Gdx.app.exit();
         }
 
-        //update animations!
-        gameAssets.checkpointAnimator.update(delta);
-        gameAssets.sparkAnimator.update(delta);
+
 
         switch(gameState) {
             case MENU:
@@ -118,6 +114,10 @@ public class GameScreen implements Screen {
                 drawPauseOverlay();
                 break;
             case DEATH:
+                //update animations!
+                gameAssets.checkpointAnimator.update(delta);
+                gameAssets.sparkAnimator.update(delta);
+
                 gameAssets.sparkAnimator.play(AnimationKey.DEATH);
                 drawShapes();
                 drawHUD();
@@ -132,6 +132,10 @@ public class GameScreen implements Screen {
                 drawWinOverlay();
                 break;
             case PLAYING:
+                //update animations!
+                gameAssets.checkpointAnimator.update(delta);
+                gameAssets.sparkAnimator.update(delta);
+
                 if(!PlayerData.isDead){
                     AnimationKey sparkAnimationState = PhysicsEngine.updatePhysics(delta, runData);
                     gameAssets.sparkAnimator.play(sparkAnimationState);
@@ -183,9 +187,6 @@ public class GameScreen implements Screen {
         shapeRenderer.setColor(water);
 
         float camLeft = camera.position.x - camera.viewportWidth / 2;
-        System.out.println("waterlevel: " + waterLevel);
-        System.out.println("waterRiseSpeed: " + waterRiseSpeed);
-        System.out.println("Water rise: " + waterRise);
         shapeRenderer.rect(camLeft, 0, camera.viewportWidth, waterLevel);
 
         shapeRenderer.end();
@@ -224,7 +225,7 @@ public class GameScreen implements Screen {
 
             //Tint based on state for regular faucets
             if(!f.isWinFaucet() && f.getProgress() > 0){
-                float ratio = f.getProgress() / faucetInteractionTime;
+                float ratio = f.getProgress() / PhysicsEngine.faucetInteractionTime; //TODO
                 float gray = 0.5f; //TODO - owned by faucet, color distortion
 
                 float r = 1 - ratio * (1 - gray);
@@ -283,7 +284,7 @@ public class GameScreen implements Screen {
 
                 if (Gdx.input.isKeyPressed(Input.Keys.L)) {
                     font.getData().setScale(2);
-                    font.draw(batch, "Seed: " + LevelLibrary.getRng(), viewportWidth / 2, viewportHeight / 2);
+                    font.draw(batch, "Seed: " + LevelLibrary.getSeed(), viewportWidth / 2, viewportHeight / 2);
                 }
 
                 font.getData().setScale(1.25f);
@@ -425,15 +426,15 @@ public class GameScreen implements Screen {
         camera.position.y += (targetY - camera.position.y) * (cameraLerpSpeed / 3);
 
         if(PlayerData.justLanded && screenShakeAccumulation < screenShake){
-            if(PlayerData.impactVelocity / maxFallSpeed > 0.5){
+            if(PlayerData.impactVelocity / PhysicsEngine.maxFallSpeed > 0.5){ //TODO
                 screenShakeAccumulation += delta / 2;
             } else {
                 screenShakeAccumulation += delta;
             }
 
             // For both, we are changing from -3 to 3
-            camera.position.x += (float) ((Math.random() - 0.5) * (screenShakeIntensity * (2 + PlayerData.impactVelocity / maxFallSpeed)));
-            camera.position.y += (float) ((Math.random() - 0.5) * (screenShakeIntensity * (2 + PlayerData.impactVelocity / maxFallSpeed)));
+            camera.position.x += (float) ((Math.random() - 0.5) * (screenShakeIntensity * (2 + PlayerData.impactVelocity / PhysicsEngine.maxFallSpeed))); //TODO
+            camera.position.y += (float) ((Math.random() - 0.5) * (screenShakeIntensity * (2 + PlayerData.impactVelocity / PhysicsEngine.maxFallSpeed)));
         }
         camera.update();
     }
