@@ -1,4 +1,4 @@
-package com.hancockt.potop;
+package com.hancockt.potop.features;
 
 public class Currency {
     private float x;

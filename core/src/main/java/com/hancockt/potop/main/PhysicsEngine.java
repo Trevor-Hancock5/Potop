@@ -1,15 +1,24 @@
-package com.hancockt.potop;
+package com.hancockt.potop.main;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Rectangle;
+import com.hancockt.potop.assets.AnimationKey;
+import com.hancockt.potop.features.Checkpoint;
+import com.hancockt.potop.features.Currency;
+import com.hancockt.potop.features.Faucet;
+import com.hancockt.potop.features.Platform;
+import com.hancockt.potop.level.LevelData;
+import com.hancockt.potop.level.LevelLibrary;
+import com.hancockt.potop.level.LevelType;
+import com.hancockt.potop.state.GameState;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import static com.hancockt.potop.PlayerData.*;
-import static com.hancockt.potop.GameScreen.*;
+import static com.hancockt.potop.state.PlayerData.*;
+import static com.hancockt.potop.main.GameScreen.*;
 
 public class PhysicsEngine {
     private static final int accelerationX = 1600;

@@ -1,4 +1,4 @@
-package com.hancockt.potop;
+package com.hancockt.potop.assets;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;

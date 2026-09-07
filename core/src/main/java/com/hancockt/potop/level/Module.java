@@ -1,6 +1,7 @@
-package com.hancockt.potop;
+package com.hancockt.potop.level;
 
 import com.badlogic.gdx.math.Vector2;
+import com.hancockt.potop.features.Platform;
 
 public class Module {
     private final String name;

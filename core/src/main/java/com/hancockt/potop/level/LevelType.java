@@ -1,4 +1,4 @@
-package com.hancockt.potop;
+package com.hancockt.potop.level;
 
 public enum LevelType {
     TUTORIAL,

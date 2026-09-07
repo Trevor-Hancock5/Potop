@@ -13,13 +13,13 @@
 # Milestones:
 ## Bug/code fix
 - Refactor code before adding upgrades because my goodness that'd be disgusting!
-    - Make Modules for the dang code and what they do!
-      - Use an asset manager to load all music and art at the very start of the game
+    - Use an asset manager to load all music and art at the very start of the game
     - Split game Screen class
     - move runtime state into it's own class!
     - make separate systems (physics, water, spawn, collision, etc.) for maintainability! - each has update()
     - separate update (game state) from render (drawing)
-    - separate constants out for easier tuning (maybe even a file!)
+    - separate constants out for easier tuning (instead of file, place these in owner's class - player, checkpoint, etc. )
+    - ensure codeStyle.md is met!
 - Fix so that it works with different hz monitors (refresh rate! - how to emulate this and fix it? vsync?)
     - test by manually choosing delta?
     - add test: run spark for 10 seconds and record distance (could do the java tester bot, go into tutorial and run left

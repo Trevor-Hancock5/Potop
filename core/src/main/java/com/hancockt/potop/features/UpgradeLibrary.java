@@ -1,4 +1,4 @@
-package com.hancockt.potop;
+package com.hancockt.potop.features;
 
 import java.util.Arrays;
 import java.util.List;

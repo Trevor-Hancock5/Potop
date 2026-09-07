@@ -1,4 +1,9 @@
-package com.hancockt.potop;
+package com.hancockt.potop.state;
+
+import com.hancockt.potop.features.Checkpoint;
+import com.hancockt.potop.level.LevelData;
+import com.hancockt.potop.level.LevelLibrary;
+import com.hancockt.potop.level.LevelType;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.hancockt.potop;
+package com.hancockt.potop.main;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -13,11 +13,22 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.hancockt.potop.assets.AnimationKey;
+import com.hancockt.potop.assets.GameAssets;
+import com.hancockt.potop.features.Checkpoint;
+import com.hancockt.potop.features.Currency;
+import com.hancockt.potop.features.Faucet;
+import com.hancockt.potop.features.Platform;
+import com.hancockt.potop.level.LevelData;
+import com.hancockt.potop.level.LevelLibrary;
+import com.hancockt.potop.level.LevelType;
+import com.hancockt.potop.state.GameState;
+import com.hancockt.potop.state.PlayerData;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.hancockt.potop.PlayerData.*;
+import static com.hancockt.potop.state.PlayerData.*;
 
 /** First screen of the application. Displayed after the application is created. */
 public class GameScreen implements Screen {
@@ -61,7 +72,7 @@ public class GameScreen implements Screen {
     public static float timeAtDeath = 0f;
 
     //game reference
-    private final potop game;
+    private final Potop game;
     private GameAssets gameAssets = new GameAssets();
 
     // Controls
@@ -69,7 +80,7 @@ public class GameScreen implements Screen {
     private static boolean enteringSeed = false;
 
 
-    public GameScreen(potop game, LevelType type){
+    public GameScreen(Potop game, LevelType type){
         this.game = game;
         currentLevel = type;
     }

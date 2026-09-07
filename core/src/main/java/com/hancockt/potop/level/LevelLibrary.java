@@ -1,7 +1,12 @@
-package com.hancockt.potop;
+package com.hancockt.potop.level;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.hancockt.potop.features.Checkpoint;
+import com.hancockt.potop.features.Currency;
+import com.hancockt.potop.features.Faucet;
+import com.hancockt.potop.features.Platform;
+import com.hancockt.potop.state.PlayerData;
 
 import java.util.*;
 
