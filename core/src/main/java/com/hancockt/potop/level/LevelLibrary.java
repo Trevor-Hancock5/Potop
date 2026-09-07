@@ -264,7 +264,7 @@ public class LevelLibrary {
             int minPrestigeCurrencyThreshold = 1_000;
             float chanceDecreaseThreshold = 5_000;
             boolean hasFactory = false; //TODO - once logic in place, get this dynamically!
-            float prestigeCurrChanceMax = 0.00005f;
+            float prestigeCurrChanceMax = 0.0001f; //todo - tune this, use a test. Generate up to 10k 100 times and in 50% of runs >=1 is placed
             float prestigeCurrChanceMin = 0.000001f;
 
             boolean placedPrestige = false;

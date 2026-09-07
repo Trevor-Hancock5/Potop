@@ -48,6 +48,11 @@ Refactor order:
 - When you wall jump but stuck inside another wall, it shifts to the other wall's inside. Weird
 - improve performance! seems slow! - Make an active platforms/collectibles that is within like 2k above and
   enough platforms to the previous 2 checkpoints
+  - At a score of 10k (could be useful to just print out number of everything!):
+    Num platforms made: 2225
+    Highest y platform: 12214
+    Curr checkpoint y: 1989.0
+    Lowest platform y still there: 500
 
 ## Necessary Improvements!
 - setting to turn off screen shake!

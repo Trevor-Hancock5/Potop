@@ -154,7 +154,7 @@ public class GameScreen implements Screen {
                     restart();
                 }
 
-                if(Gdx.input.isKeyPressed(Input.Keys.Q)){
+                if(Gdx.input.isKeyJustPressed(Input.Keys.Q)){
                     onQ();
                 }
 
