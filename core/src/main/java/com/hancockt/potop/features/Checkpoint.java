@@ -7,6 +7,8 @@ public class Checkpoint {
     private float height;
     private boolean activated;
     private int order;
+    private static final float defaultWidth = 40f;
+    private static final float defaultHeight = 100f;
 
     public Checkpoint(float x, float y, float width, float height, boolean activated, int order){
         this.x = x;
@@ -22,7 +24,7 @@ public class Checkpoint {
     }
 
     public Checkpoint(float x, float y, int order){
-        this(x, y, 40, 100, false, order); //default width and height
+        this(x, y, defaultWidth, defaultHeight, false, order); //default width and height
     }
 
     public float getX() {

@@ -27,22 +27,24 @@ public class PlayerData {
     public static boolean lastWallRight = false;
     public static float wallJumpCooldown = 0f;
     public static Checkpoint currCheckpoint; //current checkpoint player has made it to
-    public static float deathWaterLevel; //water level when user hit current checkpoint
+    public static float checkpointWaterLevel; //water level when user hit current checkpoint
     public static boolean infiniteUnlocked = false;
     public static int numMatches = 0;
     public static int numFirewood = 0;
     public static final int playerWidth = 20;
     public static final int playerHeight = 50;
 
+    //how far under checkpoint water starts at a minimum!
+    private static final float checkpointMinWaterBuffer = 200f;
+
     public static float reset(List<Checkpoint> checkpoints, LevelType currentLevel){
         float waterLevel;
-        float checkpointMinWaterBuffer = 200f; //how far under checkpoint water starts at a minimum!
         LevelData data = LevelLibrary.getAllLevels().get(currentLevel);
 
         if(currCheckpoint != null){
             x = currCheckpoint.getX();
             y = currCheckpoint.getY();
-            waterLevel = Math.min(deathWaterLevel, y - checkpointMinWaterBuffer);
+            waterLevel = Math.min(checkpointWaterLevel, y - checkpointMinWaterBuffer);
         } else {
             x = data.getStartPoint().x;
             y = data.getStartPoint().y;

@@ -40,7 +40,7 @@ public class PhysicsEngine {
     private static final float wallProximity = 5f; //how many pixels count as on wall
     private static final float wallJumpCooldownThreshold = 0.25f; //seconds until wall jump again - prevents wall scaling
     private static final float collisionPlayerHeightDivisor = 10f; //What amount of player height needs to be above a platform to land on top
-    private static final float maxWaterRiseSpeed = 50f;
+    private static final float maxWaterRiseSpeed = 50f; // TODO - one location!
     private static final float faucetRange = 30f; //how close to faucet to interact
     private static final float faucetRotationSpeed = 240f; //degrees per second it spins
     private static final float currencyRange = 8f;
@@ -227,6 +227,7 @@ public class PhysicsEngine {
             float upForce;
             float sideForce;
             if(holdingInto){
+                //TODO when moved into platform system, add constants for these
                 if(onBoundingWall) {
                     upForce = jumpForce * .5f;
                     sideForce = jumpForce * .15f;
@@ -268,8 +269,10 @@ public class PhysicsEngine {
 
         //danger boost
         float distanceFromWater = y - waterLevel;
-        float dangerBoost = Math.max(0, 1 - (distanceFromWater / 400f));
-        dangerBoost = 1 + (dangerBoost / 4);
+        //TODO -move to water system
+        final float dangerBoostDistance = 400f;
+        float dangerBoost = Math.max(0, 1 - (distanceFromWater / dangerBoostDistance));
+        dangerBoost = 1 + (dangerBoost / 4); // from 1 to 1.25!
 
         //horizontal movement
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)){
@@ -307,14 +310,15 @@ public class PhysicsEngine {
 
             // Form of dash when you jump
             float speedRatio = Math.abs(velocityX) / maxSpeedX; // 0 to 1
-            velocityX *= 1f + (speedRatio * 0.5f);
+            velocityX *= 1f + (speedRatio * 0.5f); // max of 1.5
         }
 
         //rising water
         if(waterRise) {
             if(currentLevel == LevelType.INFINITE) {
                 if(waterRiseSpeed <= maxWaterRiseSpeed) {
-                    waterRiseSpeed += 2 * delta;
+                    //TODO make constant, pixels per second!
+                    waterRiseSpeed += 2 * delta; // increase water speed by 2 pixels every second (as delta accumulates)
                 }
             }
             waterLevel += waterRiseSpeed * delta;
@@ -331,21 +335,22 @@ public class PhysicsEngine {
                     if(currentLevel == LevelType.INFINITE){
                         if (c.getY() > currCheckpoint.getY()){
                             currCheckpoint = c;
-                            deathWaterLevel = waterLevel;
+                            checkpointWaterLevel = waterLevel;
                             timeAtDeath = time;
 
+                            // todo checkpoint currency amount! (make somewhat random? - define in checkpoint)
                             spawnCurrency(25, c.getX(), c.getY(), c.getWidth(), c.getHeight());
                         }
                     } else {
                         if (c.getOrder() > currCheckpoint.getOrder()) {
                             currCheckpoint = c;
-                            deathWaterLevel = waterLevel;
+                            checkpointWaterLevel = waterLevel;
                             timeAtDeath = time;
                         }
                     }
                 } else{
                     currCheckpoint = c;
-                    deathWaterLevel = waterLevel;
+                    checkpointWaterLevel = waterLevel;
                     timeAtDeath = time;
                 }
             }
@@ -376,6 +381,8 @@ public class PhysicsEngine {
                 if(nearFaucet.isWinFaucet()){
                     finishedFinalFaucet = true;
                 }
+
+                // todo faucet currency amount! (make somewhat random? - define in fauceet)
                 spawnCurrency(15, nearFaucet.getX(), nearFaucet.getY(), nearFaucet.getWidth(), nearFaucet.getHeight());
             }
         } else if(nearFaucet != null){
@@ -390,7 +397,7 @@ public class PhysicsEngine {
 
         //update currency positions and explode times, once time is up, switch velocity towards spark's head
         float sparkHeadX = x + ((float) playerWidth / 2);
-        float sparkHeadY = y + playerHeight - 15;
+        float sparkHeadY = y + playerHeight - 15; // TODO - define as constant somewhere!
         for (Currency c : currencies){
             if(c.getExplodeTime() > 0){
                 c.moveX(c.getVelocityX() * delta);
@@ -481,7 +488,7 @@ public class PhysicsEngine {
         Rectangle waterRect = new Rectangle(-50000, 0, 100000, waterLevel);
 
         //Only dead if head hits water (because flame afro!), so top 15 pixels of player rect
-        if(waterRect.overlaps(playerRectFinal) && waterLevel >= y + playerHeight - 15){
+        if(waterRect.overlaps(playerRectFinal) && waterLevel >= sparkHeadY){
             if(!isDead){
                 deathXValues.add(x);
             }
@@ -512,6 +519,7 @@ public class PhysicsEngine {
 
         //update infinite level if needed
         if(currentLevel == LevelType.INFINITE) {
+            // Todo - 2000? why and where, define constant! 2000 is sprinkled in many areas!
             if (y > LevelLibrary.getHighestYInInfinite() - 2000) {
                 LevelData data = LevelLibrary.addToInfiniteLevel(platforms, checkpoints, faucets, currencies);
                 GameScreen.updateLists(data);
@@ -519,13 +527,16 @@ public class PhysicsEngine {
         }
 
         //update animation from least to most important (to choose which animation is shown - default is idle!)
-        if(velocityX < -50){
+        //todo -define constant
+        final float showRunAnimation = 50f;
+        final float showFallAnimation = -100f;
+        if(velocityX < -showRunAnimation){
             currAnimation = AnimationKey.RUN_LEFT;
-        } else if(velocityX > 50){
+        } else if(velocityX > showRunAnimation){
             currAnimation = AnimationKey.RUN_RIGHT;
         }
 
-        if(velocityY < -100){
+        if(velocityY < showFallAnimation){
             currAnimation = AnimationKey.FALL;
         } else if(velocityY > 0){
             currAnimation = AnimationKey.JUMP;
@@ -539,14 +550,17 @@ public class PhysicsEngine {
     }
 
     private static void spawnCurrency(int numOfCurrency, float xRef, float yRef, float width, float height){
+        //TODO - add constants in currency for this!
         for(int i = 0; i < numOfCurrency; i++){
-            float xVelo = rng.nextFloat(300, 450) * Math.signum(rng.nextFloat(-1, 1));
+            float explodeXVelocity = rng.nextFloat(0, 450) * Math.signum(rng.nextFloat(-1, 1));
+            float explodeYVelocity = rng.nextFloat(0, 450) * Math.signum(rng.nextFloat(-1, 1));
 
             currencies.add(new Currency(xRef + width / 2,
                 yRef + height / 2,
-                false, xVelo,
-                rng.nextFloat(300, 450),
-                rng.nextFloat(0.05f, 0.15f)));
+                false, explodeXVelocity,
+                explodeYVelocity,
+//                rng.nextFloat(300, 450),
+                rng.nextFloat(0.05f, 0.15f))); // time
         }
     }
 }

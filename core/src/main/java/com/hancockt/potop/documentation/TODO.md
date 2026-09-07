@@ -13,13 +13,16 @@
 # Milestones:
 ## Bug/code fix
 
-# Just start refactoring, stop procrastinating. You got it! No AI, turn off WIFI!
+
+test:
+
 
 - Refactor code before adding upgrades because my goodness that'd be disgusting!
   - Make a single change/refactor, ensure it still works, and commit. then repeat!
 
 Refactor order:  
-1. Constants/configuration 
+2. imports!
+3. warnings!
 2. Runtime state
 3. Update vs rendering
 4. Small independent systems
@@ -66,7 +69,7 @@ Refactor order:
     - slower water
     - higher density platforms but also higher variety!
     - more checkpoints and faucets (less currency from these though!)
-    - Remove tutorial?
+    - Remove tutorial? and thus remove 'INF' or space for tutorial on starter page. Also water fix zone and stuff
       - Make it so that beginner mode is the default and once you reach a set y, you earn standard mode and beginner mode 
         is disabled on the next run and just auto standard. You should earn lots of currency for that gap! 
       - Once set y is reached, it notifies them and tells them to start a new run to start on standard mode! (and to earn more matches)
@@ -110,6 +113,7 @@ Refactor order:
     - Read about getting good at bosca ceoil blue and making that type of music!
     - Listen to game sound tracks and just learn what makes it good
     - Practice rhythm: 8 bars, get good at making a beat! Try different rhythm patterns
+      - instruments: 2 square waves, triangle wave, and noise(drums)
     - take a bass line you liked from rhythm practice, then practice melody by adding a second
       instrument on top of the bass.
     - practice with a third instrument to fill space and 'add texture'

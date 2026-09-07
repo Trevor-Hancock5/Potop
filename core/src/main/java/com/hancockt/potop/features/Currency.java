@@ -60,7 +60,7 @@ public class Currency {
     public void updateExplodeTime(float delta){
         explodeTime -= delta;
         if(explodeTime == 0){
-            // Set to be under 0, so we know this match is being absorbed
+            // Set to be under 0, so we know this currency is being absorbed
             explodeTime -= 1;
         }
     }

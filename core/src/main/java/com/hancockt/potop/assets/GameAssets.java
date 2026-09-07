@@ -21,6 +21,8 @@ public class GameAssets {
 
     public Music backgroundMusic;
 
+    private final float backgroundMusicVolume = 0.6f;
+
     public void load(){
         //Art
         faucet = new Texture(Gdx.files.internal("pixelArt/faucet.png"));
@@ -38,7 +40,7 @@ public class GameAssets {
         //music
         backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("background_song.ogg"));
         backgroundMusic.setLooping(true);
-        backgroundMusic.setVolume(0.6f);
+        backgroundMusic.setVolume(backgroundMusicVolume);
         backgroundMusic.play();
     }
 

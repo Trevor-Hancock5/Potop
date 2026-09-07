@@ -1,8 +1,8 @@
 package com.hancockt.potop.features;
 
 public class Platform {
-    private int x;
-    private int y;
+    private final int x;
+    private final int y;
     private final int width;
     private final int height;
     private boolean isBoundaryWall = false; //so can't wall jump boundary walls
@@ -40,13 +40,5 @@ public class Platform {
 
     public void setBoundaryWall(boolean boundaryWall) {
         isBoundaryWall = boundaryWall;
-    }
-
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public void setY(int y) {
-        this.y = y;
     }
 }

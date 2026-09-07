@@ -1,14 +1,14 @@
 package com.hancockt.potop.features;
 
 public class Faucet {
-    private float x;
-    private float y;
-    private float width;
-    private float height;
+    private final float x;
+    private final float y;
+    private final float width;
+    private final float height;
     private boolean turnedOff;
-    private float speedReduction;
+    private final float speedReduction;
     private float progress;
-    private boolean winFaucet;
+    private final boolean winFaucet;
     private float rotation = 0f;
 
     public Faucet(float x, float y, float width, float height, float speedReduction, boolean winFaucet){

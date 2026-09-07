@@ -52,7 +52,7 @@ public class GameScreen implements Screen {
     public static final float cameraDeadZoneDivisor = 5f;
     public static final float screenShake = 0.3f; //time of shaking
     public static final float screenShakeIntensity = 2f;
-    public static final float faucetInteractionTime = 1.5f; //seconds
+    public static final float faucetInteractionTime = 1.5f; //seconds TODO, owned by faucet!
 
     //water
     public static float waterLevel;
@@ -70,6 +70,7 @@ public class GameScreen implements Screen {
     private boolean pressedN = false;
     public static float time = 0f;
     public static float timeAtDeath = 0f;
+    private final Color water = new Color(17/255f, 132/255f, 214/255f, .65f);
 
     //game reference
     private final Potop game;
@@ -82,7 +83,7 @@ public class GameScreen implements Screen {
 
     public GameScreen(Potop game, LevelType type){
         this.game = game;
-        currentLevel = type;
+        currentLevel = type; // TODO - remove, this ought to be owned by levelData!
     }
 
     @Override
@@ -191,7 +192,7 @@ public class GameScreen implements Screen {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
         //water should be drawn last!
-        shapeRenderer.setColor(new Color(17/255f, 132/255f, 214/255f, .65f));
+        shapeRenderer.setColor(water);
 
         float camLeft = camera.position.x - camera.viewportWidth / 2;
         shapeRenderer.rect(camLeft, 0, camera.viewportWidth, waterLevel);
@@ -227,22 +228,13 @@ public class GameScreen implements Screen {
 
             float width = f.getWidth();
             float height = f.getHeight();
-            float originX = width / 2f;  // rotate around center
-            float originY = height / 2f;
-
-//            // tint based on state, same logic as your old color code
-//            if (f.isTurnedOff()) {
-//                batch.setColor(f.isWinFaucet() ? new Color(1f, 0.8431f, 0f, 1f) : Color.GRAY);
-//            } else if (f.getProgress() > faucetInteractionTime / 2) {
-//                batch.setColor(f.isWinFaucet() ? new Color(1f, 0.9255f, 0.4541f, 1f) : new Color(0.85f, 0.7f, 0.7f, 1f));
-//            } else {
-//                batch.setColor(f.isWinFaucet() ? new Color(0.8314f, 0.6863f, 0.2157f, 1f) : new Color(1f, 0.6f, 0.6f, 1f));
-//            }
+            float centerX = width / 2f;  // rotate around center
+            float centerY = height / 2f;
 
             //Tint based on state for regular faucets
             if(!f.isWinFaucet() && f.getProgress() > 0){
                 float ratio = f.getProgress() / faucetInteractionTime;
-                float gray = 0.5f;
+                float gray = 0.5f; //TODO - owned by faucet, color distortion
 
                 float r = 1 - ratio * (1 - gray);
                 float g = 1 - ratio * (1 - gray);
@@ -254,7 +246,7 @@ public class GameScreen implements Screen {
             batch.draw(
                 texture,
                 f.getX(), f.getY(),          // position
-                originX, originY,             // origin point for rotation
+                centerX, centerY,             // origin point for rotation
                 width, height,                // size
                 1f, 1f,                       // scaleX, scaleY
                 -f.getRotation(),             // rotation in degrees
@@ -420,6 +412,9 @@ public class GameScreen implements Screen {
     }
 
     private void updateCamera(float delta) {
+        //TODO - move to camera system
+        final float lowestCameraY = 240f;
+
         float deadzone = camera.viewportWidth / cameraDeadZoneDivisor;
         float deadzoneRight = camera.position.x + (deadzone / 2);
         float deadzoneLeft = camera.position.x - (deadzone / 2);
@@ -433,7 +428,7 @@ public class GameScreen implements Screen {
         }
 
         float vertLookAhead = velocityY * 0.1f;
-        float targetY = isDead ? Math.max(waterLevel, 240) : Math.max(y+25+vertLookAhead, 240);
+        float targetY = isDead ? Math.max(waterLevel, lowestCameraY) : Math.max(y+25+vertLookAhead, lowestCameraY);
 
         camera.position.x += (targetX - camera.position.x) * cameraLerpSpeed;
         camera.position.y += (targetY - camera.position.y) * (cameraLerpSpeed / 3);
@@ -444,6 +439,8 @@ public class GameScreen implements Screen {
             } else {
                 screenShakeAccumulation += delta;
             }
+
+            // For both, we are changing from -3 to 3
             camera.position.x += (float) ((Math.random() - 0.5) * (screenShakeIntensity * (2 + impactVelocity / maxFallSpeed)));
             camera.position.y += (float) ((Math.random() - 0.5) * (screenShakeIntensity * (2 + impactVelocity / maxFallSpeed)));
         }
@@ -498,13 +495,13 @@ public class GameScreen implements Screen {
 
         //remove anything under death water level that won't appear above the water
         List<Platform> platformsUnderWater =
-            platforms.stream().filter(platform -> platform.getY() < deathWaterLevel - 150).toList();
+            platforms.stream().filter(platform -> platform.getY() < checkpointWaterLevel - 150).toList();
 
         List<Checkpoint> checkpointsUnderWater =
-            checkpoints.stream().filter(checkpoint -> checkpoint.getY() < deathWaterLevel).toList();
+            checkpoints.stream().filter(checkpoint -> checkpoint.getY() < checkpointWaterLevel).toList();
 
         List<Faucet> faucetsUnderWater =
-            faucets.stream().filter(faucet -> faucet.getY() < deathWaterLevel).toList();
+            faucets.stream().filter(faucet -> faucet.getY() < checkpointWaterLevel).toList();
 
         if (!platformsUnderWater.isEmpty()) {
             for (Platform p : platformsUnderWater) {
@@ -542,15 +539,6 @@ public class GameScreen implements Screen {
         drawCenteredText("\nType INF for Infinite Mode", -55, 1.5f);
 
         batch.end();
-
-//        batch.setProjectionMatrix(hudCam.combined);
-//        batch.begin();
-//
-//        drawCenteredText("The MC", 70, 2);
-//        drawCenteredText("Press SPACE to start tutorial", 10, 1);
-//        drawCenteredText("Press I to start infinite (Must complete tutorial first)", -10, 1);
-//
-//        batch.end();
     }
 
     private void handleMenuInput(){
@@ -648,7 +636,7 @@ public class GameScreen implements Screen {
                 if(currentLevel == LevelType.TUTORIAL){
                     infiniteUnlocked = true;
                 }
-                deathWaterLevel = -50f;
+                checkpointWaterLevel = -50f;
                 currCheckpoint = null;
                 checkpoints = null;
                 LevelData nextLevel = LevelLibrary.getAllLevels().get(next);
@@ -671,7 +659,7 @@ public class GameScreen implements Screen {
 
     private void onQ(){
         if (currentLevel == LevelType.INFINITE) {
-            deathWaterLevel = -50f;
+            checkpointWaterLevel = -50f;
             deathXValues = new ArrayList<>(); //reset
             LevelLibrary.regenerateInfinite();
             loadLevel(LevelType.INFINITE); //regenerate!
