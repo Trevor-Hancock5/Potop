@@ -1,4 +1,4 @@
-package com.hancockt.lol;
+package com.hancockt.potop;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -16,9 +16,8 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 
-import static com.hancockt.lol.PlayerData.*;
+import static com.hancockt.potop.PlayerData.*;
 
 /** First screen of the application. Displayed after the application is created. */
 public class GameScreen implements Screen {
@@ -62,7 +61,7 @@ public class GameScreen implements Screen {
     public static float timeAtDeath = 0f;
 
     //game reference
-    private final lol game;
+    private final potop game;
     private GameAssets gameAssets = new GameAssets();
 
     // Controls
@@ -70,7 +69,7 @@ public class GameScreen implements Screen {
     private static boolean enteringSeed = false;
 
 
-    public GameScreen(lol game, LevelType type){
+    public GameScreen(potop game, LevelType type){
         this.game = game;
         currentLevel = type;
     }

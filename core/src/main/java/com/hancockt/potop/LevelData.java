@@ -1,4 +1,4 @@
-package com.hancockt.lol;
+package com.hancockt.potop;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;

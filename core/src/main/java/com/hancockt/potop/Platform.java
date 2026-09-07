@@ -1,4 +1,4 @@
-package com.hancockt.lol;
+package com.hancockt.potop;
 
 public class Platform {
     private int x;

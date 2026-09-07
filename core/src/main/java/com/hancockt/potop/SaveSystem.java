@@ -1,9 +1,7 @@
-package com.hancockt.lol;
+package com.hancockt.potop;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
-
-import java.util.Map;
 
 // Note if ever a high score is made, preferences is a file that a user can change!
 

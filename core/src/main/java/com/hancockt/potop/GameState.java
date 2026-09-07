@@ -1,4 +1,4 @@
-package com.hancockt.lol;
+package com.hancockt.potop;
 
 public enum GameState {
     MENU,

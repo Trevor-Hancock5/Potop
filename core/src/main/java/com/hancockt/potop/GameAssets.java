@@ -1,4 +1,4 @@
-package com.hancockt.lol;
+package com.hancockt.potop;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;

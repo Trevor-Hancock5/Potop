@@ -1,4 +1,4 @@
-package com.hancockt.lol;
+package com.hancockt.potop;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import static com.hancockt.lol.PlayerData.*;
-import static com.hancockt.lol.GameScreen.*;
+import static com.hancockt.potop.PlayerData.*;
+import static com.hancockt.potop.GameScreen.*;
 
 public class PhysicsEngine {
     private static final int accelerationX = 1600;
