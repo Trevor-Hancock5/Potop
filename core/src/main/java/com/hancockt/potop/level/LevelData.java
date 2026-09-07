@@ -10,7 +10,6 @@ import com.hancockt.potop.features.Platform;
 import java.util.List;
 
 public class LevelData {
-    private final LevelType type;
     private final List<Checkpoint> checkpoints;
     private final List<Faucet> faucets;
     private final List<Currency> currencies;
@@ -22,11 +21,10 @@ public class LevelData {
     private final boolean waterStartsActive;
     private final LevelType nextLevel;
 
-    public LevelData(LevelType type, List<Checkpoint> checkpoints, Rectangle waterTriggerZone,
+    public LevelData(List<Checkpoint> checkpoints, Rectangle waterTriggerZone,
                      Rectangle waterFixZone, Rectangle winZone, List<Platform> platforms,
                      Vector2 startPoint, boolean waterStartsActive, LevelType nextLevel, List<Faucet> faucets,
                      List<Currency> currencies) {
-        this.type = type;
         this.checkpoints = checkpoints;
         this.faucets = faucets;
         this.currencies = currencies;

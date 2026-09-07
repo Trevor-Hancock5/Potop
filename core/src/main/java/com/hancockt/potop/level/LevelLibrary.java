@@ -71,13 +71,13 @@ public class LevelLibrary {
 
 
         return new LevelData(
-            LevelType.TUTORIAL, checkpoints, waterTriggerZone, waterFixZone, winZone, platforms,
+            checkpoints, waterTriggerZone, waterFixZone, winZone, platforms,
             startPoint, waterStartsActive, nextLevel, faucets, currencies
         );
     }
 
     private static LevelData buildInfiniteLevel(){
-        //use seeds for reproduceability in infinite mode and leaderboard
+        //use seeds for reproducibility in infinite mode and leaderboard
         seed = System.currentTimeMillis();
         rng = new Random(seed);
 
@@ -89,12 +89,12 @@ public class LevelLibrary {
         //just call generate band for each band until height
         highestPlatform = new Platform(0,0,75,25);
         for(int i = 0; i <= 2000; i += BAND_HEIGHT) {
-            highestPlatform = generateBand(platforms, checkpoints, i, BAND_HEIGHT, LEVEL_WIDTH, highestPlatform,
+            highestPlatform = generateBand(platforms, checkpoints, i, highestPlatform,
                                             faucets, currencies);
         }
 
         return new LevelData(
-            LevelType.INFINITE, checkpoints, null, null, null, platforms, new Vector2(0,0),
+            checkpoints, null, null, null, platforms, new Vector2(0,0),
             true, null, faucets, currencies
         );
     }
@@ -104,12 +104,12 @@ public class LevelLibrary {
         //Add another 2000 height to the infinite level
         int maxAdditionY = highestInfiniteY + 2000;
         for(int i = highestInfiniteY; i < maxAdditionY; i += BAND_HEIGHT){
-            highestPlatform = generateBand(platforms, checkpoints, i, BAND_HEIGHT, LEVEL_WIDTH,
+            highestPlatform = generateBand(platforms, checkpoints, i,
                 highestPlatform, faucets, currencies);
         }
 
         return new LevelData(
-            LevelType.INFINITE, checkpoints, null, null, null, platforms, new Vector2(0,0),
+            checkpoints, null, null, null, platforms, new Vector2(0,0),
             true, null, faucets, currencies
         );
     }
@@ -117,8 +117,7 @@ public class LevelLibrary {
     //todo - maybe more checkpoints when higher?
     //TODO - rework so that it uses LevelData for lists instead of passing them as arguments!
     private static Platform generateBand(List<Platform> platforms, List<Checkpoint> checkpoints, float bandY,
-                                     float bandHeight, float levelWidth, Platform highestPlatform,
-                                         List<Faucet> faucets, List<Currency> currencies){
+                                         Platform highestPlatform, List<Faucet> faucets, List<Currency> currencies){
         //add checkpoint
         float checkpointHeightDistance = rng.nextFloat(1000, 2000); //add some randomness for kicks and giggles!
         float skipCheckpointThreshold = 0.1f;
@@ -150,14 +149,14 @@ public class LevelLibrary {
         }
 
         //Add boundary walls
-        Platform leftWall = new Platform(-500, bandY, 500, bandHeight);
-        Platform rightWall = new Platform(levelWidth, bandY, 500, bandHeight);
+        Platform leftWall = new Platform(-500, bandY, 500, BAND_HEIGHT);
+        Platform rightWall = new Platform(LEVEL_WIDTH, bandY, 500, BAND_HEIGHT);
         leftWall.setBoundaryWall(true);
         rightWall.setBoundaryWall(true);
         platforms.add(leftWall);
         platforms.add(rightWall);
 
-        float bandArea = levelWidth * bandHeight;
+        float bandArea = LEVEL_WIDTH * BAND_HEIGHT;
         float decayMultiplier = bandY / 1000;
 
         //Density
@@ -192,7 +191,6 @@ public class LevelLibrary {
 
         //for overlapping, since only platforms in this band can overlap other ones
         List<Platform> bandPlatforms = new ArrayList<>();
-        int numReachable = 0;
         for(int i = 0; i < numPlatforms; i++) {
             Platform p;
             int attempts = 0;
@@ -205,9 +203,9 @@ public class LevelLibrary {
                 attempts++;
                 float width = rng.nextFloat(minWidth, maxWidth); //20 and max width!
                 float height = rng.nextFloat(minHeight, maxHeight); // 10 and max height!
-                float xVal = rng.nextFloat(levelWidth - width); //btwn 0 and (levelWidth - width)
-                float yVal = rng.nextFloat(bandY, Math.max(bandY, bandY + bandHeight - height)); //btwn bandY and
-                // (bandY + bandHeight - height)
+                float xVal = rng.nextFloat(LEVEL_WIDTH - width); //btwn 0 and (LEVEL_WIDTH - width)
+                float yVal = rng.nextFloat(bandY, Math.max(bandY, bandY + BAND_HEIGHT - height)); //btwn bandY and
+                // (bandY + BAND_HEIGHT - height)
 
                 p = new Platform(xVal, yVal, width, height);
 
@@ -266,7 +264,7 @@ public class LevelLibrary {
             int minPrestigeCurrencyThreshold = 1_000;
             float chanceDecreaseThreshold = 5_000;
             boolean hasFactory = false; //TODO - once logic in place, get this dynamically!
-            float prestigeCurrChanceMax = 0.0005f;
+            float prestigeCurrChanceMax = 0.00005f;
             float prestigeCurrChanceMin = 0.000001f;
 
             boolean placedPrestige = false;
@@ -283,7 +281,7 @@ public class LevelLibrary {
                 if(placedPrestige){
                     int placementX = rng.nextInt(p.getX(), p.getX() + p.getWidth() - currencyWidth);
                     Currency curr = new Currency(placementX, p.getY() + p.getHeight(), true);
-                    if(!checkCurrencyOverlap(curr, platforms, checkpoints, faucets)) {
+                    if(checkNoCurrencyOverlap(curr, platforms, checkpoints, faucets)) {
                         currencies.add(curr);
                     }
                 }
@@ -307,7 +305,7 @@ public class LevelLibrary {
                     if(placeFromLeft){
                         for(int i = 0; i < numPlacements; i++){
                             curr = new Currency(p.getX() + i * Currency.WIDTH, p.getY() + p.getHeight());
-                            if(!checkCurrencyOverlap(curr, platforms, checkpoints, faucets)) {
+                            if(checkNoCurrencyOverlap(curr, platforms, checkpoints, faucets)) {
                                 currencies.add(curr);
                             }
                         }
@@ -315,7 +313,7 @@ public class LevelLibrary {
                         //From 1 to numPlacements so it doesn't hang over the edge
                         for(int i = 1; i <= numPlacements; i++){
                             curr = new Currency(p.getX() + p.getWidth() - i * Currency.WIDTH, p.getY() + p.getHeight());
-                            if(!checkCurrencyOverlap(curr, platforms, checkpoints, faucets)) {
+                            if(checkNoCurrencyOverlap(curr, platforms, checkpoints, faucets)) {
                                 currencies.add(curr);
                             }
                         }
@@ -324,12 +322,12 @@ public class LevelLibrary {
             }
         }
 
-        highestInfiniteY = (int) (bandY + bandHeight);
+        highestInfiniteY = (int) (bandY + BAND_HEIGHT);
         return highestPlatform;
     }
 
-    private static boolean checkCurrencyOverlap(Currency curr, List<Platform> platforms, List<Checkpoint> checkpoints,
-                                                List<Faucet> faucets){
+    private static boolean checkNoCurrencyOverlap(Currency curr, List<Platform> platforms, List<Checkpoint> checkpoints,
+                                                  List<Faucet> faucets){
         Rectangle currencyRectangle = new Rectangle(curr.getX(), curr.getY(),
                                                 Currency.WIDTH, Currency.HEIGHT);
 
@@ -347,7 +345,7 @@ public class LevelLibrary {
                 new Rectangle(f.getX(), f.getY() - 10, f.getWidth(), f.getHeight() + 10).overlaps(currencyRectangle));
         // -10/+10 because the faucet floats 10 pixels above platform!
 
-        return platformOverlap || checkpointOverlap || faucetOverlap;
+        return !platformOverlap && !checkpointOverlap && !faucetOverlap;
     }
 
     private static boolean checkReachability(Platform currPlatform, Platform highestPlatform){
@@ -367,12 +365,9 @@ public class LevelLibrary {
 
         //check vertical
         int verticalMax = 100;
-        if(Math.abs((currPlatform.getY() + currPlatform.getHeight()) - (highestPlatform.getY() + highestPlatform.getHeight())) > verticalMax){
-            return false;
-        }
+        return Math.abs((currPlatform.getY() + currPlatform.getHeight()) - (highestPlatform.getY() + highestPlatform.getHeight())) <= verticalMax;
 
         //none failed, reachable!
-        return true;
     }
 
     private static List<Platform> buildLevelFromModules(List<Module> moduleSequence, Vector2 startPoint) {

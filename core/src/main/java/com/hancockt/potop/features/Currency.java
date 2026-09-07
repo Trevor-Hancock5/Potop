@@ -3,7 +3,7 @@ package com.hancockt.potop.features;
 public class Currency {
     private float x;
     private float y;
-    private boolean prestige;
+    private final boolean prestige;
     private float velocityX;
     private float velocityY;
     private float explodeTime;

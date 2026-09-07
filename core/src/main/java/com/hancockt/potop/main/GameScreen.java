@@ -59,7 +59,6 @@ public class GameScreen implements Screen {
     public static float waterRiseSpeed;
     public static Rectangle waterTriggerZone;
     public static Rectangle waterFixZone;
-    private Rectangle winZone;
 
     public static List<Platform> platforms;
     public static List<Float> deathXValues;
@@ -73,16 +72,14 @@ public class GameScreen implements Screen {
     private final Color water = new Color(17/255f, 132/255f, 214/255f, .65f);
 
     //game reference
-    private final Potop game;
-    private GameAssets gameAssets = new GameAssets();
+    private final GameAssets gameAssets = new GameAssets();
 
     // Controls
     public static boolean waterRise = false;
     private static boolean enteringSeed = false;
 
 
-    public GameScreen(Potop game, LevelType type){
-        this.game = game;
+    public GameScreen(LevelType type){
         currentLevel = type; // TODO - remove, this ought to be owned by levelData!
     }
 
@@ -286,7 +283,7 @@ public class GameScreen implements Screen {
         batch.begin();
         try {
             if (enteringSeed) {
-                System.out.println("ERRROR!!!");
+                System.out.println("ERROR!!!");
                 //TODO? Maybe change this to be in the paused state or change state to paused???
             } else {
 
@@ -480,7 +477,6 @@ public class GameScreen implements Screen {
         checkpoints = data.getCheckpoints();
         waterTriggerZone = data.getWaterTriggerZone();
         waterFixZone = data.getWaterFixZone();
-        winZone = data.getWinZone();
         waterRise = data.isWaterStartsActive();
         faucets = data.getFaucets();
         currencies = data.getCurrencies();

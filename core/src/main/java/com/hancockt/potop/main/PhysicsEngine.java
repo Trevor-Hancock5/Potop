@@ -105,7 +105,7 @@ public class PhysicsEngine {
             }
         }
 
-        //Reset to avoid jumping mid-air
+        //Reset to avoid jumping midair
         onGround = false;
 
         //floor collision
@@ -246,7 +246,7 @@ public class PhysicsEngine {
 
             velocityY = upForce;
 
-            //guarenteed either touching wall on right or left
+            //guaranteed either touching wall on right or left
             velocityX = wasRight ? sideForce : -sideForce;
             touchingWallRight = false;
             touchingWallLeft = false;
@@ -382,7 +382,7 @@ public class PhysicsEngine {
                     finishedFinalFaucet = true;
                 }
 
-                // todo faucet currency amount! (make somewhat random? - define in fauceet)
+                // todo faucet currency amount! (make somewhat random? - define in faucet)
                 spawnCurrency(15, nearFaucet.getX(), nearFaucet.getY(), nearFaucet.getWidth(), nearFaucet.getHeight());
             }
         } else if(nearFaucet != null){
@@ -487,7 +487,7 @@ public class PhysicsEngine {
         //death check
         Rectangle waterRect = new Rectangle(-50000, 0, 100000, waterLevel);
 
-        //Only dead if head hits water (because flame afro!), so top 15 pixels of player rect
+        //Only dead if head hits water (because flame Afro!), so top 15 pixels of player rect
         if(waterRect.overlaps(playerRectFinal) && waterLevel >= sparkHeadY){
             if(!isDead){
                 deathXValues.add(x);
@@ -551,6 +551,7 @@ public class PhysicsEngine {
 
     private static void spawnCurrency(int numOfCurrency, float xRef, float yRef, float width, float height){
         //TODO - add constants in currency for this!
+        // todo - move to currency!
         for(int i = 0; i < numOfCurrency; i++){
             float explodeXVelocity = rng.nextFloat(0, 450) * Math.signum(rng.nextFloat(-1, 1));
             float explodeYVelocity = rng.nextFloat(0, 450) * Math.signum(rng.nextFloat(-1, 1));

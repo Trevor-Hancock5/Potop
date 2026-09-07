@@ -7,6 +7,6 @@ import com.hancockt.potop.level.LevelType;
 public class Potop extends Game {
     @Override
     public void create() {
-        setScreen(new GameScreen(this, LevelType.TUTORIAL));
+        setScreen(new GameScreen(LevelType.TUTORIAL));
     }
 }

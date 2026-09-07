@@ -6,11 +6,10 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import java.util.HashMap;
 
 public class SpriteAnimator {
-    private HashMap<AnimationKey, Animation<TextureRegion>> animations;
+    private final HashMap<AnimationKey, Animation<TextureRegion>> animations;
     private AnimationKey currKey;
     private float stateTime;
-    private TextureRegion defaultFrame;
-    private AnimationKey group; //have an instance of SpriteAnimator for each thing to animate (spark vs checkpoint)
+    private final TextureRegion defaultFrame;
 
     public SpriteAnimator(TextureRegion defaultFrame){
         animations = new HashMap<>();
@@ -34,10 +33,6 @@ public class SpriteAnimator {
             return;
         }
         stateTime += delta;
-
-        if(!animation.isAnimationFinished(stateTime)) {
-//            stateTime += delta;
-        }
     }
 
     public TextureRegion getCurrentFrame(){

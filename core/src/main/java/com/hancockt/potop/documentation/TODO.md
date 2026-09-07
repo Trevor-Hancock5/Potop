@@ -20,9 +20,10 @@ test:
 - Refactor code before adding upgrades because my goodness that'd be disgusting!
   - Make a single change/refactor, ensure it still works, and commit. then repeat!
 
+how many platforms do we spawn under 10k?
+
 Refactor order:  
 2. imports!
-3. warnings!
 2. Runtime state
 3. Update vs rendering
 4. Small independent systems

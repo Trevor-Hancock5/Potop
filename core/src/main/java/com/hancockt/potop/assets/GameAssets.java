@@ -21,7 +21,7 @@ public class GameAssets {
 
     public Music backgroundMusic;
 
-    private final float backgroundMusicVolume = 0.6f;
+    private static final float backgroundMusicVolume = 0.6f; //TUNABLE
 
     public void load(){
         //Art

@@ -1,12 +1,12 @@
 package com.hancockt.potop.features;
 
 public class Checkpoint {
-    private float x;
-    private float y;
-    private float width;
-    private float height;
+    private final float x;
+    private final float y;
+    private final float width;
+    private final float height;
     private boolean activated;
-    private int order;
+    private final int order;
     private static final float defaultWidth = 40f;
     private static final float defaultHeight = 100f;
 
