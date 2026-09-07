@@ -192,3 +192,10 @@ Add an automated test when:
 
 Example:
 Generate many platform bands and verify that platforms and collectibles do not overlap.
+
+---
+
+## 15. For any new art/music/assets, ensure to add to appropriate class and load at start!
+
+When adding new music, art, or whatever asset, make sure to add it to the asset manager class
+and that they are all loaded and prepared BEFORE starting the game!

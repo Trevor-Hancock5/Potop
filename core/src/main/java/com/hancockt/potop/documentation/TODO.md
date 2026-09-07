@@ -12,9 +12,21 @@
 
 # Milestones:
 ## Bug/code fix
+
+# Just start refactoring, stop procrastinating. You got it! No AI, turn off WIFI!
+
 - Refactor code before adding upgrades because my goodness that'd be disgusting!
-    - Use an asset manager to load all music and art at the very start of the game
-    - Split game Screen class
+  - Make a single change/refactor, ensure it still works, and commit. then repeat!
+
+Refactor order:  
+1. Constants/configuration 
+2. Runtime state
+3. Update vs rendering
+4. Small independent systems
+5. Split GameScreen
+6. Clean up leftovers
+
+    - minimize duplicate code
     - move runtime state into it's own class!
     - make separate systems (physics, water, spawn, collision, etc.) for maintainability! - each has update()
     - separate update (game state) from render (drawing)
@@ -127,6 +139,8 @@
 
 ## Prep for release
 - MARKET HARDCORE
+- Start drafting itch page, steam page, etc. 
+- Get playtesters for final testing before full release!
 - Make it so that the built gradle has the name Potop and the logo is Spark (or another one)
 - sign installation? steam?
 - look through feedback and analyze what needs to change
