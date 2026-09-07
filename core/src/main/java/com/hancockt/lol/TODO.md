@@ -12,9 +12,9 @@
 
 # Milestones:
 ## Bug/code fix
-- make a code style doc then adhere to it
 - Refactor code before adding upgrades because my goodness that'd be disgusting!
-    - Use an asset manager to load all music and art at the very start of the game
+    - Make Modules for the dang code and what they do!
+      - Use an asset manager to load all music and art at the very start of the game
     - Split game Screen class
     - move runtime state into it's own class!
     - make separate systems (physics, water, spawn, collision, etc.) for maintainability! - each has update()
@@ -28,14 +28,13 @@
   faucets, and checkpoints are added on top of previous band, it doesn't do anything about the currency. Meaning some
   are inaccessible. So fix that!
       - Also check this for faucets and checkpoints and platforms. Nothing should overlap anything else!
-      - Make a test!
+      - Make a test! For test you can just test every object against every other one?
 - When you wall jump but stuck inside another wall, it shifts to the other wall's inside. Weird
 - improve performance! seems slow! - Make an active platforms/collectibles that is within like 2k above and
   enough platforms to the previous 2 checkpoints
-- add functionality to see random seed, and be able to add random seed to use (surround in try/catch)
-    - check it's same everytime!
 
 ## Necessary Improvements!
+- setting to turn off screen shake!
 - No water rising UNTIL input has been received!
 - improve infinite mode generation: guarenteed way up in each half of the playing width!
 - fix regular jump animation
@@ -142,6 +141,8 @@
 
 
 ## Dream features
+- add functionality to see random seed, and be able to add random seed to use (surround in try/catch)
+    - It is the same every time (could make test!)
 - Look further in front???
 - Give spark personality! (maybe non-cooperation, with a lawyer tool that disables non-cooperation)
 - New mechanic! - make it so that when you hit down with 0 y velocity (standing), you flip upside down (no art, just programming?)
