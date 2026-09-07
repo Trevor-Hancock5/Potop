@@ -6,17 +6,19 @@ import com.hancockt.potop.features.Checkpoint;
 import com.hancockt.potop.features.Currency;
 import com.hancockt.potop.features.Faucet;
 import com.hancockt.potop.features.Platform;
-import com.hancockt.potop.state.PlayerStateOutdated;
+import com.hancockt.potop.state.PlayerData;
+import com.hancockt.potop.state.RunData;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.HashMap;
+import java.util.logging.Level;
 
 
 public class LevelLibrary {
-    private static final Map<LevelType, LevelData> ALL_LEVELS = new HashMap<>();
+    private static final Map<LevelType, RunData> ALL_LEVELS = new HashMap<>();
     private static Random rng;
     private static long seed;
     private static int highestInfiniteY = 0;
@@ -26,11 +28,11 @@ public class LevelLibrary {
 
 
     static {
-        ALL_LEVELS.put(LevelType.TUTORIAL, buildTutorialLevel());
+        ALL_LEVELS.put(LevelType.LEARNING_MODE, buildTutorialLevel());
         ALL_LEVELS.put(LevelType.INFINITE, buildInfiniteLevel());
     }
 
-    public static Map<LevelType, LevelData> getAllLevels(){
+    public static Map<LevelType, RunData> getAllLevels(){
         return ALL_LEVELS;
     }
 
@@ -38,7 +40,7 @@ public class LevelLibrary {
         return highestInfiniteY;
     }
 
-    private static LevelData buildTutorialLevel(){
+    private static RunData buildTutorialLevel(){
         //PR = 33.487s
         List<Checkpoint> checkpoints = new ArrayList<>();
         checkpoints.add(new Checkpoint(1930, 265, 1));
@@ -71,17 +73,14 @@ public class LevelLibrary {
         List<Platform> platforms = buildLevelFromModules(tutorialSequence, new Vector2(0, 0));
 
         Vector2 startPoint = new Vector2(0,25);
-        boolean waterStartsActive = false;
-        LevelType nextLevel = LevelType.INFINITE;
 
-
-        return new LevelData(
-            checkpoints, waterTriggerZone, waterFixZone, winZone, platforms,
-            startPoint, waterStartsActive, nextLevel, faucets, currencies
+        return new RunData(
+            checkpoints, platforms,
+            startPoint, faucets, currencies, LevelType.LEARNING_MODE, LevelType.INFINITE
         );
     }
 
-    private static LevelData buildInfiniteLevel(){
+    private static RunData buildInfiniteLevel(){
         //use seeds for reproducibility in infinite mode and leaderboard
         seed = System.currentTimeMillis();
         rng = new Random(seed);
@@ -98,13 +97,12 @@ public class LevelLibrary {
                                             faucets, currencies);
         }
 
-        return new LevelData(
-            checkpoints, null, null, null, platforms, new Vector2(0,0),
-            true, null, faucets, currencies
+        return new RunData(
+            checkpoints, platforms, new Vector2(0,0), faucets, currencies, LevelType.INFINITE, null
         );
     }
 
-    public static LevelData addToInfiniteLevel(List<Platform> platforms, List<Checkpoint> checkpoints,
+    public static void addToInfiniteLevel(List<Platform> platforms, List<Checkpoint> checkpoints,
                                                List<Faucet> faucets, List<Currency> currencies){
         //Add another 2000 height to the infinite level
         int maxAdditionY = highestInfiniteY + 2000;
@@ -112,11 +110,6 @@ public class LevelLibrary {
             highestPlatform = generateBand(platforms, checkpoints, i,
                 highestPlatform, faucets, currencies);
         }
-
-        return new LevelData(
-            checkpoints, null, null, null, platforms, new Vector2(0,0),
-            true, null, faucets, currencies
-        );
     }
 
     //todo - maybe more checkpoints when higher?
@@ -339,7 +332,7 @@ public class LevelLibrary {
         //base check of overlap
         boolean platformOverlap = platforms.stream()
             .anyMatch(p ->
-                new Rectangle(p.getX(), p.getY() - PlayerStateOutdated.playerHeight, p.getWidth(), p.getHeight() + PlayerStateOutdated.playerHeight).overlaps(currencyRectangle));
+                new Rectangle(p.getX(), p.getY() - PlayerData.playerHeight, p.getWidth(), p.getHeight() + PlayerData.playerHeight).overlaps(currencyRectangle));
 
         boolean checkpointOverlap = checkpoints.stream()
             .anyMatch(c ->

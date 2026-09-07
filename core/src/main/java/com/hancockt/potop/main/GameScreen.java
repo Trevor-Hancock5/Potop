@@ -19,11 +19,12 @@ import com.hancockt.potop.features.Checkpoint;
 import com.hancockt.potop.features.Currency;
 import com.hancockt.potop.features.Faucet;
 import com.hancockt.potop.features.Platform;
-import com.hancockt.potop.level.LevelData;
 import com.hancockt.potop.level.LevelLibrary;
 import com.hancockt.potop.level.LevelType;
 import com.hancockt.potop.state.GameState;
-import com.hancockt.potop.state.PlayerStateOutdated;
+import com.hancockt.potop.state.PersistentData;
+import com.hancockt.potop.state.PlayerData;
+import com.hancockt.potop.state.RunData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +41,6 @@ public class GameScreen implements Screen {
     private final float viewportWidth = 800f;
     private final float viewportHeight = 480f;
     public static float screenShakeAccumulation;
-    public static LevelType currentLevel;
     public static GameState gameState = GameState.MENU; //start with menu
     private final GlyphLayout layout = new GlyphLayout(); // create once, reuse
 
@@ -55,14 +55,9 @@ public class GameScreen implements Screen {
     //water
     public static float waterLevel;
     public static float waterRiseSpeed;
-    public static Rectangle waterTriggerZone;
-    public static Rectangle waterFixZone;
+    private static RunData runData;
 
-    public static List<Platform> platforms;
     public static List<Float> deathXValues;
-    public static List<Checkpoint> checkpoints;
-    public static List<Faucet> faucets;
-    public static List<Currency> currencies;
     private boolean pressedI = false;
     private boolean pressedN = false;
     public static float time = 0f;
@@ -73,13 +68,11 @@ public class GameScreen implements Screen {
     private final GameAssets gameAssets = new GameAssets();
 
     // Controls
-    public static boolean waterRise = false;
+    public static boolean waterRise = true;
     private static boolean enteringSeed = false;
 
 
-    public GameScreen(LevelType type){
-        currentLevel = type; // TODO - remove, this ought to be owned by levelData!
-    }
+    public GameScreen(){}
 
     @Override
     public void show() {
@@ -96,7 +89,7 @@ public class GameScreen implements Screen {
         hudCam.setToOrtho(false, viewportWidth, viewportHeight);
         deathXValues = new ArrayList<>();
 
-        loadLevel(currentLevel);
+        loadLevel(LevelType.LEARNING_MODE);
         restart();
     }
 
@@ -139,12 +132,12 @@ public class GameScreen implements Screen {
                 drawWinOverlay();
                 break;
             case PLAYING:
-                if(!PlayerStateOutdated.isDead){
-                    AnimationKey sparkAnimationState = PhysicsEngine.updatePhysics(delta);
+                if(!PlayerData.isDead){
+                    AnimationKey sparkAnimationState = PhysicsEngine.updatePhysics(delta, runData);
                     gameAssets.sparkAnimator.play(sparkAnimationState);
                 }
 
-                if(PlayerStateOutdated.isDead || !deathXValues.isEmpty()){
+                if(PlayerData.isDead || !deathXValues.isEmpty()){
                     drawDeathText();
                 }
 
@@ -161,7 +154,7 @@ public class GameScreen implements Screen {
                 }
 
                 //infinite mode seed input
-                if(currentLevel == LevelType.INFINITE){
+                if(runData.getCurrentLevel() == LevelType.INFINITE){
                     if(Gdx.input.isKeyJustPressed(Input.Keys.T)){
                         enteringSeed = true;
                     }
@@ -190,6 +183,9 @@ public class GameScreen implements Screen {
         shapeRenderer.setColor(water);
 
         float camLeft = camera.position.x - camera.viewportWidth / 2;
+        System.out.println("waterlevel: " + waterLevel);
+        System.out.println("waterRiseSpeed: " + waterRiseSpeed);
+        System.out.println("Water rise: " + waterRise);
         shapeRenderer.rect(camLeft, 0, camera.viewportWidth, waterLevel);
 
         shapeRenderer.end();
@@ -200,13 +196,13 @@ public class GameScreen implements Screen {
         batch.begin();
 
         //platforms
-        for(Platform p : platforms){
+        for(Platform p : runData.getPlatforms()){
             Texture asset = p.isBoundaryWall() ? gameAssets.boundaryWall : gameAssets.platform;
             batch.draw(asset, p.getX(), p.getY(), p.getWidth(), p.getHeight());
         }
 
         //checkpoints
-        for(Checkpoint c : checkpoints){
+        for(Checkpoint c : runData.getCheckpoints()){
             if(c.isActivated()){
                 gameAssets.checkpointAnimator.play(AnimationKey.CHECKPOINT_ACTIVE);
                 TextureRegion asset = gameAssets.checkpointAnimator.getCurrentFrame();
@@ -218,7 +214,7 @@ public class GameScreen implements Screen {
         }
 
         // faucets
-        for (Faucet f : faucets) {
+        for (Faucet f : runData.getFaucets()) {
             Texture texture = f.isWinFaucet() ? gameAssets.winFaucet : gameAssets.faucet;
 
             float width = f.getWidth();
@@ -254,13 +250,13 @@ public class GameScreen implements Screen {
         }
 
         //Currency
-        for(Currency c : currencies){
+        for(Currency c : runData.getCurrencies()){
             Texture asset = c.isPrestige() ? gameAssets.prestigeCurrency : gameAssets.currency;
             batch.draw(asset, c.getX(), c.getY(), Currency.WIDTH, Currency.HEIGHT);
         }
 
         //SPARK
-        batch.draw(gameAssets.sparkAnimator.getCurrentFrame(), PlayerStateOutdated.x, PlayerStateOutdated.y, PlayerStateOutdated.playerWidth, PlayerStateOutdated.playerHeight);
+        batch.draw(gameAssets.sparkAnimator.getCurrentFrame(), PlayerData.x, PlayerData.y, PlayerData.playerWidth, PlayerData.playerHeight);
 
         batch.end();
     }
@@ -291,10 +287,10 @@ public class GameScreen implements Screen {
                 }
 
                 font.getData().setScale(1.25f);
-                if (currentLevel == LevelType.INFINITE) {
-                    font.draw(batch, "Score: " + Math.round(PlayerStateOutdated.y), viewportWidth - 175, viewportHeight - 50);
-                    font.draw(batch, "High Score: " + Math.round(PlayerStateOutdated.score), viewportWidth - 175, viewportHeight - 30);
-                    font.draw(batch, "Matches: " + PlayerStateOutdated.numMatches, viewportWidth - 175, viewportHeight - 10);
+                if (runData.getCurrentLevel() == LevelType.INFINITE) {
+                    font.draw(batch, "Score: " + Math.round(PlayerData.y), viewportWidth - 175, viewportHeight - 50);
+                    font.draw(batch, "High Score: " + Math.round(PersistentData.highScore), viewportWidth - 175, viewportHeight - 30);
+                    font.draw(batch, "Matches: " + RunData.runMatches, viewportWidth - 175, viewportHeight - 10);
                 } else {
                     font.draw(batch, "Time: " + String.format("%.1f", time), viewportWidth - 125, viewportHeight - 10);
                 }
@@ -315,7 +311,7 @@ public class GameScreen implements Screen {
         List<Float> yValues = new ArrayList<>();
         List<Float> scaleValues = new ArrayList<>();
 
-        if (currentLevel == LevelType.TUTORIAL) {
+        if (runData.getCurrentLevel() == LevelType.LEARNING_MODE) {
             text.add("Watch out for the water\nOr you DROWN");
             xValues.add(-125f);
             yValues.add(50f);
@@ -367,7 +363,7 @@ public class GameScreen implements Screen {
             drawText(text, xValues, yValues, scaleValues);
         }
 
-        if (currentLevel == LevelType.INFINITE) {
+        if (runData.getCurrentLevel() == LevelType.INFINITE) {
             text.add("INFINITE MODE");
             xValues.add(45f);
             yValues.add(175f);
@@ -416,28 +412,28 @@ public class GameScreen implements Screen {
 
         float targetX = camera.position.x; //default is to stay put
 
-        if(PlayerStateOutdated.x < deadzoneLeft){
-            targetX = PlayerStateOutdated.x + (deadzone / 2);
-        } else if (PlayerStateOutdated.x > deadzoneRight){
-            targetX = PlayerStateOutdated.x - (deadzone / 2);
+        if(PlayerData.x < deadzoneLeft){
+            targetX = PlayerData.x + (deadzone / 2);
+        } else if (PlayerData.x > deadzoneRight){
+            targetX = PlayerData.x - (deadzone / 2);
         }
 
-        float vertLookAhead = PlayerStateOutdated.velocityY * 0.1f;
-        float targetY = PlayerStateOutdated.isDead ? Math.max(waterLevel, lowestCameraY) : Math.max(PlayerStateOutdated.y+25+vertLookAhead, lowestCameraY);
+        float vertLookAhead = PlayerData.velocityY * 0.1f;
+        float targetY = PlayerData.isDead ? Math.max(waterLevel, lowestCameraY) : Math.max(PlayerData.y+25+vertLookAhead, lowestCameraY);
 
         camera.position.x += (targetX - camera.position.x) * cameraLerpSpeed;
         camera.position.y += (targetY - camera.position.y) * (cameraLerpSpeed / 3);
 
-        if(PlayerStateOutdated.justLanded && screenShakeAccumulation < screenShake){
-            if(PlayerStateOutdated.impactVelocity / maxFallSpeed > 0.5){
+        if(PlayerData.justLanded && screenShakeAccumulation < screenShake){
+            if(PlayerData.impactVelocity / maxFallSpeed > 0.5){
                 screenShakeAccumulation += delta / 2;
             } else {
                 screenShakeAccumulation += delta;
             }
 
             // For both, we are changing from -3 to 3
-            camera.position.x += (float) ((Math.random() - 0.5) * (screenShakeIntensity * (2 + PlayerStateOutdated.impactVelocity / maxFallSpeed)));
-            camera.position.y += (float) ((Math.random() - 0.5) * (screenShakeIntensity * (2 + PlayerStateOutdated.impactVelocity / maxFallSpeed)));
+            camera.position.x += (float) ((Math.random() - 0.5) * (screenShakeIntensity * (2 + PlayerData.impactVelocity / maxFallSpeed)));
+            camera.position.y += (float) ((Math.random() - 0.5) * (screenShakeIntensity * (2 + PlayerData.impactVelocity / maxFallSpeed)));
         }
         camera.update();
     }
@@ -455,12 +451,12 @@ public class GameScreen implements Screen {
     }
 
     private void restart() {
-        waterLevel = PlayerStateOutdated.reset(checkpoints, currentLevel);
+        waterLevel = PlayerData.reset(runData.getCheckpoints(), runData.getCurrentLevel());
 
         time = timeAtDeath;
-        waterRiseSpeed = Math.min(50f, 8f + (PlayerStateOutdated.y / 200f)); //full speed always after ~8k height
+        waterRiseSpeed = Math.min(50f, 8f + (PlayerData.y / 200f)); //full speed always after ~8k height
         screenShakeAccumulation = 0;
-        for (Faucet f : faucets) {
+        for (Faucet f : runData.getFaucets()) {
             f.setTurnedOff(false); //reset
             f.setRotation(0);
             f.setProgress(0);
@@ -468,52 +464,9 @@ public class GameScreen implements Screen {
     }
 
     private void loadLevel(LevelType levelType) {
-        currentLevel = levelType;
-
-        LevelData data = LevelLibrary.getAllLevels().get(levelType);
-        platforms = data.getPlatforms();
-        checkpoints = data.getCheckpoints();
-        waterTriggerZone = data.getWaterTriggerZone();
-        waterFixZone = data.getWaterFixZone();
-        waterRise = data.isWaterStartsActive();
-        faucets = data.getFaucets();
-        currencies = data.getCurrencies();
-        PlayerStateOutdated.x = data.getStartPoint().x;
-        PlayerStateOutdated.y = data.getStartPoint().y;
-    }
-
-    public static void updateLists(LevelData data) {
-        platforms.addAll(data.getPlatforms());
-        checkpoints.addAll(data.getCheckpoints());
-        faucets.addAll(data.getFaucets());
-
-        //remove anything under death water level that won't appear above the water
-        List<Platform> platformsUnderWater =
-            platforms.stream().filter(platform -> platform.getY() < PlayerStateOutdated.checkpointWaterLevel - 150).toList();
-
-        List<Checkpoint> checkpointsUnderWater =
-            checkpoints.stream().filter(checkpoint -> checkpoint.getY() < PlayerStateOutdated.checkpointWaterLevel).toList();
-
-        List<Faucet> faucetsUnderWater =
-            faucets.stream().filter(faucet -> faucet.getY() < PlayerStateOutdated.checkpointWaterLevel).toList();
-
-        if (!platformsUnderWater.isEmpty()) {
-            for (Platform p : platformsUnderWater) {
-                platforms.remove(p);
-            }
-        }
-
-        if (!checkpointsUnderWater.isEmpty()) {
-            for (Checkpoint c : checkpointsUnderWater) {
-                checkpoints.remove(c);
-            }
-        }
-
-        if (!faucetsUnderWater.isEmpty()) {
-            for (Faucet f : faucetsUnderWater) {
-                faucets.remove(f);
-            }
-        }
+        runData = LevelLibrary.getAllLevels().get(levelType);
+        PlayerData.x = runData.getStartPoint().x;
+        PlayerData.y = runData.getStartPoint().y;
     }
 
     private void drawMenu(){
@@ -537,12 +490,12 @@ public class GameScreen implements Screen {
 
     private void handleMenuInput(){
         if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
-            loadLevel(LevelType.TUTORIAL);
+            loadLevel(LevelType.LEARNING_MODE);
             restart();
             gameState = GameState.PLAYING;
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.I)){
-            if(PlayerStateOutdated.infiniteUnlocked) {
+            if(PersistentData.learningModeBeat) {
                 loadLevel(LevelType.INFINITE);
                 restart();
                 gameState = GameState.PLAYING;
@@ -592,8 +545,10 @@ public class GameScreen implements Screen {
         batch.setProjectionMatrix(hudCam.combined);
         batch.begin();
 
-        drawCenteredText("You drowned. Score: " + Math.round(PlayerStateOutdated.score), 30, 1.5f);
+        drawCenteredText("You drowned. Score: " + Math.round(PlayerData.y), 30, 1.5f);
         drawCenteredText("Press R to retry!", 0, 1);
+
+        // TODO - if new high score, display !
 
         batch.end();
     }
@@ -624,19 +579,19 @@ public class GameScreen implements Screen {
         if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER)){
             time = 0f;
             timeAtDeath = 0f;
-            LevelData data = LevelLibrary.getAllLevels().get(currentLevel);
+            RunData data = LevelLibrary.getAllLevels().get(runData.getCurrentLevel());
             LevelType next = data.getNextLevel();
             if(next != null){
-                if(currentLevel == LevelType.TUTORIAL){
-                    PlayerStateOutdated.infiniteUnlocked = true;
+                if(runData.getCurrentLevel() == LevelType.LEARNING_MODE){
+                    PersistentData.learningModeBeat = true;
                 }
-                PlayerStateOutdated.checkpointWaterLevel = -50f;
-                PlayerStateOutdated.currCheckpoint = null;
-                checkpoints = null;
-                LevelData nextLevel = LevelLibrary.getAllLevels().get(next);
-                PlayerStateOutdated.x = nextLevel.getStartPoint().x;
-                PlayerStateOutdated.y = nextLevel.getStartPoint().y;
-                currentLevel = next;
+                runData.checkpointWaterLevel = -50f;
+                runData.currCheckpoint = null;
+                runData.setCheckpoints(null);
+                RunData nextLevel = LevelLibrary.getAllLevels().get(next);
+                PlayerData.x = nextLevel.getStartPoint().x;
+                PlayerData.y = nextLevel.getStartPoint().y;
+                runData.setCurrentLevel(next);
                 loadLevel(next);
                 restart();
                 gameState = GameState.PLAYING;
@@ -652,15 +607,15 @@ public class GameScreen implements Screen {
     }
 
     private void onQ(){
-        if (currentLevel == LevelType.INFINITE) {
-            PlayerStateOutdated.checkpointWaterLevel = -50f;
+        if (runData.getCurrentLevel() == LevelType.INFINITE) {
+            runData.checkpointWaterLevel = -50f;
             deathXValues = new ArrayList<>(); //reset
             LevelLibrary.regenerateInfinite();
             loadLevel(LevelType.INFINITE); //regenerate!
         }
         timeAtDeath = 0f;
         time = 0f;
-        PlayerStateOutdated.currCheckpoint = null;
+        runData.currCheckpoint = null;
         restart();
     }
 

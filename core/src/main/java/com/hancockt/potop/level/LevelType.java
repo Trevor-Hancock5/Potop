@@ -1,6 +1,6 @@
 package com.hancockt.potop.level;
 
 public enum LevelType {
-    TUTORIAL,
+    LEARNING_MODE,
     INFINITE
 }
