@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -25,6 +24,7 @@ import com.hancockt.potop.state.GameState;
 import com.hancockt.potop.state.PersistentData;
 import com.hancockt.potop.state.PlayerData;
 import com.hancockt.potop.state.RunData;
+import com.hancockt.potop.systems.WaterSystem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,23 +50,18 @@ public class GameScreen implements Screen {
     public static final float screenShake = 0.3f; //time of shaking
     public static final float screenShakeIntensity = 2f;
 
-    //water
-    public static float waterLevel;
-    public static float waterRiseSpeed;
     private static RunData runData;
-
     public static List<Float> deathXValues;
     private boolean pressedI = false;
     private boolean pressedN = false;
     public static float time = 0f;
     public static float timeAtDeath = 0f;
-    private final Color water = new Color(17/255f, 132/255f, 214/255f, .65f);
 
     //game reference
     private final GameAssets gameAssets = new GameAssets();
+    private final Color water = new Color(17/255f, 132/255f, 214/255f, .65f);
 
     // Controls
-    public static boolean waterRise = true;
     private static boolean enteringSeed = false;
 
 
@@ -99,8 +94,6 @@ public class GameScreen implements Screen {
         if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
             Gdx.app.exit();
         }
-
-
 
         switch(gameState) {
             case MENU:
@@ -187,7 +180,7 @@ public class GameScreen implements Screen {
         shapeRenderer.setColor(water);
 
         float camLeft = camera.position.x - camera.viewportWidth / 2;
-        shapeRenderer.rect(camLeft, 0, camera.viewportWidth, waterLevel);
+        shapeRenderer.rect(camLeft, 0, camera.viewportWidth, WaterSystem.getWaterLevel());
 
         shapeRenderer.end();
     }
@@ -268,7 +261,7 @@ public class GameScreen implements Screen {
         batch.begin();
 
         for(Float f : deathXValues) {
-            font.draw(batch, "lol", f, waterLevel + 10 + bob);
+            font.draw(batch, "lol", f, WaterSystem.getWaterLevel() + 10 + bob);
         }
         batch.end();
     }
@@ -420,7 +413,7 @@ public class GameScreen implements Screen {
         }
 
         float vertLookAhead = PlayerData.velocityY * 0.1f;
-        float targetY = PlayerData.isDead ? Math.max(waterLevel, lowestCameraY) : Math.max(PlayerData.y+25+vertLookAhead, lowestCameraY);
+        float targetY = PlayerData.isDead ? Math.max(WaterSystem.getWaterLevel(), lowestCameraY) : Math.max(PlayerData.y+25+vertLookAhead, lowestCameraY);
 
         camera.position.x += (targetX - camera.position.x) * cameraLerpSpeed;
         camera.position.y += (targetY - camera.position.y) * (cameraLerpSpeed / 3);
@@ -452,13 +445,12 @@ public class GameScreen implements Screen {
     }
 
     private void restart() {
-        waterLevel = PlayerData.reset(runData.getCheckpoints(), runData.getCurrentLevel());
+        WaterSystem.restart(runData);
 
         time = timeAtDeath;
-        waterRiseSpeed = Math.min(50f, 8f + (PlayerData.y / 200f)); //full speed always after ~8k height
         screenShakeAccumulation = 0;
         for (Faucet f : runData.getFaucets()) {
-            f.setTurnedOff(false); //reset
+            f.setTurnedOff(false); //reset TODO - why?
             f.setRotation(0);
             f.setProgress(0);
         }
@@ -586,7 +578,7 @@ public class GameScreen implements Screen {
                 if(runData.getCurrentLevel() == LevelType.LEARNING_MODE){
                     PersistentData.learningModeBeat = true;
                 }
-                runData.checkpointWaterLevel = -50f;
+                WaterSystem.updateCheckpointWaterLevel(runData, -50f);
                 runData.currCheckpoint = null;
                 runData.setCheckpoints(null);
                 RunData nextLevel = LevelLibrary.getAllLevels().get(next);
@@ -609,7 +601,7 @@ public class GameScreen implements Screen {
 
     private void onQ(){
         if (runData.getCurrentLevel() == LevelType.INFINITE) {
-            runData.checkpointWaterLevel = -50f;
+            WaterSystem.updateCheckpointWaterLevel(runData, -50f);
             deathXValues = new ArrayList<>(); //reset
             LevelLibrary.regenerateInfinite();
             loadLevel(LevelType.INFINITE); //regenerate!

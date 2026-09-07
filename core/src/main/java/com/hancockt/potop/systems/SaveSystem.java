@@ -1,7 +1,8 @@
-package com.hancockt.potop.state;
+package com.hancockt.potop.systems;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
+import com.hancockt.potop.state.PersistentData;
 
 // Note if ever a high score is made, preferences is a file that a user can change!
 

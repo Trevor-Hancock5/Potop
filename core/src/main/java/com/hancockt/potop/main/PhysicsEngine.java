@@ -14,6 +14,7 @@ import com.hancockt.potop.state.GameState;
 import com.hancockt.potop.state.PersistentData;
 import com.hancockt.potop.state.PlayerData;
 import com.hancockt.potop.state.RunData;
+import com.hancockt.potop.systems.WaterSystem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +41,6 @@ public class PhysicsEngine {
     private static final float wallProximity = 5f; //how many pixels count as on wall
     private static final float wallJumpCooldownThreshold = 0.25f; //seconds until wall jump again - prevents wall scaling
     private static final float collisionPlayerHeightDivisor = 10f; //What amount of player height needs to be above a platform to land on top
-    private static final float maxWaterRiseSpeed = 50; // TODO - one location!
     private static final float currencyRange = 8f;
     private static final float faucetRange = 30f; //how close to faucet to interact
     private static final float faucetRotationSpeed = 240f; //degrees per second it spins
@@ -268,12 +268,7 @@ public class PhysicsEngine {
             PlayerData.coyoteSeconds = 0;
         }
 
-        //danger boost
-        float distanceFromWater = PlayerData.y - GameScreen.waterLevel;
-        //TODO -move to water system
-        final float dangerBoostDistance = 400f;
-        float dangerBoost = Math.max(0, 1 - (distanceFromWater / dangerBoostDistance));
-        dangerBoost = 1 + (dangerBoost / 4); // from 1 to 1.25!
+        float dangerBoost = WaterSystem.calculateDangerBoost();
 
         //horizontal movement
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)){
@@ -314,17 +309,7 @@ public class PhysicsEngine {
             PlayerData.velocityX *= 1f + (speedRatio * 0.5f); // max of 1.5
         }
 
-        //rising water
-        if(GameScreen.waterRise) {
-            if(runData.getCurrentLevel() == LevelType.INFINITE) {
-                if(GameScreen.waterRiseSpeed <= maxWaterRiseSpeed) {
-                    //TODO make constant, pixels per second!
-                    GameScreen.waterRiseSpeed += 2 * delta; // increase water speed by 2 pixels every second (as delta accumulates)
-                }
-            }
-            GameScreen.waterLevel += GameScreen.waterRiseSpeed * delta;
-        }
-
+        WaterSystem.updateWater(runData, delta);
 
         //Checkpoints
         Rectangle playerRectFinal = new Rectangle(PlayerData.x, PlayerData.y, PlayerData.playerWidth, PlayerData.playerHeight);
@@ -336,7 +321,7 @@ public class PhysicsEngine {
                     if(runData.getCurrentLevel() == LevelType.INFINITE){
                         if (c.getY() > runData.currCheckpoint.getY()){
                             runData.currCheckpoint = c;
-                            runData.checkpointWaterLevel = GameScreen.waterLevel;
+                            WaterSystem.updateCheckpointWaterLevel(runData);
                             GameScreen.timeAtDeath = GameScreen.time;
 
                             // todo checkpoint currency amount! (make somewhat random? - define in checkpoint)
@@ -345,13 +330,13 @@ public class PhysicsEngine {
                     } else {
                         if (c.getOrder() > runData.currCheckpoint.getOrder()) {
                             runData.currCheckpoint = c;
-                            runData.checkpointWaterLevel = GameScreen.waterLevel;
+                            WaterSystem.updateCheckpointWaterLevel(runData);
                             GameScreen.timeAtDeath = GameScreen.time;
                         }
                     }
                 } else{
                     runData.currCheckpoint = c;
-                    runData.checkpointWaterLevel = GameScreen.waterLevel;
+                    WaterSystem.updateCheckpointWaterLevel(runData);
                     GameScreen.timeAtDeath = GameScreen.time;
                 }
             }
@@ -378,7 +363,7 @@ public class PhysicsEngine {
             if(nearFaucet.getProgress() > faucetInteractionTime){
                 nearFaucet.setTurnedOff(true);
                 nearFaucet.setRotation(360);
-                GameScreen.waterRiseSpeed -= nearFaucet.getSpeedReduction();
+                WaterSystem.updateWaterRiseSpeed(-nearFaucet.getSpeedReduction());
                 if(nearFaucet.isWinFaucet()){
                     finishedFinalFaucet = true;
                 }
@@ -472,10 +457,10 @@ public class PhysicsEngine {
         }
 
         //death check
-        Rectangle waterRect = new Rectangle(-50000, 0, 100000, GameScreen.waterLevel);
+        Rectangle waterRect = new Rectangle(-50000, 0, 100000, WaterSystem.getWaterLevel());
 
         //Only dead if head hits water (because flame Afro!), so top 15 pixels of player rect
-        if(waterRect.overlaps(playerRectFinal) && GameScreen.waterLevel >= sparkHeadY){
+        if(waterRect.overlaps(playerRectFinal) && WaterSystem.getWaterLevel() >= sparkHeadY){
             if(!PlayerData.isDead){
                 GameScreen.deathXValues.add(PlayerData.x);
             }

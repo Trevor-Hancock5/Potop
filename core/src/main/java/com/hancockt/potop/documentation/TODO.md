@@ -22,6 +22,18 @@ test:
 
 Refactor order:  
 1. Small independent systems
+   - MAKE THE SYSTEMS SEPARATE FROM THE OBJECT - checkpointSystem AND checkpoint classes
+   - GameScreen
+      - gameFlow
+      - CheckpointSystem
+      - Faucet
+      - Level
+      - Camera
+      - Rendering
+   - PhysicsEngine
+     - player system
+     - player collision
+     - currency system
 2. Improve gamescreen and physics engine, to use parameters instead of PlayerData.staticVar!
 3. Split GameScreen
 4. Check code style is met
@@ -32,11 +44,12 @@ Refactor order:
     - separate update (game state) from render (drawing)
     - separate constants out for easier tuning (instead of file, place these in owner's class - player, checkpoint, etc. )
     - ensure codeStyle.md is met!
+    - Go back through errors and imports!
 - Fix so that it works with different hz monitors (refresh rate! - how to emulate this and fix it? vsync?)
     - test by manually choosing delta?
     - add test: run spark for 10 seconds and record distance (could do the java tester bot, go into tutorial and run left
       and then get x on different simulation framerates)
-- Bug: matches on checkpoints or even platforms, i think this is due to interband generation. So when platforms,
+- Bug (add some tests - as much as you can add for testing!!): matches on checkpoints or even platforms, i think this is due to interband generation. So when platforms,
   faucets, and checkpoints are added on top of previous band, it doesn't do anything about the currency. Meaning some
   are inaccessible. So fix that!
       - Also check this for faucets and checkpoints and platforms. Nothing should overlap anything else!

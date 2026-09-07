@@ -54,10 +54,6 @@ public class LevelLibrary {
 
         List<Currency> currencies = new ArrayList<>();
 
-        Rectangle waterTriggerZone = new Rectangle(6245, 1800, 50, 1000);
-        Rectangle waterFixZone = new Rectangle(6845, 2000, 50, 1000);
-        Rectangle winZone = new Rectangle(8132.5f, 2163, 25, 75);
-
         //platforms
         List<Module> tutorialSequence = new ArrayList<>();
         tutorialSequence.add(getModuleByName("walk_and_run"));
