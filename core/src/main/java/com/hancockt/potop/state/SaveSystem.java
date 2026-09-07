@@ -57,8 +57,8 @@ public class SaveSystem {
     }
 
     public void saveAll() {
-        saveCurrency(PlayerData.numMatches);
-        savePrestigeCurrency(PlayerData.numFirewood);
+        saveCurrency(PlayerStateOutdated.numMatches);
+        savePrestigeCurrency(PlayerStateOutdated.numFirewood);
 //        saveHighScore(PlayerData.); TODO
 
 //        prefs.putInteger("currency", PlayerData.numMatches);

@@ -20,15 +20,14 @@ test:
 - Refactor code before adding upgrades because my goodness that'd be disgusting!
   - Make a single change/refactor, ensure it still works, and commit. then repeat!
 
-how many platforms do we spawn under 10k?
-
 Refactor order:  
-2. imports!
-2. Runtime state
+2. Runtime state vs player data vs persistent state
 3. Update vs rendering
 4. Small independent systems
+5. Improve gamescreen and physics engine, to use parameters instead of PlayerData.staticVar!
 5. Split GameScreen
 6. Clean up leftovers
+7. Check code style is met
 
     - minimize duplicate code
     - move runtime state into it's own class!

@@ -6,9 +6,14 @@ import com.hancockt.potop.features.Checkpoint;
 import com.hancockt.potop.features.Currency;
 import com.hancockt.potop.features.Faucet;
 import com.hancockt.potop.features.Platform;
-import com.hancockt.potop.state.PlayerData;
+import com.hancockt.potop.state.PlayerStateOutdated;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.HashMap;
+
 
 public class LevelLibrary {
     private static final Map<LevelType, LevelData> ALL_LEVELS = new HashMap<>();
@@ -334,7 +339,7 @@ public class LevelLibrary {
         //base check of overlap
         boolean platformOverlap = platforms.stream()
             .anyMatch(p ->
-                new Rectangle(p.getX(), p.getY() - PlayerData.playerHeight, p.getWidth(), p.getHeight() + PlayerData.playerHeight).overlaps(currencyRectangle));
+                new Rectangle(p.getX(), p.getY() - PlayerStateOutdated.playerHeight, p.getWidth(), p.getHeight() + PlayerStateOutdated.playerHeight).overlaps(currencyRectangle));
 
         boolean checkpointOverlap = checkpoints.stream()
             .anyMatch(c ->

@@ -12,13 +12,11 @@ import com.hancockt.potop.level.LevelData;
 import com.hancockt.potop.level.LevelLibrary;
 import com.hancockt.potop.level.LevelType;
 import com.hancockt.potop.state.GameState;
+import com.hancockt.potop.state.PlayerStateOutdated;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
-import static com.hancockt.potop.state.PlayerData.*;
-import static com.hancockt.potop.main.GameScreen.*;
 
 public class PhysicsEngine {
     private static final int accelerationX = 1600;
@@ -52,76 +50,76 @@ public class PhysicsEngine {
         AnimationKey currAnimation = AnimationKey.IDLE;
 
         //update jump buffer
-        jumpBuffer += delta;
+        PlayerStateOutdated.jumpBuffer += delta;
         if(Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)
             || Gdx.input.isKeyJustPressed(Input.Keys.W)){
-            jumpBuffer = 0; //just tried to jump
+            PlayerStateOutdated.jumpBuffer = 0; //just tried to jump
         }
 
         //update previous x,y values to not tunnel through platforms
-        float prevX = x;
-        float prevY = y;
+        float prevX = PlayerStateOutdated.x;
+        float prevY = PlayerStateOutdated.y;
 
         //update wall jump cooldown
-        wallJumpCooldown += delta;
+        PlayerStateOutdated.wallJumpCooldown += delta;
 
         //gravity
-        float currGravity = velocityY < 0 ? gravity * fallGravityMultiplier : gravity;
-        velocityY -= currGravity * delta;
+        float currGravity = PlayerStateOutdated.velocityY < 0 ? gravity * fallGravityMultiplier : gravity;
+        PlayerStateOutdated.velocityY -= currGravity * delta;
 
         //Holding jump
         if ((Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.SPACE)
-            || Gdx.input.isKeyPressed(Input.Keys.W)) && !onGround && velocityY > 0) {
-            velocityY += jumpHoldForce * delta;
+            || Gdx.input.isKeyPressed(Input.Keys.W)) && !PlayerStateOutdated.onGround && PlayerStateOutdated.velocityY > 0) {
+            PlayerStateOutdated.velocityY += jumpHoldForce * delta;
         }
 
         //Or holding down
         float currFriction = groundFriction;
         if(Gdx.input.isKeyPressed(Input.Keys.DOWN) || Gdx.input.isKeyPressed(Input.Keys.S)){
-            if(!onGround) {
-                velocityY += downforceFallAcceleration * delta;
+            if(!PlayerStateOutdated.onGround) {
+                PlayerStateOutdated.velocityY += downforceFallAcceleration * delta;
             } else{
                 currFriction = (float) Math.pow(groundFriction, 2);
             }
         }
 
         //falling cap speed
-        velocityY = Math.max(maxFallSpeed, velocityY);
+        PlayerStateOutdated.velocityY = Math.max(GameScreen.maxFallSpeed, PlayerStateOutdated.velocityY);
 
         //update x and y
-        y += velocityY * delta;
-        x += velocityX * delta;
+        PlayerStateOutdated.y += PlayerStateOutdated.velocityY * delta;
+        PlayerStateOutdated.x += PlayerStateOutdated.velocityX * delta;
 
         //Edge Nudging
-        for(Platform p : platforms) {
-            if (y + playerHeight > p.getY() && velocityY > 0 && y < p.getY() + p.getHeight()){
-                if(x + playerWidth > p.getX() && x + playerWidth < p.getX() + nudgeThreshold){
-                    velocityX += delta * nudgeSpeed;
+        for(Platform p : GameScreen.platforms) {
+            if (PlayerStateOutdated.y + PlayerStateOutdated.playerHeight > p.getY() && PlayerStateOutdated.velocityY > 0 && PlayerStateOutdated.y < p.getY() + p.getHeight()){
+                if(PlayerStateOutdated.x + PlayerStateOutdated.playerWidth > p.getX() && PlayerStateOutdated.x + PlayerStateOutdated.playerWidth < p.getX() + nudgeThreshold){
+                    PlayerStateOutdated.velocityX += delta * nudgeSpeed;
                 }
 
-                if(x < p.getX() + p.getWidth() && x > p.getX() + p.getWidth() - nudgeThreshold){
-                    velocityX -= delta * nudgeSpeed;
+                if(PlayerStateOutdated.x < p.getX() + p.getWidth() && PlayerStateOutdated.x > p.getX() + p.getWidth() - nudgeThreshold){
+                    PlayerStateOutdated.velocityX -= delta * nudgeSpeed;
                 }
             }
         }
 
         //Reset to avoid jumping midair
-        onGround = false;
+        PlayerStateOutdated.onGround = false;
 
         //floor collision
-        if (y <= 0) {
-            impactVelocity = Math.abs(velocityY);
-            onGround = true;
-            y = 0;
-            velocityY = 0;
-            justLanded = true;
-            lastWallRight = false;
-            lastWallLeft = false;
+        if (PlayerStateOutdated.y <= 0) {
+            PlayerStateOutdated.impactVelocity = Math.abs(PlayerStateOutdated.velocityY);
+            PlayerStateOutdated.onGround = true;
+            PlayerStateOutdated.y = 0;
+            PlayerStateOutdated.velocityY = 0;
+            PlayerStateOutdated.justLanded = true;
+            PlayerStateOutdated.lastWallRight = false;
+            PlayerStateOutdated.lastWallLeft = false;
         }
 
         //platform collision
-        for (Platform p : platforms) {
-            Rectangle playerRect = new Rectangle(x, y, playerWidth, playerHeight);
+        for (Platform p : GameScreen.platforms) {
+            Rectangle playerRect = new Rectangle(PlayerStateOutdated.x, PlayerStateOutdated.y, PlayerStateOutdated.playerWidth, PlayerStateOutdated.playerHeight);
             Rectangle platformRect = new Rectangle(p.getX(), p.getY(), p.getWidth(), p.getHeight());
 
 
@@ -131,14 +129,14 @@ public class PhysicsEngine {
                 if (p.getHeight() > collisionThreshold) {
                     collisionPoint = p.getHeight() + p.getY() - collisionThreshold;
                 }
-                if (playerRect.overlaps(platformRect) && velocityY < 0 && prevY + ((float) playerHeight / collisionPlayerHeightDivisor) >= collisionPoint) {
-                    impactVelocity = Math.abs(velocityY);
-                    y = p.getY() + p.getHeight();
-                    velocityY = 0;
-                    onGround = true;
-                    justLanded = true;
-                    lastWallRight = false;
-                    lastWallLeft = false;
+                if (playerRect.overlaps(platformRect) && PlayerStateOutdated.velocityY < 0 && prevY + ((float) PlayerStateOutdated.playerHeight / collisionPlayerHeightDivisor) >= collisionPoint) {
+                    PlayerStateOutdated.impactVelocity = Math.abs(PlayerStateOutdated.velocityY);
+                    PlayerStateOutdated.y = p.getY() + p.getHeight();
+                    PlayerStateOutdated.velocityY = 0;
+                    PlayerStateOutdated.onGround = true;
+                    PlayerStateOutdated.justLanded = true;
+                    PlayerStateOutdated.lastWallRight = false;
+                    PlayerStateOutdated.lastWallLeft = false;
                 }
             }
 
@@ -147,11 +145,11 @@ public class PhysicsEngine {
             if ((float) p.getWidth() / 2 > collisionThreshold) {
                 collisionPoint = p.getX() + p.getWidth() - collisionThreshold;
             }
-            if (playerRect.overlaps(platformRect) && velocityX < 0 && prevX + (float) (playerWidth / 2) >= collisionPoint
-                    && y + (playerHeight / collisionPlayerHeightDivisor) < p.getY() + p.getHeight()) {
-                x = p.getX() + p.getWidth();
-                velocityX = -1;
-                touchingWallRight = true;
+            if (playerRect.overlaps(platformRect) && PlayerStateOutdated.velocityX < 0 && prevX + (float) (PlayerStateOutdated.playerWidth / 2) >= collisionPoint
+                    && PlayerStateOutdated.y + (PlayerStateOutdated.playerHeight / collisionPlayerHeightDivisor) < p.getY() + p.getHeight()) {
+                PlayerStateOutdated.x = p.getX() + p.getWidth();
+                PlayerStateOutdated.velocityX = -1;
+                PlayerStateOutdated.touchingWallRight = true;
             }
 
 
@@ -160,63 +158,63 @@ public class PhysicsEngine {
             if ((float) p.getWidth() / 2 > collisionThreshold) {
                 collisionPoint = p.getX() + collisionThreshold;
             }
-            if (playerRect.overlaps(platformRect) && velocityX > 0 && prevX + (float) (playerWidth / 2) <= collisionPoint
-                    && y + (playerHeight / collisionPlayerHeightDivisor) < p.getY() + p.getHeight()) {
-                x = p.getX() - playerWidth;
-                velocityX = 1;
-                touchingWallLeft = true;
+            if (playerRect.overlaps(platformRect) && PlayerStateOutdated.velocityX > 0 && prevX + (float) (PlayerStateOutdated.playerWidth / 2) <= collisionPoint
+                    && PlayerStateOutdated.y + (PlayerStateOutdated.playerHeight / collisionPlayerHeightDivisor) < p.getY() + p.getHeight()) {
+                PlayerStateOutdated.x = p.getX() - PlayerStateOutdated.playerWidth;
+                PlayerStateOutdated.velocityX = 1;
+                PlayerStateOutdated.touchingWallLeft = true;
             }
 
         }
 
         //check if on wall
         boolean onBoundingWall = false;
-        for (Platform p : platforms){
-            if (y + playerHeight < p.getY() || y > p.getY() + p.getHeight()) {
+        for (Platform p : GameScreen.platforms){
+            if (PlayerStateOutdated.y + PlayerStateOutdated.playerHeight < p.getY() || PlayerStateOutdated.y > p.getY() + p.getHeight()) {
                 continue; //not same height, skip!
             }
 
             //left of player, right of wall
-            float distToRightWall = x - (p.getX() + p.getWidth());
-            if (distToRightWall >= 0 && distToRightWall < wallProximity && velocityX <= 0){
-                touchingWallRight = true;
+            float distToRightWall = PlayerStateOutdated.x - (p.getX() + p.getWidth());
+            if (distToRightWall >= 0 && distToRightWall < wallProximity && PlayerStateOutdated.velocityX <= 0){
+                PlayerStateOutdated.touchingWallRight = true;
                 onBoundingWall = p.isBoundaryWall();
             }
 
             //right of player, left of wall
-            float distToLeftWall = p.getX() - (x + playerWidth);
-            if(distToLeftWall >= 0 && distToLeftWall < wallProximity && velocityX >= 0){
-                touchingWallLeft = true;
+            float distToLeftWall = p.getX() - (PlayerStateOutdated.x + PlayerStateOutdated.playerWidth);
+            if(distToLeftWall >= 0 && distToLeftWall < wallProximity && PlayerStateOutdated.velocityX >= 0){
+                PlayerStateOutdated.touchingWallLeft = true;
                 onBoundingWall = p.isBoundaryWall();
             }
         }
 
         //wall slide/jump
-        boolean onWall = (touchingWallLeft || touchingWallRight) && !onGround;
+        boolean onWall = (PlayerStateOutdated.touchingWallLeft || PlayerStateOutdated.touchingWallRight) && !PlayerStateOutdated.onGround;
 
         //wall slide
-        if (onWall && velocityY < wallSlideMaxSpeed){
-            velocityY = wallSlideMaxSpeed;
+        if (onWall && PlayerStateOutdated.velocityY < wallSlideMaxSpeed){
+            PlayerStateOutdated.velocityY = wallSlideMaxSpeed;
         }
 
         // coyote wall update
         if(onWall){
-            wallCoyoteSeconds = 0;
+            PlayerStateOutdated.wallCoyoteSeconds = 0;
         } else{
-            wallCoyoteSeconds += delta;
+            PlayerStateOutdated.wallCoyoteSeconds += delta;
         }
 
         //wall jump
-        if((onWall || wallCoyoteSeconds < coyoteThreshold)
-            && wallJumpCooldown >= wallJumpCooldownThreshold
+        if((onWall || PlayerStateOutdated.wallCoyoteSeconds < coyoteThreshold)
+            && PlayerStateOutdated.wallJumpCooldown >= wallJumpCooldownThreshold
             && (Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)
-                    || Gdx.input.isKeyJustPressed(Input.Keys.W) || jumpBuffer < jumpBufferThreshold)
-            && !onGround){
+                    || Gdx.input.isKeyJustPressed(Input.Keys.W) || PlayerStateOutdated.jumpBuffer < jumpBufferThreshold)
+            && !PlayerStateOutdated.onGround){
             //jump fires, reset cooldown
-            wallJumpCooldown = 0f;
+            PlayerStateOutdated.wallJumpCooldown = 0f;
 
-            boolean wasRight = touchingWallRight || lastWallRight;
-            boolean wasLeft = touchingWallLeft || lastWallLeft;
+            boolean wasRight = PlayerStateOutdated.touchingWallRight || PlayerStateOutdated.lastWallRight;
+            boolean wasLeft = PlayerStateOutdated.touchingWallLeft || PlayerStateOutdated.lastWallLeft;
 
             boolean holdingInto =
                 (wasRight && (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)))
@@ -244,31 +242,31 @@ public class PhysicsEngine {
                 sideForce = .85f * jumpForce;
             }
 
-            velocityY = upForce;
+            PlayerStateOutdated.velocityY = upForce;
 
             //guaranteed either touching wall on right or left
-            velocityX = wasRight ? sideForce : -sideForce;
-            touchingWallRight = false;
-            touchingWallLeft = false;
-            lastWallRight = false;
-            lastWallLeft = false;
-            wallCoyoteSeconds = 100;
-            coyoteSeconds = 100;
-            jumpBuffer = 100;
-            justLanded = false;
-            screenShakeAccumulation = 0;
-            onGround = false;
+            PlayerStateOutdated.velocityX = wasRight ? sideForce : -sideForce;
+            PlayerStateOutdated.touchingWallRight = false;
+            PlayerStateOutdated.touchingWallLeft = false;
+            PlayerStateOutdated.lastWallRight = false;
+            PlayerStateOutdated.lastWallLeft = false;
+            PlayerStateOutdated.wallCoyoteSeconds = 100;
+            PlayerStateOutdated.coyoteSeconds = 100;
+            PlayerStateOutdated.jumpBuffer = 100;
+            PlayerStateOutdated.justLanded = false;
+            GameScreen.screenShakeAccumulation = 0;
+            PlayerStateOutdated.onGround = false;
         }
 
         //Coyote timer
-        if(!onGround){
-            coyoteSeconds += delta;
+        if(!PlayerStateOutdated.onGround){
+            PlayerStateOutdated.coyoteSeconds += delta;
         } else{
-            coyoteSeconds = 0;
+            PlayerStateOutdated.coyoteSeconds = 0;
         }
 
         //danger boost
-        float distanceFromWater = y - waterLevel;
+        float distanceFromWater = PlayerStateOutdated.y - GameScreen.waterLevel;
         //TODO -move to water system
         final float dangerBoostDistance = 400f;
         float dangerBoost = Math.max(0, 1 - (distanceFromWater / dangerBoostDistance));
@@ -276,89 +274,89 @@ public class PhysicsEngine {
 
         //horizontal movement
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)){
-            if(onGround) {
-                velocityX -= accelerationX * delta * dangerBoost;
+            if(PlayerStateOutdated.onGround) {
+                PlayerStateOutdated.velocityX -= accelerationX * delta * dangerBoost;
             } else{
-                velocityX -= (accelerationX * delta * dangerBoost) / airControlDivisor;
+                PlayerStateOutdated.velocityX -= (accelerationX * delta * dangerBoost) / airControlDivisor;
             }
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) {
-            if(onGround) {
-                velocityX += accelerationX * delta * dangerBoost;
+            if(PlayerStateOutdated.onGround) {
+                PlayerStateOutdated.velocityX += accelerationX * delta * dangerBoost;
             } else{
-                velocityX += (accelerationX * delta * dangerBoost) / airControlDivisor;
+                PlayerStateOutdated.velocityX += (accelerationX * delta * dangerBoost) / airControlDivisor;
             }
         }
 
         //friction & velocity cap
         float frameGroundFriction = (float) Math.pow(currFriction, delta * 60);
         float frameAirFriction = (float) Math.pow(airFriction, delta * 60);
-        velocityX *= onGround ? frameGroundFriction : frameAirFriction;
-        velocityX = Math.clamp(velocityX, -maxSpeedX, maxSpeedX);
+        PlayerStateOutdated.velocityX *= PlayerStateOutdated.onGround ? frameGroundFriction : frameAirFriction;
+        PlayerStateOutdated.velocityX = Math.clamp(PlayerStateOutdated.velocityX, -maxSpeedX, maxSpeedX);
 
         //Jumping
         if ((Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)
-                    || Gdx.input.isKeyJustPressed(Input.Keys.W)|| jumpBuffer < jumpBufferThreshold)
-                    && (onGround || coyoteSeconds <= coyoteThreshold)) {
-            coyoteSeconds = 100; //reset so can't double jump
-            jumpBuffer = 100; //reset so can't double jump!
-            velocityY = jumpForce * dangerBoost;
-            onGround = false;
-            justLanded = false;
-            screenShakeAccumulation = 0;
+                    || Gdx.input.isKeyJustPressed(Input.Keys.W)|| PlayerStateOutdated.jumpBuffer < jumpBufferThreshold)
+                    && (PlayerStateOutdated.onGround || PlayerStateOutdated.coyoteSeconds <= coyoteThreshold)) {
+            PlayerStateOutdated.coyoteSeconds = 100; //reset so can't double jump
+            PlayerStateOutdated.jumpBuffer = 100; //reset so can't double jump!
+            PlayerStateOutdated.velocityY = jumpForce * dangerBoost;
+            PlayerStateOutdated.onGround = false;
+            PlayerStateOutdated.justLanded = false;
+            GameScreen.screenShakeAccumulation = 0;
 
             // Form of dash when you jump
-            float speedRatio = Math.abs(velocityX) / maxSpeedX; // 0 to 1
-            velocityX *= 1f + (speedRatio * 0.5f); // max of 1.5
+            float speedRatio = Math.abs(PlayerStateOutdated.velocityX) / maxSpeedX; // 0 to 1
+            PlayerStateOutdated.velocityX *= 1f + (speedRatio * 0.5f); // max of 1.5
         }
 
         //rising water
-        if(waterRise) {
-            if(currentLevel == LevelType.INFINITE) {
-                if(waterRiseSpeed <= maxWaterRiseSpeed) {
+        if(GameScreen.waterRise) {
+            if(GameScreen.currentLevel == LevelType.INFINITE) {
+                if(GameScreen.waterRiseSpeed <= maxWaterRiseSpeed) {
                     //TODO make constant, pixels per second!
-                    waterRiseSpeed += 2 * delta; // increase water speed by 2 pixels every second (as delta accumulates)
+                    GameScreen.waterRiseSpeed += 2 * delta; // increase water speed by 2 pixels every second (as delta accumulates)
                 }
             }
-            waterLevel += waterRiseSpeed * delta;
+            GameScreen.waterLevel += GameScreen.waterRiseSpeed * delta;
         }
 
 
         //Checkpoints
-        Rectangle playerRectFinal = new Rectangle(x, y, playerWidth, playerHeight);
-        for(Checkpoint c : checkpoints){
+        Rectangle playerRectFinal = new Rectangle(PlayerStateOutdated.x, PlayerStateOutdated.y, PlayerStateOutdated.playerWidth, PlayerStateOutdated.playerHeight);
+        for(Checkpoint c : GameScreen.checkpoints){
             Rectangle checkpoint = new Rectangle(c.getX(), c.getY(), c.getWidth(), c.getHeight());
             if(!c.isActivated() && checkpoint.overlaps(playerRectFinal)){
                 c.setActivated(true);
-                if(currCheckpoint != null) {
-                    if(currentLevel == LevelType.INFINITE){
-                        if (c.getY() > currCheckpoint.getY()){
-                            currCheckpoint = c;
-                            checkpointWaterLevel = waterLevel;
-                            timeAtDeath = time;
+                if(PlayerStateOutdated.currCheckpoint != null) {
+                    if(GameScreen.currentLevel == LevelType.INFINITE){
+                        if (c.getY() > PlayerStateOutdated.currCheckpoint.getY()){
+                            PlayerStateOutdated.currCheckpoint = c;
+                            PlayerStateOutdated.checkpointWaterLevel = GameScreen.waterLevel;
+                            GameScreen.timeAtDeath = GameScreen.time;
 
                             // todo checkpoint currency amount! (make somewhat random? - define in checkpoint)
                             spawnCurrency(25, c.getX(), c.getY(), c.getWidth(), c.getHeight());
                         }
                     } else {
-                        if (c.getOrder() > currCheckpoint.getOrder()) {
-                            currCheckpoint = c;
-                            checkpointWaterLevel = waterLevel;
-                            timeAtDeath = time;
+                        if (c.getOrder() > PlayerStateOutdated.currCheckpoint.getOrder()) {
+                            PlayerStateOutdated.currCheckpoint = c;
+                            PlayerStateOutdated.checkpointWaterLevel = GameScreen.waterLevel;
+                            GameScreen.timeAtDeath = GameScreen.time;
                         }
                     }
                 } else{
-                    currCheckpoint = c;
-                    checkpointWaterLevel = waterLevel;
-                    timeAtDeath = time;
+                    PlayerStateOutdated.currCheckpoint = c;
+                    PlayerStateOutdated.checkpointWaterLevel = GameScreen.waterLevel;
+                    GameScreen.timeAtDeath = GameScreen.time;
                 }
             }
         }
 
         //Faucets
         Faucet nearFaucet = null;
-        for(Faucet f : faucets) {
+        for(Faucet f : GameScreen.faucets) {
             if(!f.isTurnedOff()){
                 Rectangle faucet = new Rectangle(f.getX() - faucetRange, f.getY() - faucetRange, f.getWidth() + 2*faucetRange,
                     f.getHeight() + 2*faucetRange);
@@ -374,10 +372,10 @@ public class PhysicsEngine {
                 || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT))){
             nearFaucet.setProgress(nearFaucet.getProgress() + delta);
             nearFaucet.setRotation(nearFaucet.getRotation() + (faucetRotationSpeed * delta));
-            if(nearFaucet.getProgress() > faucetInteractionTime){
+            if(nearFaucet.getProgress() > GameScreen.faucetInteractionTime){
                 nearFaucet.setTurnedOff(true);
                 nearFaucet.setRotation(360);
-                waterRiseSpeed -= nearFaucet.getSpeedReduction();
+                GameScreen.waterRiseSpeed -= nearFaucet.getSpeedReduction();
                 if(nearFaucet.isWinFaucet()){
                     finishedFinalFaucet = true;
                 }
@@ -396,9 +394,9 @@ public class PhysicsEngine {
         }
 
         //update currency positions and explode times, once time is up, switch velocity towards spark's head
-        float sparkHeadX = x + ((float) playerWidth / 2);
-        float sparkHeadY = y + playerHeight - 15; // TODO - define as constant somewhere!
-        for (Currency c : currencies){
+        float sparkHeadX = PlayerStateOutdated.x + ((float) PlayerStateOutdated.playerWidth / 2);
+        float sparkHeadY = PlayerStateOutdated.y + PlayerStateOutdated.playerHeight - 15; // TODO - define as constant somewhere!
+        for (Currency c : GameScreen.currencies){
             if(c.getExplodeTime() > 0){
                 c.moveX(c.getVelocityX() * delta);
                 c.moveY(c.getVelocityY() * delta);
@@ -441,10 +439,10 @@ public class PhysicsEngine {
         }
 
         //check if overlapping currency
-        Rectangle sparkHead = new Rectangle(x + ((float) playerWidth / 4), y + playerHeight - 10,
-                                        (float) playerWidth / 2, 10);
+        Rectangle sparkHead = new Rectangle(PlayerStateOutdated.x + ((float) PlayerStateOutdated.playerWidth / 4), PlayerStateOutdated.y + PlayerStateOutdated.playerHeight - 10,
+                                        (float) PlayerStateOutdated.playerWidth / 2, 10);
         List<Currency> toRemove = new ArrayList<>();
-        for(Currency c : currencies){
+        for(Currency c : GameScreen.currencies){
             Rectangle curr = new Rectangle(c.getX() - currencyRange, c.getY() - currencyRange,
                 Currency.WIDTH + 2*currencyRange, Currency.HEIGHT + 2*currencyRange);
             if(playerRectFinal.overlaps(curr)){
@@ -455,46 +453,46 @@ public class PhysicsEngine {
             if(sparkHead.overlaps(curr) && c.getExplodeTime() < 0){
                 //Check if overlapping spark's head!
                 if(!c.isPrestige()) {
-                    numMatches += 1;
+                    PlayerStateOutdated.numMatches += 1;
                 } else{
-                    numFirewood += 1;
+                    PlayerStateOutdated.numFirewood += 1;
                 }
                 toRemove.add(c);
             }
         }
 
-        currencies.removeAll(toRemove);
+        GameScreen.currencies.removeAll(toRemove);
 
         // for tutorial level danger boost example
-        if(waterTriggerZone != null) {
-            if (playerRectFinal.overlaps(waterTriggerZone)) {
-                waterLevel = 1784;
+        if(GameScreen.waterTriggerZone != null) {
+            if (playerRectFinal.overlaps(GameScreen.waterTriggerZone)) {
+                GameScreen.waterLevel = 1784;
             }
         }
 
-        if(waterFixZone != null){
+        if(GameScreen.waterFixZone != null){
             //close enough to waterFix zone, so there is also a faucet nearby that needs to be activated
-            if(playerRectFinal.overlaps(waterFixZone) && nearFaucet != null && nearFaucet.isTurnedOff()){
-                waterLevel = 10;
+            if(playerRectFinal.overlaps(GameScreen.waterFixZone) && nearFaucet != null && nearFaucet.isTurnedOff()){
+                GameScreen.waterLevel = 10;
             }
         }
 
         //Check win condition before death
         if(finishedFinalFaucet){
-            gameState = GameState.WIN;
+            GameScreen.gameState = GameState.WIN;
         }
 
         //death check
-        Rectangle waterRect = new Rectangle(-50000, 0, 100000, waterLevel);
+        Rectangle waterRect = new Rectangle(-50000, 0, 100000, GameScreen.waterLevel);
 
         //Only dead if head hits water (because flame Afro!), so top 15 pixels of player rect
-        if(waterRect.overlaps(playerRectFinal) && waterLevel >= sparkHeadY){
-            if(!isDead){
-                deathXValues.add(x);
+        if(waterRect.overlaps(playerRectFinal) && GameScreen.waterLevel >= sparkHeadY){
+            if(!PlayerStateOutdated.isDead){
+                GameScreen.deathXValues.add(PlayerStateOutdated.x);
             }
-            isDead = true;
-            gameState = GameState.DEATH;
-            for(Faucet f : faucets){
+            PlayerStateOutdated.isDead = true;
+            GameScreen.gameState = GameState.DEATH;
+            for(Faucet f : GameScreen.faucets){
                 f.setTurnedOff(false);
                 f.setRotation(0);
                 f.setProgress(0);
@@ -502,26 +500,26 @@ public class PhysicsEngine {
         }
 
         // reset flags for wall slide/jump
-        if(touchingWallLeft) {
-            lastWallLeft = true;
+        if(PlayerStateOutdated.touchingWallLeft) {
+            PlayerStateOutdated.lastWallLeft = true;
         }
-        if(touchingWallRight) {
-            lastWallRight = true;
+        if(PlayerStateOutdated.touchingWallRight) {
+            PlayerStateOutdated.lastWallRight = true;
         }
 
-        touchingWallLeft = false;
-        touchingWallRight = false;
+        PlayerStateOutdated.touchingWallLeft = false;
+        PlayerStateOutdated.touchingWallRight = false;
 
         //update score LAST
-        score = Math.max(score, y);
+        PlayerStateOutdated.score = Math.max(PlayerStateOutdated.score, PlayerStateOutdated.y);
 
-        time += delta;
+        GameScreen.time += delta;
 
         //update infinite level if needed
-        if(currentLevel == LevelType.INFINITE) {
+        if(GameScreen.currentLevel == LevelType.INFINITE) {
             // Todo - 2000? why and where, define constant! 2000 is sprinkled in many areas!
-            if (y > LevelLibrary.getHighestYInInfinite() - 2000) {
-                LevelData data = LevelLibrary.addToInfiniteLevel(platforms, checkpoints, faucets, currencies);
+            if (PlayerStateOutdated.y > LevelLibrary.getHighestYInInfinite() - 2000) {
+                LevelData data = LevelLibrary.addToInfiniteLevel(GameScreen.platforms, GameScreen.checkpoints, GameScreen.faucets, GameScreen.currencies);
                 GameScreen.updateLists(data);
             }
         }
@@ -530,19 +528,19 @@ public class PhysicsEngine {
         //todo -define constant
         final float showRunAnimation = 50f;
         final float showFallAnimation = -100f;
-        if(velocityX < -showRunAnimation){
+        if(PlayerStateOutdated.velocityX < -showRunAnimation){
             currAnimation = AnimationKey.RUN_LEFT;
-        } else if(velocityX > showRunAnimation){
+        } else if(PlayerStateOutdated.velocityX > showRunAnimation){
             currAnimation = AnimationKey.RUN_RIGHT;
         }
 
-        if(velocityY < showFallAnimation){
+        if(PlayerStateOutdated.velocityY < showFallAnimation){
             currAnimation = AnimationKey.FALL;
-        } else if(velocityY > 0){
+        } else if(PlayerStateOutdated.velocityY > 0){
             currAnimation = AnimationKey.JUMP;
         }
 
-        if(isDead){
+        if(PlayerStateOutdated.isDead){
             currAnimation = AnimationKey.DEATH;
         }
 
@@ -556,7 +554,7 @@ public class PhysicsEngine {
             float explodeXVelocity = rng.nextFloat(0, 450) * Math.signum(rng.nextFloat(-1, 1));
             float explodeYVelocity = rng.nextFloat(0, 450) * Math.signum(rng.nextFloat(-1, 1));
 
-            currencies.add(new Currency(xRef + width / 2,
+            GameScreen.currencies.add(new Currency(xRef + width / 2,
                 yRef + height / 2,
                 false, explodeXVelocity,
                 explodeYVelocity,
