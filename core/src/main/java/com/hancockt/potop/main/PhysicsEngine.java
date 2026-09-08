@@ -11,10 +11,7 @@ import com.hancockt.potop.state.GameState;
 import com.hancockt.potop.state.PersistentData;
 import com.hancockt.potop.state.PlayerData;
 import com.hancockt.potop.state.RunData;
-import com.hancockt.potop.systems.CheckpointSystem;
-import com.hancockt.potop.systems.CurrencySystem;
-import com.hancockt.potop.systems.FaucetSystem;
-import com.hancockt.potop.systems.WaterSystem;
+import com.hancockt.potop.systems.*;
 
 public class PhysicsEngine {
     private static final int accelerationX = 1600;
@@ -39,7 +36,7 @@ public class PhysicsEngine {
     private static final float collisionPlayerHeightDivisor = 10f; //What amount of player height needs to be above a platform to land on top
 
     /// Returns state of Spark (player) for animating
-    public static AnimationKey updatePhysics(float delta, RunData runData){
+    public static AnimationKey updatePhysics(float delta, RunData runData, CameraSystem cameraSystem){
         //initialize animationKey variable to return - default to idle
         AnimationKey currAnimation = AnimationKey.IDLE;
 
@@ -248,7 +245,7 @@ public class PhysicsEngine {
             PlayerData.coyoteSeconds = 100;
             PlayerData.jumpBuffer = 100;
             PlayerData.justLanded = false;
-            GameScreen.screenShakeAccumulation = 0;
+            cameraSystem.resetScreenShake();
             PlayerData.onGround = false;
         }
 
@@ -293,7 +290,7 @@ public class PhysicsEngine {
             PlayerData.velocityY = jumpForce * dangerBoost;
             PlayerData.onGround = false;
             PlayerData.justLanded = false;
-            GameScreen.screenShakeAccumulation = 0;
+            cameraSystem.resetScreenShake();
 
             // Form of dash when you jump
             float speedRatio = Math.abs(PlayerData.velocityX) / maxSpeedX; // 0 to 1

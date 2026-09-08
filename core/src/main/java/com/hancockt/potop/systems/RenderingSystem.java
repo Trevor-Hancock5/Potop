@@ -1,4 +1,338 @@
 package com.hancockt.potop.systems;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.utils.TimeUtils;
+import com.hancockt.potop.assets.AnimationKey;
+import com.hancockt.potop.assets.GameAssets;
+import com.hancockt.potop.features.Checkpoint;
+import com.hancockt.potop.features.Currency;
+import com.hancockt.potop.features.Faucet;
+import com.hancockt.potop.features.Platform;
+import com.hancockt.potop.level.LevelType;
+import com.hancockt.potop.state.PersistentData;
+import com.hancockt.potop.state.PlayerData;
+import com.hancockt.potop.state.RunData;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class RenderingSystem {
+    private final ShapeRenderer shapeRenderer;
+    private final SpriteBatch batch;
+    private final BitmapFont font;
+    private final GlyphLayout layout;
+    private final Color water = new Color(17/255f, 132/255f, 214/255f, .65f);
+
+    public RenderingSystem(){
+        shapeRenderer = new ShapeRenderer();
+        batch = new SpriteBatch();
+        font = new BitmapFont();
+        layout = new GlyphLayout();
+    }
+
+    public void drawMenu(OrthographicCamera hudCam, GameAssets gameAssets){
+        batch.setProjectionMatrix(hudCam.combined);
+        batch.begin();
+
+        // logo centered
+        float logoW = 500;
+        float logoH = 250;
+        batch.draw(gameAssets.logo,
+            (CameraSystem.VIEWPORT_WIDTH - logoW) / 2f,
+            (CameraSystem.VIEWPORT_HEIGHT- logoH) / 2f + 100f,
+            logoW, logoH);
+
+        // existing text below
+        drawCenteredText("Press SPACE to start tutorial", -35, 1.5f);
+        drawCenteredText("\nType INF for Infinite Mode", -55, 1.5f);
+
+        batch.end();
+    }
+
+    public void drawPauseOverlay(OrthographicCamera hudCam){
+        batch.setProjectionMatrix(hudCam.combined);
+        batch.begin();
+
+        drawCenteredText("PAUSED", 35, 2);
+        drawCenteredText("Press P to resume", 0, 1);
+        drawCenteredText("Press M to go to menu", -35, 1);
+        drawCenteredText("Reminder: Press R to restart at previous checkpoint", -70, 1);
+
+        batch.end();
+    }
+
+    public void drawDeathOverlay(OrthographicCamera hudCam){
+        batch.setProjectionMatrix(hudCam.combined);
+        batch.begin();
+
+        drawCenteredText("You drowned. Score: " + Math.round(PlayerData.y), 30, 1.5f);
+        drawCenteredText("Press R to retry!", 0, 1);
+
+        // TODO - if new high score, display !
+
+        batch.end();
+    }
+
+    public void drawWinOverlay(OrthographicCamera hudCam){
+        batch.setProjectionMatrix(hudCam.combined);
+        batch.begin();
+
+        drawCenteredText("YOU MADE IT!!", 65, 3);
+        drawCenteredText("Press ENTER to continue", 0, 1);
+
+        batch.end();
+    }
+
+    public void drawShapes(RunData runData, GameAssets gameAssets, OrthographicCamera camera){
+        //Draw sprites first
+        drawSprites(runData, gameAssets, camera);
+
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+        shapeRenderer.setProjectionMatrix(camera.combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+
+        //water should be drawn last!
+        shapeRenderer.setColor(water);
+
+        float camLeft = camera.position.x - CameraSystem.VIEWPORT_WIDTH / 2;
+        shapeRenderer.rect(camLeft, 0, CameraSystem.VIEWPORT_WIDTH, WaterSystem.getWaterLevel());
+
+        shapeRenderer.end();
+    }
+
+    public void drawSprites(RunData runData, GameAssets gameAssets, OrthographicCamera camera){
+        batch.setProjectionMatrix(camera.combined);
+        batch.begin();
+
+        //platforms
+        for(Platform p : runData.getPlatforms()){
+            Texture asset = p.isBoundaryWall() ? gameAssets.boundaryWall : gameAssets.platform;
+            batch.draw(asset, p.getX(), p.getY(), p.getWidth(), p.getHeight());
+        }
+
+        //checkpoints
+        for(Checkpoint c : runData.getCheckpoints()){
+            if(c.isActivated()){
+                gameAssets.checkpointAnimator.play(AnimationKey.CHECKPOINT_ACTIVE);
+                TextureRegion asset = gameAssets.checkpointAnimator.getCurrentFrame();
+                batch.draw(asset, c.getX(), c.getY(), c.getWidth(), c.getHeight());
+            } else {
+                Texture asset = gameAssets.checkpoint_inactive;
+                batch.draw(asset, c.getX(), c.getY(), c.getWidth(), c.getHeight());
+            }
+        }
+
+        // faucets
+        for (Faucet f : runData.getFaucets()) {
+            Texture texture = f.isWinFaucet() ? gameAssets.winFaucet : gameAssets.faucet;
+
+            float width = f.getWidth();
+            float height = f.getHeight();
+            float centerX = width / 2f;  // rotate around center
+            float centerY = height / 2f;
+
+            //Tint based on state for regular faucets
+            if(!f.isWinFaucet() && f.getProgress() > 0){
+                float ratio = f.getProgress() / FaucetSystem.getFaucetInteractionTime(); //TODO
+                float gray = 0.5f; //TODO - owned by faucet, color distortion - nope rendering
+
+                float r = 1 - ratio * (1 - gray);
+                float g = 1 - ratio * (1 - gray);
+                float b = 1 - ratio * (1 - gray);
+
+                batch.setColor(r,g,b,1f);
+            }
+
+            batch.draw(
+                texture,
+                f.getX(), f.getY(),          // position
+                centerX, centerY,             // origin point for rotation
+                width, height,                // size
+                1f, 1f,                       // scaleX, scaleY
+                -f.getRotation(),             // rotation in degrees
+                0, 0,                         // source x, y in texture
+                texture.getWidth(), texture.getHeight(), // source width, height
+                false, false                  // flipX, flipY
+            );
+
+            batch.setColor(Color.WHITE); // reset tint so other sprites aren't affected
+        }
+
+        //Currency
+        for(Currency c : runData.getCurrencies()){
+            Texture asset = c.isPrestige() ? gameAssets.prestigeCurrency : gameAssets.currency;
+            batch.draw(asset, c.getX(), c.getY(), Currency.WIDTH, Currency.HEIGHT);
+        }
+
+        //SPARK
+        batch.draw(gameAssets.sparkAnimator.getCurrentFrame(), PlayerData.x, PlayerData.y, PlayerData.playerWidth, PlayerData.playerHeight);
+
+        batch.end();
+    }
+
+    public void drawDeathText(OrthographicCamera camera, List<Float> deathXValues) {
+        float bob = (float) Math.sin(TimeUtils.millis() / 300.0) * 2.5f;
+        batch.setProjectionMatrix(camera.combined);
+        batch.begin();
+
+        for(Float f : deathXValues) {
+            font.draw(batch, "lol", f, WaterSystem.getWaterLevel() + 10 + bob);
+        }
+        batch.end();
+    }
+
+    public void drawCenteredText(String text, float yOffset, float scale) {
+        font.getData().setScale(scale);
+
+        //batch.draw(); - TODO: surround text with black box, so white on black, or some other contrast
+        layout.setText(font, text);
+        float x = (CameraSystem.VIEWPORT_WIDTH - layout.width) / 2;
+        float y = (CameraSystem.VIEWPORT_HEIGHT - layout.height) / 2 + yOffset;
+        font.draw(batch, text, x, y);
+
+        font.getData().setScale(1f); //reset
+    }
+
+    public void drawHUD(RunData runData, OrthographicCamera hudCam, float time){
+        batch.setProjectionMatrix(hudCam.combined);
+        batch.begin();
+        try {
+            if (Gdx.input.isKeyPressed(Input.Keys.L)) {
+                font.getData().setScale(2);
+                font.draw(batch, "Seed: " + RunData.seed, CameraSystem.VIEWPORT_WIDTH / 2, CameraSystem.VIEWPORT_HEIGHT / 2);
+            }
+
+            font.getData().setScale(1.25f);
+            if (runData.getCurrentLevel() == LevelType.INFINITE) {
+                font.draw(batch, "Score: " + Math.round(PlayerData.y), CameraSystem.VIEWPORT_WIDTH - 175, CameraSystem.VIEWPORT_HEIGHT - 50);
+                font.draw(batch, "High Score: " + Math.round(PersistentData.highScore), CameraSystem.VIEWPORT_WIDTH - 175, CameraSystem.VIEWPORT_HEIGHT - 30);
+                font.draw(batch, "Matches: " + RunData.runMatches, CameraSystem.VIEWPORT_WIDTH - 175, CameraSystem.VIEWPORT_HEIGHT - 10);
+            } else {
+                font.draw(batch, "Time: " + String.format("%.1f", time), CameraSystem.VIEWPORT_WIDTH - 125, CameraSystem.VIEWPORT_HEIGHT - 10);
+            }
+
+            font.setColor(Color.WHITE);
+
+        } finally {
+            font.getData().setScale(1f); //reset
+
+            batch.end();
+        }
+    }
+
+    public void instructions(RunData runData, OrthographicCamera camera){
+        //Instructions
+        List<String> text = new ArrayList<>();
+        List<Float> xValues = new ArrayList<>();
+        List<Float> yValues = new ArrayList<>();
+        List<Float> scaleValues = new ArrayList<>();
+
+        if (runData.getCurrentLevel() == LevelType.LEARNING_MODE) {
+            text.add("Watch out for the water\nOr you DROWN");
+            xValues.add(-125f);
+            yValues.add(50f);
+            scaleValues.add(0.75f);
+
+            text.add("WASD / Arrow Keys to move\nW / UP /SPACE to jump\nP to PAUSE\nQ to COMPLETELY " +
+                "RESTART\nESC " +
+                "to EXIT game");
+            xValues.add(50f);
+            yValues.add(145f);
+            scaleValues.add(0.75f);
+
+            text.add("Hold UP / W / SPACE\njump higher");
+            xValues.add(800f);
+            yValues.add(225f);
+            scaleValues.add(0.75f);
+
+            text.add("CHECKPOINT\n\nHold DOWN / S\nslow down or fall faster");
+            xValues.add(1900f);
+            yValues.add(425f);
+            scaleValues.add(0.75f);
+
+            text.add("JUUUUMMMMPPPPPP");
+            xValues.add(4925f);
+            yValues.add(1875f);
+            scaleValues.add(1f);
+
+            text.add("You can WALL JUMP in 3 ways:\n- Just JUMP to go diagonal\n- Hold INTO the wall " +
+                "and jump to climb\n- Hold AWAY from the wall and jump to fling sideways");
+            xValues.add(5925f);
+            yValues.add(1275f);
+            scaleValues.add(0.75f);
+
+            text.add("As the water gets closer to you\nyou jump higher and move faster!");
+            xValues.add(6225f);
+            yValues.add(1900f);
+            scaleValues.add(0.75f);
+
+            text.add("Hold E or SHIFT to turn the faucet\n to slow down the water!");
+            xValues.add(6740f);
+            yValues.add(2090f);
+            scaleValues.add(0.75f);
+
+            text.add("Finish the faucet to WIN!");
+            xValues.add(8085f);
+            yValues.add(2245f);
+            scaleValues.add(0.75f);
+
+            drawText(text, xValues, yValues, scaleValues, camera);
+        }
+
+        if (runData.getCurrentLevel() == LevelType.INFINITE) {
+            text.add("INFINITE MODE");
+            xValues.add(45f);
+            yValues.add(175f);
+            scaleValues.add(1f);
+
+            text.add("Warning: Water rises faster and faster");
+            xValues.add(5f);
+            yValues.add(160f);
+            scaleValues.add(0.75f);
+
+            text.add("Click Q to regenerate");
+            xValues.add(5f);
+            yValues.add(140f);
+            scaleValues.add(0.75f);
+
+            drawText(text, xValues, yValues, scaleValues, camera);
+        }
+    }
+
+    public void drawText(List<String> text, List<Float> xPos, List<Float> yPos, List<Float> scale, OrthographicCamera camera){
+        batch.begin();
+        batch.setProjectionMatrix(camera.combined);
+
+        for(int i = 0; i < text.size(); i++) {
+            font.getData().setScale(scale.get(i));
+
+            font.draw(batch, text.get(i), xPos.get(i), yPos.get(i));
+        }
+
+        batch.end();
+        font.getData().setScale(1f); //reset
+    }
+
+    public void clearScreen(){
+        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+    }
+
+    public void dispose(){
+        shapeRenderer.dispose();
+        batch.dispose();
+        font.dispose();
+    }
 }

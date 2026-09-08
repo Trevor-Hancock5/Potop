@@ -24,13 +24,12 @@ Refactor order:
 1. Small independent systems
    - MAKE THE SYSTEMS SEPARATE FROM THE OBJECT - checkpointSystem AND checkpoint classes
    - GameScreen
-      - Rendering
       - Level
-      - Camera
       - gameFlow
    - PhysicsEngine
        - player system
      - player collision (needed?)
+1. update systems to NOT be static!
 2. Improve gamescreen and physics engine, to use parameters instead of PlayerData.staticVar!
 3. Split GameScreen
 4. Check code style is met
