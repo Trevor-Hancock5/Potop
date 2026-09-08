@@ -14,7 +14,7 @@ import com.hancockt.potop.state.PersistentData;
 import com.hancockt.potop.state.PlayerData;
 import com.hancockt.potop.state.RunData;
 import com.hancockt.potop.systems.CheckpointSystem;
-import com.hancockt.potop.systems.CurrencySystem;
+import com.hancockt.potop.systems.FaucetSystem;
 import com.hancockt.potop.systems.WaterSystem;
 
 import java.util.ArrayList;
@@ -42,9 +42,6 @@ public class PhysicsEngine {
     private static final float wallJumpCooldownThreshold = 0.25f; //seconds until wall jump again - prevents wall scaling
     private static final float collisionPlayerHeightDivisor = 10f; //What amount of player height needs to be above a platform to land on top
     private static final float currencyRange = 8f;
-    private static final float faucetRange = 30f; //how close to faucet to interact
-    private static final float faucetRotationSpeed = 240f; //degrees per second it spins
-    public static final float faucetInteractionTime = 1.5f; //seconds TODO, owned by faucet!
 
     /// Returns state of Spark (player) for animating
     public static AnimationKey updatePhysics(float delta, RunData runData){
@@ -313,46 +310,6 @@ public class PhysicsEngine {
         Rectangle playerRectFinal = new Rectangle(PlayerData.x, PlayerData.y, PlayerData.playerWidth, PlayerData.playerHeight);
         CheckpointSystem.update(runData, playerRectFinal);
 
-
-        //Faucets
-        Faucet nearFaucet = null;
-        for(Faucet f : runData.getFaucets()) {
-            if(!f.isTurnedOff()){
-                Rectangle faucet = new Rectangle(f.getX() - faucetRange, f.getY() - faucetRange, f.getWidth() + 2*faucetRange,
-                    f.getHeight() + 2*faucetRange);
-                if(playerRectFinal.overlaps(faucet)){
-                    nearFaucet = f;
-                    break;
-                }
-            }
-        }
-
-        boolean finishedFinalFaucet = false;
-        if(nearFaucet != null && (Gdx.input.isKeyPressed(Input.Keys.E) || Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)
-                || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT))){
-            nearFaucet.setProgress(nearFaucet.getProgress() + delta);
-            nearFaucet.setRotation(nearFaucet.getRotation() + (faucetRotationSpeed * delta));
-            if(nearFaucet.getProgress() > faucetInteractionTime){
-                nearFaucet.setTurnedOff(true);
-                nearFaucet.setRotation(360);
-                WaterSystem.updateWaterRiseSpeed(-nearFaucet.getSpeedReduction());
-                if(nearFaucet.isWinFaucet()){
-                    finishedFinalFaucet = true;
-                }
-
-                // todo faucet currency amount! (make somewhat random? - define in faucet)
-                CurrencySystem.spawnCurrency(runData, 15, nearFaucet.getX(), nearFaucet.getY(), nearFaucet.getWidth(), nearFaucet.getHeight());
-            }
-        } else if(nearFaucet != null){
-            //not holding down, start spinning back
-            nearFaucet.setProgress(Math.max(0, nearFaucet.getProgress() - delta));
-            if(nearFaucet.getRotation() > 0) {
-                nearFaucet.setRotation(nearFaucet.getRotation() - (faucetRotationSpeed * delta));
-            } else{
-                nearFaucet.setRotation(0);
-            }
-        }
-
         //update currency positions and explode times, once time is up, switch velocity towards spark's head
         float sparkHeadX = PlayerData.x + ((float) PlayerData.playerWidth / 2);
         float sparkHeadY = PlayerData.y + PlayerData.playerHeight - 15; // TODO - define as constant somewhere!
@@ -423,10 +380,8 @@ public class PhysicsEngine {
 
         runData.getCurrencies().removeAll(toRemove);
 
-        //Check win condition before death
-        if(finishedFinalFaucet){
-            GameScreen.gameState = GameState.WIN;
-        }
+        // Update currency first before faucets in case it's a win faucet which changes to win state!
+        FaucetSystem.update(runData, delta, playerRectFinal);
 
         //death check
         Rectangle waterRect = new Rectangle(-50000, 0, 100000, WaterSystem.getWaterLevel());
@@ -437,12 +392,8 @@ public class PhysicsEngine {
                 GameScreen.deathXValues.add(PlayerData.x);
             }
             PlayerData.isDead = true;
-            GameScreen.gameState = GameState.DEATH;
-            for(Faucet f : runData.getFaucets()){
-                f.setTurnedOff(false);
-                f.setRotation(0);
-                f.setProgress(0);
-            }
+            GameScreen.gameState = GameState.DEATH; //TODO - just use game state instead of isDead and other booleans?
+            FaucetSystem.reset(runData);
         }
 
         // reset flags for wall slide/jump

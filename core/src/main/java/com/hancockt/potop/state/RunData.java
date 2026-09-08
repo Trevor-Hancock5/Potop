@@ -83,8 +83,4 @@ public class RunData {
     public void setCurrentLevel(LevelType levelType){
         currentLevel = levelType;
     }
-
-    public void setCheckpoints(List<Checkpoint> checkpoints){
-        this.checkpoints = checkpoints;
-    }
 }

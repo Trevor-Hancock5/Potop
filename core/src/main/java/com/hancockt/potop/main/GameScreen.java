@@ -25,6 +25,7 @@ import com.hancockt.potop.state.PersistentData;
 import com.hancockt.potop.state.PlayerData;
 import com.hancockt.potop.state.RunData;
 import com.hancockt.potop.systems.CheckpointSystem;
+import com.hancockt.potop.systems.FaucetSystem;
 import com.hancockt.potop.systems.WaterSystem;
 
 import java.util.ArrayList;
@@ -219,8 +220,8 @@ public class GameScreen implements Screen {
 
             //Tint based on state for regular faucets
             if(!f.isWinFaucet() && f.getProgress() > 0){
-                float ratio = f.getProgress() / PhysicsEngine.faucetInteractionTime; //TODO
-                float gray = 0.5f; //TODO - owned by faucet, color distortion
+                float ratio = f.getProgress() / FaucetSystem.getFaucetInteractionTime(); //TODO
+                float gray = 0.5f; //TODO - owned by faucet, color distortion - nope rendering
 
                 float r = 1 - ratio * (1 - gray);
                 float g = 1 - ratio * (1 - gray);
@@ -450,11 +451,8 @@ public class GameScreen implements Screen {
 
         time = timeAtDeath;
         screenShakeAccumulation = 0;
-        for (Faucet f : runData.getFaucets()) {
-            f.setTurnedOff(false); //reset TODO - why?
-            f.setRotation(0);
-            f.setProgress(0);
-        }
+
+        FaucetSystem.reset(runData);
     }
 
     private void loadLevel(LevelType levelType) {
