@@ -9,11 +9,11 @@ public class Currency {
     private float explodeTime;
     private float absorbTime;
 
-    public final static float ABSORB_ACCELERATION = 3000f;
-    private final static float MAX_ABSORB_VELOCITY = 800f;
-    public final static float WIDTH = 16;
-    public final static float HEIGHT = 16;
-    public final static float MAX_ABSORB_TIME = 0.2f;
+    public final static float ABSORB_ACCELERATION = 3000f; //TUNABLE
+    private final static float MAX_ABSORB_VELOCITY = 800f; //TUNABLE
+    public final static float WIDTH = 16; //TUNABLE
+    public final static float HEIGHT = 16; //TUNABLE
+    public final static float MAX_ABSORB_TIME = 0.4f; //TUNABLE
 
     public Currency(float x, float y, boolean prestige, float velocityX, float velocityY,
                         float explodeTime){

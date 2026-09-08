@@ -3,10 +3,12 @@ package com.hancockt.potop.systems;
 import com.badlogic.gdx.math.Rectangle;
 import com.hancockt.potop.features.Checkpoint;
 import com.hancockt.potop.level.LevelType;
-import com.hancockt.potop.main.GameScreen;
 import com.hancockt.potop.state.RunData;
 
 public class CheckpointSystem {
+    private static final int checkpointCurrencyMin = 20; //TUNABLE
+    private static final int checkpointCurrencyMax = 30; //TUNABLE
+
     public void reset(RunData runData){
         runData.currCheckpoint = null;
     }
@@ -21,22 +23,22 @@ public class CheckpointSystem {
                     if(runData.getCurrentLevel() == LevelType.INFINITE){
                         if (c.getY() > runData.currCheckpoint.getY()){
                             runData.currCheckpoint = c;
-                            waterSystem.updateCheckpointWaterLevel(runData);
+                            waterSystem.updateCheckpointWaterLevel(runData, false);
                             runData.timeAtDeath = runData.time;
 
-                            // todo checkpoint currency amount! (make somewhat random? - define in checkpoint)
-                            currencySystem.spawnCurrency(runData, 25, c.getX(), c.getY(), c.getWidth(), c.getHeight());
+                            int numCurrency = runData.rng.nextInt(checkpointCurrencyMin, checkpointCurrencyMax);
+                            currencySystem.spawnCurrency(runData, numCurrency, c.getX(), c.getY(), c.getWidth(), c.getHeight());
                         }
                     } else {
                         if (c.getOrder() > runData.currCheckpoint.getOrder()) {
                             runData.currCheckpoint = c;
-                            waterSystem.updateCheckpointWaterLevel(runData);
+                            waterSystem.updateCheckpointWaterLevel(runData, false);
                             runData.timeAtDeath = runData.time;
                         }
                     }
                 } else{
                     runData.currCheckpoint = c;
-                    waterSystem.updateCheckpointWaterLevel(runData);
+                    waterSystem.updateCheckpointWaterLevel(runData, false);
                     runData.timeAtDeath = runData.time;
                 }
             }

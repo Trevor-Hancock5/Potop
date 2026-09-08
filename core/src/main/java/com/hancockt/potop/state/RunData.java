@@ -9,6 +9,7 @@ import com.hancockt.potop.level.LevelType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 public class RunData {
@@ -18,12 +19,13 @@ public class RunData {
 
     public Checkpoint currCheckpoint; //current checkpoint player has made it to
     public float checkpointWaterLevel; //water level when user hit current checkpoint
-    protected static final float checkpointMinWaterBuffer = 200f;
     public float time;
     public float timeAtDeath;
     public List<Float> deathXValues;
 
-    private List<Checkpoint> checkpoints;
+    public static final float checkpointMinWaterBuffer = 200f; //TUNABLE
+
+    private final List<Checkpoint> checkpoints;
     private final List<Faucet> faucets;
     private final List<Currency> currencies;
     private final List<Platform> platforms; // already built, not modules
@@ -83,11 +85,7 @@ public class RunData {
     }
 
     public LevelType getNextLevel(){
-        if(nextLevel == null){
-            return LevelType.INFINITE;
-        } else{
-            return nextLevel;
-        }
+        return Objects.requireNonNullElse(nextLevel, LevelType.INFINITE);
     }
 
     public LevelType getCurrentLevel(){

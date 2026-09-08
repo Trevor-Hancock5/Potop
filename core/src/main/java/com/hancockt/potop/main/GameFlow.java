@@ -1,4 +1,4 @@
-package com.hancockt.potop.systems;
+package com.hancockt.potop.main;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -6,13 +6,11 @@ import com.hancockt.potop.assets.AnimationKey;
 import com.hancockt.potop.assets.GameAssets;
 import com.hancockt.potop.level.LevelGeneration;
 import com.hancockt.potop.level.LevelType;
-import com.hancockt.potop.main.PhysicsEngine;
 import com.hancockt.potop.state.GameState;
 import com.hancockt.potop.state.PersistentData;
 import com.hancockt.potop.state.PlayerData;
 import com.hancockt.potop.state.RunData;
-
-import javax.swing.*;
+import com.hancockt.potop.systems.*;
 
 public class GameFlow {
     public static GameState GAME_STATE = GameState.MENU; //start with menu
@@ -60,14 +58,14 @@ public class GameFlow {
                 gameAssets.checkpointAnimator.update(delta);
                 gameAssets.sparkAnimator.update(delta);
 
-                if(!playerData.isDead){
+                if(GameFlow.GAME_STATE != GameState.DEATH){
                     AnimationKey sparkAnimationState = physicsEngine.updatePhysics(delta, runData, persistentData, playerData,
                                                     cameraSystem, levelSystem, waterSystem, faucetSystem,
                                                     currencySystem, checkpointSystem, levelGeneration);
                     gameAssets.sparkAnimator.play(sparkAnimationState);
                 }
 
-                if(playerData.isDead || !runData.deathXValues.isEmpty()){
+                if(GameFlow.GAME_STATE == GameState.DEATH || !runData.deathXValues.isEmpty()){
                     renderingSystem.drawDeathText(cameraSystem.getCamera(), runData.deathXValues, waterSystem);
                 }
 
@@ -95,12 +93,11 @@ public class GameFlow {
         return tempRunData;
     }
 
-    //TODO
     private RunData handleMenuInput(RunData runData, PlayerData playerData, PersistentData persistentData, LevelSystem levelSystem,
                                     WaterSystem waterSystem, FaucetSystem faucetSystem){
         RunData tempRunData = null;
         if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
-            tempRunData = levelSystem.loadLevel(LevelType.LEARNING_MODE, playerData);
+            tempRunData = levelSystem.loadLevel(LevelType.LEARNING_MODE);
             levelSystem.restart(runData, playerData, waterSystem, faucetSystem);
             GAME_STATE = GameState.PLAYING;
         }
@@ -108,12 +105,12 @@ public class GameFlow {
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.I)){
             if(persistentData.learningModeBeat) {
-                tempRunData = levelSystem.loadLevel(LevelType.INFINITE, playerData);
+                tempRunData = levelSystem.loadLevel(LevelType.INFINITE);
                 levelSystem.restart(runData, playerData, waterSystem, faucetSystem);
                 GAME_STATE = GameState.PLAYING;
             } else if(Gdx.input.isKeyJustPressed(Input.Keys.I)){
                 //TODO - remove, just for testing!
-                tempRunData = levelSystem.loadLevel(LevelType.INFINITE, playerData);
+                tempRunData = levelSystem.loadLevel(LevelType.INFINITE);
                 levelSystem.restart(runData, playerData, waterSystem, faucetSystem);
                 GAME_STATE = GameState.PLAYING;
             }
@@ -173,13 +170,13 @@ public class GameFlow {
                 if(runData.getCurrentLevel() == LevelType.LEARNING_MODE){
                     persistentData.learningModeBeat = true;
                 }
-                waterSystem.updateCheckpointWaterLevel(runData, -50f);
+                waterSystem.updateCheckpointWaterLevel(runData, true);
                 checkpointSystem.reset(runData);
                 RunData nextLevel = LevelGeneration.getAllLevels().get(next);
                 playerData.x = nextLevel.getStartPoint().x;
                 playerData.y = nextLevel.getStartPoint().y;
                 runData.setCurrentLevel(next);
-                tempRunData = levelSystem.loadLevel(next, playerData);
+                tempRunData = levelSystem.loadLevel(next);
                 levelSystem.restart(runData, playerData, waterSystem, faucetSystem);
                 GAME_STATE = GameState.PLAYING;
             } else{

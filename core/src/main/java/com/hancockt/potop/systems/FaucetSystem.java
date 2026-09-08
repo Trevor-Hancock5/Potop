@@ -4,18 +4,20 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Rectangle;
 import com.hancockt.potop.features.Faucet;
-import com.hancockt.potop.main.GameScreen;
+import com.hancockt.potop.main.GameFlow;
 import com.hancockt.potop.state.GameState;
 import com.hancockt.potop.state.RunData;
 
 public class FaucetSystem {
-    private final float faucetRange = 30f; //how close to faucet to interact
-    private final float faucetRotationSpeed = 240f; //degrees per second it spins
-    private final float faucetInteractionTime = 1.5f; //seconds TODO, owned by faucet!
+    private static final float faucetRange = 30f; //how close to faucet to interact - TUNABLE
+    private static final float faucetRotationSpeed = 240f; //degrees per second it spins - TUNABLE
+    private static final float faucetInteractionTime = 1.5f; //seconds - TUNABLE
+    private static final int faucetCurrencyMin = 10; // TUNABLE
+    private static final int faucetCurrencyMax = 20; // TUNABLE
 
     public void reset(RunData runData){
         for (Faucet f : runData.getFaucets()) {
-            f.setTurnedOff(false); //reset TODO - why?
+            f.setTurnedOff(false); //reset
             f.setRotation(0);
             f.setProgress(0);
         }
@@ -49,8 +51,8 @@ public class FaucetSystem {
                     finishedFinalFaucet = true;
                 }
 
-                // todo faucet currency amount! (make somewhat random? - define in faucet)
-                currencySystem.spawnCurrency(runData, 15, nearFaucet.getX(), nearFaucet.getY(), nearFaucet.getWidth(), nearFaucet.getHeight());
+                int numCurrency = runData.rng.nextInt(faucetCurrencyMin, faucetCurrencyMax);
+                currencySystem.spawnCurrency(runData, numCurrency, nearFaucet.getX(), nearFaucet.getY(), nearFaucet.getWidth(), nearFaucet.getHeight());
             }
         } else if(nearFaucet != null){
             //not holding down, start spinning back

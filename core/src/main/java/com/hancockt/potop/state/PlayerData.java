@@ -3,6 +3,7 @@ package com.hancockt.potop.state;
 import com.hancockt.potop.features.Checkpoint;
 import com.hancockt.potop.level.LevelGeneration;
 import com.hancockt.potop.level.LevelType;
+import com.hancockt.potop.systems.WaterSystem;
 
 import java.util.List;
 
@@ -17,7 +18,6 @@ public class PlayerData {
     public float impactVelocity; //velocity when landing! use for screen shake
 
     public boolean onGround = false;
-    public boolean isDead = false;
     public boolean justLanded = false; //for screen shake
     public boolean touchingWallLeft = false;
     public boolean touchingWallRight = false;
@@ -29,10 +29,10 @@ public class PlayerData {
     public float jumpBuffer; // number of seconds since pressed jump
     public float wallJumpCooldown = 0f;
 
-    public final int playerWidth = 20;
-    public final int playerHeight = 50;
+    public static final int playerWidth = 20; //TUNABLE
+    public static final int playerHeight = 50; //TUNABLE
 
-    public float reset(List<Checkpoint> checkpoints, LevelType currentLevel){
+    public float reset(LevelType currentLevel){
         float waterLevel;
         RunData data = LevelGeneration.getAllLevels().get(currentLevel);
 
@@ -43,23 +43,12 @@ public class PlayerData {
         } else {
             x = data.getStartPoint().x;
             y = data.getStartPoint().y;
-            waterLevel = -50f;
-            if(currentLevel == LevelType.LEARNING_MODE){
-                waterLevel = 10f;
-            }
-
-            //reset checkpoints, todo - why?
-            if(checkpoints != null) {
-                for (Checkpoint c : checkpoints) {
-                    c.setActivated(false);
-                }
-            }
+            waterLevel = WaterSystem.defaultWaterLevelOnStart;
         }
         velocityY = 0;
         velocityX = 0;
         // scale the reset speed with how high the checkpoint/respawn point is
         onGround = false;
-        isDead = false;
         coyoteSeconds = 100; //reset
         wallCoyoteSeconds = 100; //reset
         jumpBuffer = 100; //reset
