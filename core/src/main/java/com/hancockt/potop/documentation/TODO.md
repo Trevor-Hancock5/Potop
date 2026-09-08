@@ -24,8 +24,6 @@ Refactor order:
 1. Small independent systems
    - MAKE THE SYSTEMS SEPARATE FROM THE OBJECT - checkpointSystem AND checkpoint classes
    - GameScreen
-      - currency system
-      - Faucet
       - Rendering
       - Level
       - Camera
@@ -43,6 +41,7 @@ Refactor order:
     - separate update (game state) from render (drawing)
     - separate constants out for easier tuning (instead of file, place these in owner's class - player, checkpoint, etc. )
     - ensure codeStyle.md is met!
+    - Tunable values labeled //TUNABLE?
     - Go back through errors and imports!
     - Go through TODOs!
 

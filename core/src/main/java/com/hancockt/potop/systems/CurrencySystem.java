@@ -1,10 +1,89 @@
 package com.hancockt.potop.systems;
 
+import com.badlogic.gdx.math.Rectangle;
 import com.hancockt.potop.features.Currency;
+import com.hancockt.potop.state.PersistentData;
+import com.hancockt.potop.state.PlayerData;
 import com.hancockt.potop.state.RunData;
 
-public class CurrencySystem {
+import java.util.ArrayList;
+import java.util.List;
 
+public class CurrencySystem {
+    private static final float currencyRange = 8f;
+
+    public static void update(RunData runData, float delta, float sparkHeadX, float sparkHeadY, Rectangle playerRect){
+        //update currency positions and explode times, once time is up, switch velocity towards spark's head
+        for (Currency c : runData.getCurrencies()){
+            if(c.getExplodeTime() > 0){
+                c.moveX(c.getVelocityX() * delta);
+                c.moveY(c.getVelocityY() * delta);
+                c.updateExplodeTime(delta);
+            } else if (c.getExplodeTime() < 0){
+                // less than 0 indicates that player has interacted with currency and explosion is done,
+                    // meaning it needs absorption
+                float dx = sparkHeadX - c.getX();
+                float dy = sparkHeadY - c.getY();
+
+                float distance = (float) Math.sqrt(dx * dx + dy * dy);
+                float directionX = 0;
+                float directionY = 0;
+                if (distance > 0){
+                    directionX = dx / distance;
+                    directionY = dy / distance;
+                }
+
+                c.updateAbsorbTime(delta);
+
+                if(c.getAbsorbTime() <= Currency.MAX_ABSORB_TIME) {
+                    //better looking
+                    boolean entropy = RunData.rng.nextBoolean();
+
+                    if (entropy) {
+                        directionX *= RunData.rng.nextFloat(1, 2);
+                        directionY *= RunData.rng.nextFloat(1, 2);
+                    }
+                    c.changeVelocityX(directionX * Currency.ABSORB_ACCELERATION * delta);
+                    c.changeVelocityY(directionY * Currency.ABSORB_ACCELERATION * delta);
+                } else {
+                    //quick absorb!
+                    //time to get absorbed
+                    float t = Math.max((Currency.MAX_ABSORB_TIME * 2) - c.getAbsorbTime(), 0);
+                    c.setVelocityX(dx / t);
+                    c.setVelocityY(dy / t);
+                }
+
+                c.moveX(c.getVelocityX() * delta);
+                c.moveY(c.getVelocityY() * delta);
+            }
+        }
+
+        //check if overlapping currency
+        // TODO - test using just sparkHeadX and sparkHeadY instead
+        Rectangle sparkHead = new Rectangle(PlayerData.x + ((float) PlayerData.playerWidth / 4),
+            PlayerData.y + PlayerData.playerHeight - 10, (float) PlayerData.playerWidth / 2, 10);
+        List<Currency> toRemove = new ArrayList<>();
+        for(Currency c : runData.getCurrencies()){
+            Rectangle curr = new Rectangle(c.getX() - currencyRange, c.getY() - currencyRange,
+                Currency.WIDTH + 2*currencyRange, Currency.HEIGHT + 2*currencyRange);
+            if(playerRect.overlaps(curr)){
+                // This notes it is within range and then the next for loop moves it to absorb!
+                c.updateExplodeTime(delta);
+            }
+
+            if(sparkHead.overlaps(curr) && c.getExplodeTime() < 0){
+                //Check if overlapping spark's head, this is what absorbs the currency
+                if(!c.isPrestige()) {
+                    RunData.runMatches += 1;
+                } else{
+                    PersistentData.unlockedFactory = true;
+                }
+                toRemove.add(c);
+            }
+        }
+
+        runData.getCurrencies().removeAll(toRemove);
+    }
 
     public static void spawnCurrency(RunData runData, int numOfCurrency, float xRef, float yRef, float width, float height){
         //TODO - add constants in currency for this!

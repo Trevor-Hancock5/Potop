@@ -10,7 +10,6 @@ import com.hancockt.potop.level.LevelType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.logging.Level;
 
 public class RunData {
     // Everything belonging to the current attempt

@@ -4,8 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Rectangle;
 import com.hancockt.potop.assets.AnimationKey;
-import com.hancockt.potop.features.Currency;
-import com.hancockt.potop.features.Faucet;
 import com.hancockt.potop.features.Platform;
 import com.hancockt.potop.level.LevelGeneration;
 import com.hancockt.potop.level.LevelType;
@@ -14,11 +12,9 @@ import com.hancockt.potop.state.PersistentData;
 import com.hancockt.potop.state.PlayerData;
 import com.hancockt.potop.state.RunData;
 import com.hancockt.potop.systems.CheckpointSystem;
+import com.hancockt.potop.systems.CurrencySystem;
 import com.hancockt.potop.systems.FaucetSystem;
 import com.hancockt.potop.systems.WaterSystem;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class PhysicsEngine {
     private static final int accelerationX = 1600;
@@ -41,7 +37,6 @@ public class PhysicsEngine {
     private static final float wallProximity = 5f; //how many pixels count as on wall
     private static final float wallJumpCooldownThreshold = 0.25f; //seconds until wall jump again - prevents wall scaling
     private static final float collisionPlayerHeightDivisor = 10f; //What amount of player height needs to be above a platform to land on top
-    private static final float currencyRange = 8f;
 
     /// Returns state of Spark (player) for animating
     public static AnimationKey updatePhysics(float delta, RunData runData){
@@ -310,75 +305,11 @@ public class PhysicsEngine {
         Rectangle playerRectFinal = new Rectangle(PlayerData.x, PlayerData.y, PlayerData.playerWidth, PlayerData.playerHeight);
         CheckpointSystem.update(runData, playerRectFinal);
 
-        //update currency positions and explode times, once time is up, switch velocity towards spark's head
+        // Define spark's head for future operations
         float sparkHeadX = PlayerData.x + ((float) PlayerData.playerWidth / 2);
         float sparkHeadY = PlayerData.y + PlayerData.playerHeight - 15; // TODO - define as constant somewhere!
-        for (Currency c : runData.getCurrencies()){
-            if(c.getExplodeTime() > 0){
-                c.moveX(c.getVelocityX() * delta);
-                c.moveY(c.getVelocityY() * delta);
-                c.updateExplodeTime(delta);
-            } else if (c.getExplodeTime() < 0){
-                float dx = sparkHeadX - c.getX();
-                float dy = sparkHeadY - c.getY();
 
-                float distance = (float) Math.sqrt(dx * dx + dy * dy);
-                float directionX = 0;
-                float directionY = 0;
-                if (distance > 0){
-                    directionX = dx / distance;
-                    directionY = dy / distance;
-                }
-
-                c.updateAbsorbTime(delta);
-
-                if(c.getAbsorbTime() <= Currency.MAX_ABSORB_TIME) {
-                    //better looking
-                    boolean entropy = RunData.rng.nextBoolean();
-
-                    if (entropy) {
-                        directionX *= RunData.rng.nextFloat(1, 2);
-                        directionY *= RunData.rng.nextFloat(1, 2);
-                    }
-                    c.changeVelocityX(directionX * Currency.ABSORB_ACCELERATION * delta);
-                    c.changeVelocityY(directionY * Currency.ABSORB_ACCELERATION * delta);
-                } else {
-                    //quick absorb!
-                    //time to get absorbed
-                    float t = Math.max((Currency.MAX_ABSORB_TIME * 2) - c.getAbsorbTime(), 0);
-                    c.setVelocityX(dx / t);
-                    c.setVelocityY(dy / t);
-                }
-
-                c.moveX(c.getVelocityX() * delta);
-                c.moveY(c.getVelocityY() * delta);
-            }
-        }
-
-        //check if overlapping currency
-        Rectangle sparkHead = new Rectangle(PlayerData.x + ((float) PlayerData.playerWidth / 4), PlayerData.y + PlayerData.playerHeight - 10,
-                                        (float) PlayerData.playerWidth / 2, 10);
-        List<Currency> toRemove = new ArrayList<>();
-        for(Currency c : runData.getCurrencies()){
-            Rectangle curr = new Rectangle(c.getX() - currencyRange, c.getY() - currencyRange,
-                Currency.WIDTH + 2*currencyRange, Currency.HEIGHT + 2*currencyRange);
-            if(playerRectFinal.overlaps(curr)){
-                // This notes it is within range and then the next for loop moves it to absorb!
-                c.updateExplodeTime(delta);
-            }
-
-            if(sparkHead.overlaps(curr) && c.getExplodeTime() < 0){
-                //Check if overlapping spark's head!
-                if(!c.isPrestige()) {
-                    RunData.runMatches += 1;
-                } else{
-                    PersistentData.unlockedFactory = true;
-                }
-                toRemove.add(c);
-            }
-        }
-
-        runData.getCurrencies().removeAll(toRemove);
+        CurrencySystem.update(runData, delta, sparkHeadX, sparkHeadY, playerRectFinal);
 
         // Update currency first before faucets in case it's a win faucet which changes to win state!
         FaucetSystem.update(runData, delta, playerRectFinal);
