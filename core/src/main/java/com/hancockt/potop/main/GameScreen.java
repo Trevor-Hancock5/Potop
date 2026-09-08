@@ -34,11 +34,12 @@ public class GameScreen implements Screen {
     public void show() {
         Gdx.input.setCursorCatched(true);
 
+        seed = System.currentTimeMillis();
         gameAssets.load();
         playerData = new PlayerData();
         levelGeneration = new LevelGeneration(seed, playerData);
         levelSystem = new LevelSystem();
-        runData = levelSystem.loadLevel(LevelType.LEARNING_MODE, playerData);
+        runData = levelSystem.loadLevel(LevelType.LEARNING_MODE);
 
         cameraSystem = new CameraSystem();
         renderingSystem = new RenderingSystem();
@@ -50,7 +51,6 @@ public class GameScreen implements Screen {
         physicsEngine = new PhysicsEngine();
 
         persistentData = new PersistentData(); //TODO - long term save/loading save
-        seed = System.currentTimeMillis();
 
 
         levelSystem.restart(runData, playerData, waterSystem, faucetSystem);

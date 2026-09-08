@@ -13,26 +13,41 @@ import com.hancockt.potop.state.RunData;
 import com.hancockt.potop.systems.*;
 
 public class PhysicsEngine {
-    private final int accelerationX = 1600;
-    private final int maxSpeedX = 425;
-    private final float groundFriction = 0.935f;
-    private final float airFriction = 0.99f;
-    private final float gravity = 1000f;
-    private final float fallGravityMultiplier = 1.6f;
-    public final int maxFallSpeed = -1200;
-    private final float jumpForce = 350f;
-    private final float jumpHoldForce = 350f;
-    private final float coyoteThreshold = 0.1f; //Can be off platform for x seconds and still jump
-    private final float jumpBufferThreshold = 0.1f;
-    private final float downforceFallAcceleration = -300f;
-    private final float collisionThreshold = 5f; //number of pixels into platform and still pop out one side
-    private final float nudgeSpeed = 50f;
-    private final float nudgeThreshold = 5f;
-    private final float airControlDivisor = 6f;
-    private final float wallSlideMaxSpeed = -115f;
-    private final float wallProximity = 5f; //how many pixels count as on wall
-    private final float wallJumpCooldownThreshold = 0.25f; //seconds until wall jump again - prevents wall scaling
-    private final float collisionPlayerHeightDivisor = 10f; //What amount of player height needs to be above a platform to land on top
+    private static final int accelerationX = 1600; //TUNABLE
+    private static final int maxSpeedX = 425; //TUNABLE
+    private static final float groundFriction = 0.935f; //TUNABLE
+    private static final float airFriction = 0.99f; //TUNABLE
+    private static final float gravity = 1000f; //TUNABLE
+    private static final float fallGravityMultiplier = 1.6f; //TUNABLE
+    public static final int maxFallSpeed = -1200; //TUNABLE
+    private static final float jumpForce = 350f; //TUNABLE
+    private static final float jumpHoldForce = 350f; //TUNABLE
+    private static final float coyoteThreshold = 0.1f; //Can be off platform for x seconds and still jump - TUNABLE
+    private static final float jumpBufferThreshold = 0.1f; //TUNABLE
+    private static final float downforceFallAcceleration = -300f; //TUNABLE
+    private static final float collisionThreshold = 5f; //number of pixels into platform and still pop out one side - TUNABLE
+    private static final float nudgeSpeed = 50f; //TUNABLE
+    private static final float nudgeThreshold = 5f; //TUNABLE
+    private static final float airControlDivisor = 6f; //TUNABLE
+    private static final float collisionPlayerHeightDivisor = 10f; //percent of player height needs to be above a platform to land on top - TUNABLE
+
+    private static final float wallSlideMaxSpeed = -115f; //TUNABLE
+    private static final float wallProximity = 5f; //how many pixels count as on wall - TUNABLE
+    private static final float wallJumpCooldownThreshold = 0.25f; //seconds until wall jump again - prevents wall scaling - TUNABLE
+    private static final float jumpPercentClimbingBoundaryWallUp = 0.5f; //TUNABLE
+    private static final float jumpPercentClimbingBoundaryWallSide = 0.15f; //TUNABLE
+    private static final float jumpPercentClimbingPlatformUp = 0.8f; //TUNABLE
+    private static final float jumpPercentClimbingPlatformSide = 0.1f; //TUNABLE
+    private static final float jumpPercentWallLaunchUp = 0.6f; //TUNABLE
+    private static final float jumpPercentWallLaunchSide = 1.2f; //TUNABLE
+    private static final float jumpPercentWallJumpUp = 1f; //TUNABLE
+    private static final float jumpPercentWallJumpSide = .85f; //TUNABLE
+
+    private static final float showRunAnimationThreshold = 50f; //TUNABLE
+    private static final float showFallAnimationThreshold = -100f; //TUNABLE
+
+    private static final int framesPerSecond = 60;
+
 
     /// Returns state of Spark (player) for animating
     // TODO - remove all system classes and gameflow calls out of here, this should be JUST physics
@@ -87,8 +102,8 @@ public class PhysicsEngine {
 
         //Edge Nudging
         for(Platform p : runData.getPlatforms()) {
-            if (playerData.y + playerData.playerHeight > p.getY() && playerData.velocityY > 0 && playerData.y < p.getY() + p.getHeight()){
-                if(playerData.x + playerData.playerWidth > p.getX() && playerData.x + playerData.playerWidth < p.getX() + nudgeThreshold){
+            if (playerData.y + PlayerData.playerHeight > p.getY() && playerData.velocityY > 0 && playerData.y < p.getY() + p.getHeight()){
+                if(playerData.x + PlayerData.playerWidth > p.getX() && playerData.x + PlayerData.playerWidth < p.getX() + nudgeThreshold){
                     playerData.velocityX += delta * nudgeSpeed;
                 }
 
@@ -114,7 +129,7 @@ public class PhysicsEngine {
 
         //platform collision
         for (Platform p : runData.getPlatforms()) {
-            Rectangle playerRect = new Rectangle(playerData.x, playerData.y, playerData.playerWidth, playerData.playerHeight);
+            Rectangle playerRect = new Rectangle(playerData.x, playerData.y, PlayerData.playerWidth, PlayerData.playerHeight);
             Rectangle platformRect = new Rectangle(p.getX(), p.getY(), p.getWidth(), p.getHeight());
 
 
@@ -124,7 +139,7 @@ public class PhysicsEngine {
                 if (p.getHeight() > collisionThreshold) {
                     collisionPoint = p.getHeight() + p.getY() - collisionThreshold;
                 }
-                if (playerRect.overlaps(platformRect) && playerData.velocityY < 0 && prevY + ((float) playerData.playerHeight / collisionPlayerHeightDivisor) >= collisionPoint) {
+                if (playerRect.overlaps(platformRect) && playerData.velocityY < 0 && prevY + ((float) PlayerData.playerHeight / collisionPlayerHeightDivisor) >= collisionPoint) {
                     playerData.impactVelocity = Math.abs(playerData.velocityY);
                     playerData.y = p.getY() + p.getHeight();
                     playerData.velocityY = 0;
@@ -140,8 +155,8 @@ public class PhysicsEngine {
             if ((float) p.getWidth() / 2 > collisionThreshold) {
                 collisionPoint = p.getX() + p.getWidth() - collisionThreshold;
             }
-            if (playerRect.overlaps(platformRect) && playerData.velocityX < 0 && prevX + (float) (playerData.playerWidth / 2) >= collisionPoint
-                    && playerData.y + (playerData.playerHeight / collisionPlayerHeightDivisor) < p.getY() + p.getHeight()) {
+            if (playerRect.overlaps(platformRect) && playerData.velocityX < 0 && prevX + (float) (PlayerData.playerWidth / 2) >= collisionPoint
+                    && playerData.y + (PlayerData.playerHeight / collisionPlayerHeightDivisor) < p.getY() + p.getHeight()) {
                 playerData.x = p.getX() + p.getWidth();
                 playerData.velocityX = -1;
                 playerData.touchingWallRight = true;
@@ -153,9 +168,9 @@ public class PhysicsEngine {
             if ((float) p.getWidth() / 2 > collisionThreshold) {
                 collisionPoint = p.getX() + collisionThreshold;
             }
-            if (playerRect.overlaps(platformRect) && playerData.velocityX > 0 && prevX + (float) (playerData.playerWidth / 2) <= collisionPoint
-                    && playerData.y + (playerData.playerHeight / collisionPlayerHeightDivisor) < p.getY() + p.getHeight()) {
-                playerData.x = p.getX() - playerData.playerWidth;
+            if (playerRect.overlaps(platformRect) && playerData.velocityX > 0 && prevX + (float) (PlayerData.playerWidth / 2) <= collisionPoint
+                    && playerData.y + (PlayerData.playerHeight / collisionPlayerHeightDivisor) < p.getY() + p.getHeight()) {
+                playerData.x = p.getX() - PlayerData.playerWidth;
                 playerData.velocityX = 1;
                 playerData.touchingWallLeft = true;
             }
@@ -165,7 +180,7 @@ public class PhysicsEngine {
         //check if on wall
         boolean onBoundingWall = false;
         for (Platform p : runData.getPlatforms()){
-            if (playerData.y + playerData.playerHeight < p.getY() || playerData.y > p.getY() + p.getHeight()) {
+            if (playerData.y + PlayerData.playerHeight < p.getY() || playerData.y > p.getY() + p.getHeight()) {
                 continue; //not same height, skip!
             }
 
@@ -177,7 +192,7 @@ public class PhysicsEngine {
             }
 
             //right of player, left of wall
-            float distToLeftWall = p.getX() - (playerData.x + playerData.playerWidth);
+            float distToLeftWall = p.getX() - (playerData.x + PlayerData.playerWidth);
             if(distToLeftWall >= 0 && distToLeftWall < wallProximity && playerData.velocityX >= 0){
                 playerData.touchingWallLeft = true;
                 onBoundingWall = p.isBoundaryWall();
@@ -219,22 +234,22 @@ public class PhysicsEngine {
 
             float upForce;
             float sideForce;
+
             if(holdingInto){
-                //TODO when moved into platform system, add constants for these
                 if(onBoundingWall) {
-                    upForce = jumpForce * .5f;
-                    sideForce = jumpForce * .15f;
+                    upForce = jumpForce * jumpPercentClimbingBoundaryWallUp;
+                    sideForce = jumpForce * jumpPercentClimbingBoundaryWallSide;
                 } else{
-                    upForce = jumpForce * .8f;
-                    sideForce = jumpForce * .1f;
+                    upForce = jumpForce * jumpPercentClimbingPlatformUp;
+                    sideForce = jumpForce * jumpPercentClimbingPlatformSide;
                 }
             } else if (holdingAway){
-                upForce = jumpForce * .6f;
-                sideForce = jumpForce * 1.2f;
+                upForce = jumpForce * jumpPercentWallLaunchUp;
+                sideForce = jumpForce * jumpPercentWallLaunchSide;
             } else{
                 //not into or away
-                upForce = jumpForce;
-                sideForce = .85f * jumpForce;
+                upForce = jumpForce * jumpPercentWallJumpUp;
+                sideForce = jumpForce * jumpPercentWallJumpSide;
             }
 
             playerData.velocityY = upForce;
@@ -280,8 +295,8 @@ public class PhysicsEngine {
         }
 
         //friction & velocity cap
-        float frameGroundFriction = (float) Math.pow(currFriction, delta * 60);
-        float frameAirFriction = (float) Math.pow(airFriction, delta * 60);
+        float frameGroundFriction = (float) Math.pow(currFriction, delta * framesPerSecond);
+        float frameAirFriction = (float) Math.pow(airFriction, delta * framesPerSecond);
         playerData.velocityX *= playerData.onGround ? frameGroundFriction : frameAirFriction;
         playerData.velocityX = Math.clamp(playerData.velocityX, -maxSpeedX, maxSpeedX);
 
@@ -303,12 +318,12 @@ public class PhysicsEngine {
 
         waterSystem.updateWater(runData, delta);
 
-        Rectangle playerRectFinal = new Rectangle(playerData.x, playerData.y, playerData.playerWidth, playerData.playerHeight);
+        Rectangle playerRectFinal = new Rectangle(playerData.x, playerData.y, PlayerData.playerWidth, PlayerData.playerHeight);
         checkpointSystem.update(runData, playerRectFinal, waterSystem, currencySystem);
 
         // Define spark's head for future operations
-        float sparkHeadX = playerData.x + ((float) playerData.playerWidth / 2);
-        float sparkHeadY = playerData.y + playerData.playerHeight - 15; // TODO - define as constant somewhere!
+        float sparkHeadX = playerData.x + ((float) PlayerData.playerWidth / 2);
+        float sparkHeadY = playerData.y + PlayerData.playerHeight - 15;
 
         currencySystem.update(runData, persistentData, playerData, delta, sparkHeadX, sparkHeadY, playerRectFinal);
 
@@ -320,11 +335,10 @@ public class PhysicsEngine {
 
         //Only dead if head hits water (because flame Afro!), so top 15 pixels of player rect
         if(waterRect.overlaps(playerRectFinal) && waterSystem.getWaterLevel() >= sparkHeadY){
-            if(!playerData.isDead){
+            if(GameFlow.GAME_STATE != GameState.DEATH){
                 runData.deathXValues.add(playerData.x);
             }
-            playerData.isDead = true;
-            GameFlow.GAME_STATE = GameState.DEATH; //TODO - just use game state instead of isDead and other booleans?
+            GameFlow.GAME_STATE = GameState.DEATH;
             faucetSystem.reset(runData);
         }
 
@@ -348,27 +362,22 @@ public class PhysicsEngine {
         levelSystem.updateInfinite(runData, playerData, levelGeneration);
 
         //update animation from least to most important (to choose which animation is shown - default is idle!)
-        //todo -define constant
-        final float showRunAnimation = 50f;
-        final float showFallAnimation = -100f;
-        if(playerData.velocityX < -showRunAnimation){
+        if(playerData.velocityX < -showRunAnimationThreshold){
             currAnimation = AnimationKey.RUN_LEFT;
-        } else if(playerData.velocityX > showRunAnimation){
+        } else if(playerData.velocityX > showRunAnimationThreshold){
             currAnimation = AnimationKey.RUN_RIGHT;
         }
 
-        if(playerData.velocityY < showFallAnimation){
+        if(playerData.velocityY < showFallAnimationThreshold){
             currAnimation = AnimationKey.FALL;
         } else if(playerData.velocityY > 0){
             currAnimation = AnimationKey.JUMP;
         }
 
-        if(playerData.isDead){
+        if(GameFlow.GAME_STATE == GameState.DEATH){
             currAnimation = AnimationKey.DEATH;
         }
 
         return currAnimation;
     }
-
-
 }

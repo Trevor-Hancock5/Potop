@@ -10,7 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CurrencySystem {
-    private final float currencyRange = 8f;
+    private static final float currencyRange = 8f; //TUNABLE
+    private static final float explodeVelocityMax = 450; //TUNABLE
+    private static final float minExplodeTime = 0.05f; //TUNABLE
+    private static final float maxExplodeTime = 0.15f; //TUNABLE
 
     public void update(RunData runData, PersistentData persistentData, PlayerData playerData, float delta,
                        float sparkHeadX, float sparkHeadY, Rectangle playerRect){
@@ -36,7 +39,7 @@ public class CurrencySystem {
 
                 c.updateAbsorbTime(delta);
 
-                if(c.getAbsorbTime() <= Currency.MAX_ABSORB_TIME) {
+                if(c.getAbsorbTime() <= (Currency.MAX_ABSORB_TIME / 2)) {
                     //better looking
                     boolean entropy = runData.rng.nextBoolean();
 
@@ -49,7 +52,7 @@ public class CurrencySystem {
                 } else {
                     //quick absorb!
                     //time to get absorbed
-                    float t = Math.max((Currency.MAX_ABSORB_TIME * 2) - c.getAbsorbTime(), 0);
+                    float t = Math.max(Currency.MAX_ABSORB_TIME - c.getAbsorbTime(), 0);
                     c.setVelocityX(dx / t);
                     c.setVelocityY(dy / t);
                 }
@@ -60,7 +63,6 @@ public class CurrencySystem {
         }
 
         //check if overlapping currency
-        // TODO - test using just sparkHeadX and sparkHeadY instead
         Rectangle sparkHead = new Rectangle(playerData.x + ((float) playerData.playerWidth / 4),
             playerData.y + playerData.playerHeight - 10, (float) playerData.playerWidth / 2, 10);
         List<Currency> toRemove = new ArrayList<>();
@@ -87,18 +89,13 @@ public class CurrencySystem {
     }
 
     public void spawnCurrency(RunData runData, int numOfCurrency, float xRef, float yRef, float width, float height){
-        //TODO - add constants in currency for this!
-        // todo - move to currency!
         for(int i = 0; i < numOfCurrency; i++){
-            float explodeXVelocity = runData.rng.nextFloat(0, 450) * Math.signum(runData.rng.nextFloat(-1, 1));
-            float explodeYVelocity = runData.rng.nextFloat(0, 450) * Math.signum(runData.rng.nextFloat(-1, 1));
+            float explodeXVelocity = runData.rng.nextFloat(0, explodeVelocityMax) * Math.signum(runData.rng.nextFloat(-1, 1));
+            float explodeYVelocity = runData.rng.nextFloat(0, explodeVelocityMax) * Math.signum(runData.rng.nextFloat(-1, 1));
+            float explodeTime = runData.rng.nextFloat(minExplodeTime, maxExplodeTime);
 
-            runData.getCurrencies().add(new Currency(xRef + width / 2,
-                yRef + height / 2,
-                false, explodeXVelocity,
-                explodeYVelocity,
-//                rng.nextFloat(300, 450),
-                runData.rng.nextFloat(0.05f, 0.15f))); // time
+            runData.getCurrencies().add(new Currency(xRef + width / 2, yRef + height / 2,false,
+                explodeXVelocity, explodeYVelocity, explodeTime));
         }
     }
 }

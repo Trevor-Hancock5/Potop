@@ -7,46 +7,53 @@ import com.hancockt.potop.state.RunData;
 public class WaterSystem {
     private float waterLevel;
     private float waterRiseSpeed;
-    private final boolean waterRise = true;
-    private static final float maxWaterRiseSpeed = 50;
 
+    public static final float defaultWaterLevelOnStart = -50f; // TUNABLE
+    private static final float maxWaterRiseSpeed = 50; // TUNABLE
+    private static final float baseWaterRiseSpeed = 8f; // TUNABLE
+    private static final float waterRiseSpeedAlwaysAtMaxAboveY = 8000f; // TUNABLE
+    private static final int waterAccelerationPixelsPerSecond = 2; // TUNABLE
+
+    private static final float dangerBoostDistance = 400f; // TUNABLE
+    private static final float maxDangerBoost = 1.25f; //TUNABLE
 
     public float getWaterLevel(){
         return waterLevel;
     }
 
     public void restart(RunData runData, PlayerData playerData){
-        waterLevel = playerData.reset(runData.getCheckpoints(), runData.getCurrentLevel());
-        waterRiseSpeed = Math.min(50f, 8f + (playerData.y / 200f)); //full speed always after ~8k height
+        waterLevel = playerData.reset(runData.getCurrentLevel());
+        float divisor = waterRiseSpeedAlwaysAtMaxAboveY / (maxWaterRiseSpeed - baseWaterRiseSpeed);
+        waterRiseSpeed = Math.min(maxWaterRiseSpeed, baseWaterRiseSpeed + (playerData.y / divisor));
     }
 
     public float calculateDangerBoost(PlayerData playerData){
         float distanceFromWater = playerData.y - waterLevel;
-        final float dangerBoostDistance = 400f;
         float dangerBoost = Math.max(0, 1 - (distanceFromWater / dangerBoostDistance));
-        dangerBoost = 1 + (dangerBoost / 4); // from 1 to 1.25!
+        dangerBoost = 1 + dangerBoost * (maxDangerBoost - 1);
         return dangerBoost;
     }
 
     public void updateWater(RunData runData, float delta){
         //rising water
-        if(waterRise) {
-            if(runData.getCurrentLevel() == LevelType.INFINITE) {
-                if(waterRiseSpeed <= maxWaterRiseSpeed) {
-                    //TODO make constant, pixels per second!
-                    waterRiseSpeed += 2 * delta; // increase water speed by 2 pixels every second (as delta accumulates)
-                }
+        if(runData.getCurrentLevel() == LevelType.INFINITE) {
+            if(waterRiseSpeed <= maxWaterRiseSpeed) {
+                waterRiseSpeed += waterAccelerationPixelsPerSecond * delta; // increase water speed by 2 pixels every second (as delta accumulates)
             }
-            waterLevel += waterRiseSpeed * delta;
         }
+        waterLevel += waterRiseSpeed * delta;
     }
 
     public void updateCheckpointWaterLevel(RunData runData, float waterLevel){
         runData.checkpointWaterLevel = waterLevel;
     }
 
-    public void updateCheckpointWaterLevel(RunData runData){
-        updateCheckpointWaterLevel(runData, waterLevel);
+    public void updateCheckpointWaterLevel(RunData runData, boolean useDefault){
+        if(useDefault){
+            updateCheckpointWaterLevel(runData, defaultWaterLevelOnStart);
+        } else {
+            updateCheckpointWaterLevel(runData, waterLevel);
+        }
     }
 
     public void updateWaterRiseSpeed(float change){

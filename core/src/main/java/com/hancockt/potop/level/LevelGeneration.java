@@ -13,12 +13,34 @@ import java.util.*;
 
 
 public class LevelGeneration {
-    private static final int BAND_HEIGHT = 250;
-    private static final float LEVEL_WIDTH = 3000;
     private static final Map<LevelType, RunData> ALL_LEVELS = new HashMap<>();
-
     private int highestInfiniteY = 0;
     private Platform highestPlatform;
+
+    private static final int BAND_HEIGHT = 250; //TUNABLE
+    private static final float LEVEL_WIDTH = 3000; //TUNABLE
+    public static final int GENERATION_HEIGHT = 2000; //TUNABLE
+    private static final float minCheckpointHeightDistance = 1000f; //TUNABLE
+    private static final float maxCheckpointHeightDistance = 2000f; //TUNABLE
+    private static final float skipCheckpointThreshold = 0.1f; //TUNABLE
+    private static final float minFaucetHeightDistance = 500f; //TUNABLE
+    private static final float maxFaucetHeightDistance = 1000f; //TUNABLE
+    private static final float skipFaucetThreshold = 0.33f; //TUNABLE
+    private static final float faucetGapAbovePlatform = 10f; // pixels floating above platform - TUNABLE
+    private static final float minFaucetSpeedReduction = 10; //TUNABLE
+    private static final float maxFaucetSpeedReduction = 60; //TUNABLE
+    private static final float minNumPlatformsPerBand = 5; //TUNABLE
+    private static final int maxAttemptsPlacingPlatforms = 50; //TUNABLE
+    private static final int maxPrestigeCurrencyThreshold = 10_000; //TUNABLE
+    private static final int minPrestigeCurrencyThreshold = 1_000; //TUNABLE
+    private static final int chanceDecreaseThreshold = 5_000; //TUNABLE
+    private static final float prestigeCurrChanceMax = 0.0001f; // TUNABLE todo - tune this, use a test. Generate up to 10k 100 times and in 50% of runs >=1 is placed
+    private static float prestigeCurrChanceMin = 0.000001f; //TUNABLE
+    private static final float minCurrencyChanceOfPlacement = 0.05f; // only on 5% of platforms to start - TUNABLE
+    private static final float maxCurrencyChanceOfPlacement = 0.5f; //TUNABLE
+    private static final int reachableHorizontalMax = 325; //TUNABLE
+    private static final int reachableVerticalMax = 100; //TUNABLE
+
 
     public LevelGeneration(long seed, PlayerData playerData){
         ALL_LEVELS.put(LevelType.LEARNING_MODE, buildTutorialLevel());
@@ -79,7 +101,7 @@ public class LevelGeneration {
         Random rng = new Random(seed);
         //just call generate band for each band until height
         highestPlatform = new Platform(0,0,75,25);
-        for(int i = 0; i <= 2000; i += BAND_HEIGHT) {
+        for(int i = 0; i <= GENERATION_HEIGHT; i += BAND_HEIGHT) {
             highestPlatform = generateBand(platforms, checkpoints, i, highestPlatform,
                                             faucets, currencies, rng, playerData);
         }
@@ -92,7 +114,7 @@ public class LevelGeneration {
     public void addToInfiniteLevel(List<Platform> platforms, List<Checkpoint> checkpoints,
                                                List<Faucet> faucets, List<Currency> currencies, Random rng, PlayerData playerData){
         //Add another 2000 height to the infinite level
-        int maxAdditionY = highestInfiniteY + 2000;
+        int maxAdditionY = highestInfiniteY + GENERATION_HEIGHT;
         for(int i = highestInfiniteY; i < maxAdditionY; i += BAND_HEIGHT){
             highestPlatform = generateBand(platforms, checkpoints, i,
                 highestPlatform, faucets, currencies, rng, playerData);
@@ -100,13 +122,12 @@ public class LevelGeneration {
     }
 
     //todo - maybe more checkpoints when higher?
-    //TODO - rework so that it uses LevelData for lists instead of passing them as arguments!
+    //TODO - rework so that it uses LevelData for lists instead of passing them as arguments! - runData?
     private Platform generateBand(List<Platform> platforms, List<Checkpoint> checkpoints, float bandY,
                                          Platform highestPlatform, List<Faucet> faucets, List<Currency> currencies,
                                          Random rng, PlayerData playerData){
         //add checkpoint
-        float checkpointHeightDistance = rng.nextFloat(1000, 2000); //add some randomness for kicks and giggles!
-        float skipCheckpointThreshold = 0.1f;
+        float checkpointHeightDistance = rng.nextFloat(minCheckpointHeightDistance, maxCheckpointHeightDistance); //add some randomness for kicks and giggles!
         boolean checkpointAdded = false;
         if(checkpoints.isEmpty() || (bandY - checkpoints.getLast().getY() > checkpointHeightDistance && rng.nextFloat() > skipCheckpointThreshold)){
             //add a checkpoint to the highest platform since it shouldn't overlap any other platform!
@@ -121,16 +142,15 @@ public class LevelGeneration {
         }
 
         //add faucets
-        float faucetHeightDistance = rng.nextFloat(500,1000);
-        float skipFaucetThreshold = 0.33f;
+        float faucetHeightDistance = rng.nextFloat(minFaucetHeightDistance,maxFaucetHeightDistance);
         if(!checkpointAdded && (faucets.isEmpty() || (bandY - faucets.getLast().getY() > faucetHeightDistance
                 && rng.nextFloat() > skipFaucetThreshold))){
             //add a faucet to highest platform
             float platformMidpoint = highestPlatform.getX() + (float)(highestPlatform.getWidth() / 2);
             float faucetDimensions = 25; //width/height
             float faucetX = platformMidpoint - faucetDimensions / 2;
-            float faucetY = highestPlatform.getY() + highestPlatform.getHeight() + 10; //float in air
-            float speedReduction = rng.nextFloat(10, 60); //how much to slow the water_rise_speed
+            float faucetY = highestPlatform.getY() + highestPlatform.getHeight() + faucetGapAbovePlatform; //float in air
+            float speedReduction = rng.nextFloat(minFaucetSpeedReduction, maxFaucetSpeedReduction); //how much to slow the water_rise_speed
             faucets.add(new Faucet(faucetX, faucetY, faucetDimensions, faucetDimensions, speedReduction, false));
         }
 
@@ -142,6 +162,8 @@ public class LevelGeneration {
         platforms.add(leftWall);
         platforms.add(rightWall);
 
+
+        //TODO - understand this and add constants and comments
         float bandArea = LEVEL_WIDTH * BAND_HEIGHT;
         float decayMultiplier = bandY / 1000;
 
@@ -164,13 +186,12 @@ public class LevelGeneration {
         float minHeight = 10;
 
         //dynamically choose numPlatforms based on density
-        float minNumPlatforms = 5;
         float avgWidth = (maxWidth + minWidth) / 2f;
         float avgHeight = (maxHeight + minHeight) / 2f;
         float avgPlatformArea = avgWidth * avgHeight;
 
         float targetCoveredArea = bandArea * coverageRatio;
-        int numPlatforms = (int) Math.max(minNumPlatforms, targetCoveredArea / avgPlatformArea);
+        int numPlatforms = (int) Math.max(minNumPlatformsPerBand, targetCoveredArea / avgPlatformArea);
 
         //platforms
         boolean reachable = false; //reachable from previous band
@@ -228,7 +249,7 @@ public class LevelGeneration {
                 }
 
                 // until next band
-            } while ((attempts < 50) && (needsRetry || overlapsFaucet || overlapsCheckpoint || !reachable));
+            } while ((attempts < maxAttemptsPlacingPlatforms) && (needsRetry || overlapsFaucet || overlapsCheckpoint || !reachable));
 
             platforms.add(p);
             bandPlatforms.add(p);
@@ -246,12 +267,7 @@ public class LevelGeneration {
             int currencyWidth = 16;
 
             //prestige currency chance, super low chance just in case player can't reach factory threshold
-            int maxPrestigeCurrencyThreshold = 10_000;
-            int minPrestigeCurrencyThreshold = 1_000;
-            float chanceDecreaseThreshold = 5_000;
             boolean hasFactory = false; //TODO - once logic in place, get this dynamically!
-            float prestigeCurrChanceMax = 0.0001f; //todo - tune this, use a test. Generate up to 10k 100 times and in 50% of runs >=1 is placed
-            float prestigeCurrChanceMin = 0.000001f;
 
             boolean placedPrestige = false;
             if(!hasFactory && p.getY() < maxPrestigeCurrencyThreshold && p.getY() > minPrestigeCurrencyThreshold){
@@ -281,9 +297,7 @@ public class LevelGeneration {
                 //how many do I want to place on this platform
                 int numPlacements = rng.nextInt(maxPlacements + 1); //+1 b/c exclusive bound
 
-                float chanceOfPlacement = 0.05f; // only on 5% of platforms to start
-                float maxChanceOfPlacement = 0.5f;
-                float chance = Math.min(chanceOfPlacement + (bandY / maxPrestigeCurrencyThreshold), maxChanceOfPlacement);
+                float chance = Math.min(minCurrencyChanceOfPlacement + (bandY / maxPrestigeCurrencyThreshold), maxCurrencyChanceOfPlacement);
                 if(numPlacements > 0 && rng.nextFloat() <= chance){
                     //which side do I place from
                     boolean placeFromLeft = rng.nextBoolean();
@@ -328,30 +342,27 @@ public class LevelGeneration {
 
         boolean faucetOverlap = faucets.stream()
             .anyMatch(f ->
-                new Rectangle(f.getX(), f.getY() - 10, f.getWidth(), f.getHeight() + 10).overlaps(currencyRectangle));
-        // -10/+10 because the faucet floats 10 pixels above platform!
+                new Rectangle(f.getX(), f.getY() - faucetGapAbovePlatform, f.getWidth(), f.getHeight() + faucetGapAbovePlatform).overlaps(currencyRectangle));
 
         return !platformOverlap && !checkpointOverlap && !faucetOverlap;
     }
 
     private static boolean checkReachability(Platform currPlatform, Platform highestPlatform){
         //check horizontal
-        int horizontalMax = 325;
         if(currPlatform.getX() > highestPlatform.getX()){
             //check if right side of highest platform is within reach of left side of current platform
-            if(currPlatform.getX() - (highestPlatform.getX() + highestPlatform.getWidth()) > horizontalMax){
+            if(currPlatform.getX() - (highestPlatform.getX() + highestPlatform.getWidth()) > reachableHorizontalMax){
                 return false;
             }
         } else{
             //check if right side of curr platform is within reach of left side of highest platform
-            if(highestPlatform.getX() - (currPlatform.getX() + currPlatform.getWidth()) > horizontalMax){
+            if(highestPlatform.getX() - (currPlatform.getX() + currPlatform.getWidth()) > reachableHorizontalMax){
                 return false;
             }
         }
 
         //check vertical
-        int verticalMax = 100;
-        return Math.abs((currPlatform.getY() + currPlatform.getHeight()) - (highestPlatform.getY() + highestPlatform.getHeight())) <= verticalMax;
+        return Math.abs((currPlatform.getY() + currPlatform.getHeight()) - (highestPlatform.getY() + highestPlatform.getHeight())) <= reachableVerticalMax;
 
         //none failed, reachable!
     }

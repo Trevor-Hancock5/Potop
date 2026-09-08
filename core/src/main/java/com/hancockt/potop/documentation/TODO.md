@@ -21,13 +21,8 @@ test:
   - Make a single change/refactor, ensure it still works, and commit. then repeat!
 
 Refactor order:  
-4. Check code style is met
-
-    - ensure codeStyle.md is met!
-    - Tunable values labeled //TUNABLE?
-    - Go back through errors and imports!
-    - Go through TODOs!
-
+1. Check code style is met
+2. Fix the paramter drilling/deep coupling/dependency!
 
 - nerf faucets?
 - water level needs resetting when go from tutorial, pause, menu, then infinite mode!

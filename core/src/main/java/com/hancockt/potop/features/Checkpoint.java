@@ -7,8 +7,8 @@ public class Checkpoint {
     private final float height;
     private boolean activated;
     private final int order;
-    private static final float defaultWidth = 40f;
-    private static final float defaultHeight = 100f;
+    private static final float defaultWidth = 40f; //TUNABLE
+    private static final float defaultHeight = 100f; //TUNABLE
 
     public Checkpoint(float x, float y, float width, float height, boolean activated, int order){
         this.x = x;

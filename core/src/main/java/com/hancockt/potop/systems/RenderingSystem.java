@@ -31,7 +31,15 @@ public class RenderingSystem {
     private final SpriteBatch batch;
     private final BitmapFont font;
     private final GlyphLayout layout;
-    private final Color water = new Color(17/255f, 132/255f, 214/255f, .65f);
+    private static final Color water = new Color(17/255f, 132/255f, 214/255f, .65f); // TUNABLE
+    private static final float potopLogoYOffset = 100f; // TUNABLE
+    private static final float logoW = 500; // TUNABLE
+    private static final float logoH = 250; // TUNABLE
+    private static final float faucetGray = 0.5f; // TUNABLE
+    private static final String DEATH_TEXT = "lol"; // TUNABLE
+    private static final float DEATH_TEXT_BOB_PERIOD = 300f; // TUNABLE
+    private static final float DEATH_TEXT_BOB_AMOUNT = 2.5f; // TUNABLE
+    private static final float DEATH_TEXT_WATER_OFFSET = 10f; // TUNABLE
 
     public RenderingSystem(){
         shapeRenderer = new ShapeRenderer();
@@ -45,11 +53,9 @@ public class RenderingSystem {
         batch.begin();
 
         // logo centered
-        float logoW = 500;
-        float logoH = 250;
         batch.draw(gameAssets.logo,
             (CameraSystem.VIEWPORT_WIDTH - logoW) / 2f,
-            (CameraSystem.VIEWPORT_HEIGHT- logoH) / 2f + 100f,
+            (CameraSystem.VIEWPORT_HEIGHT- logoH) / 2f + potopLogoYOffset,
             logoW, logoH);
 
         // existing text below
@@ -146,12 +152,10 @@ public class RenderingSystem {
 
             //Tint based on state for regular faucets
             if(!f.isWinFaucet() && f.getProgress() > 0){
-                float ratio = f.getProgress() / faucetSystem.getFaucetInteractionTime(); //TODO
-                float gray = 0.5f; //TODO - owned by faucet, color distortion - nope rendering
-
-                float r = 1 - ratio * (1 - gray);
-                float g = 1 - ratio * (1 - gray);
-                float b = 1 - ratio * (1 - gray);
+                float ratio = f.getProgress() / faucetSystem.getFaucetInteractionTime();
+                float r = 1 - ratio * (1 - faucetGray);
+                float g = 1 - ratio * (1 - faucetGray);
+                float b = 1 - ratio * (1 - faucetGray);
 
                 batch.setColor(r,g,b,1f);
             }
@@ -184,12 +188,12 @@ public class RenderingSystem {
     }
 
     public void drawDeathText(OrthographicCamera camera, List<Float> deathXValues, WaterSystem waterSystem) {
-        float bob = (float) Math.sin(TimeUtils.millis() / 300.0) * 2.5f;
+        float bob = (float) Math.sin(TimeUtils.millis() / DEATH_TEXT_BOB_PERIOD) * DEATH_TEXT_BOB_AMOUNT;
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
 
         for(Float f : deathXValues) {
-            font.draw(batch, "lol", f, waterSystem.getWaterLevel() + 10 + bob);
+            font.draw(batch, DEATH_TEXT, f, waterSystem.getWaterLevel() + DEATH_TEXT_WATER_OFFSET + bob);
         }
         batch.end();
     }
