@@ -21,9 +21,9 @@ public class RunData {
     public Checkpoint currCheckpoint; //current checkpoint player has made it to
     public float checkpointWaterLevel; //water level when user hit current checkpoint
     protected static final float checkpointMinWaterBuffer = 200f;
-    public float time = 0f;
-    public float timeAtDeath = 0f;
-    public static List<Float> deathXValues = new ArrayList<>();
+    public float time;
+    public float timeAtDeath;
+    public List<Float> deathXValues;
 
     private List<Checkpoint> checkpoints;
     private final List<Faucet> faucets;
@@ -49,6 +49,9 @@ public class RunData {
         runMatches = 0;
         this.currentLevel = currLevel;
         this.nextLevel = nextLevel;
+        time = 0f;
+        timeAtDeath = 0f;
+        deathXValues = new ArrayList<>();
     }
 
     public List<Checkpoint> getCheckpoints() {

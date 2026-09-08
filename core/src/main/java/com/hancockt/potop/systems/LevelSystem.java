@@ -30,7 +30,7 @@ public class LevelSystem {
         RunData tempRunData = null;
         if (runData.getCurrentLevel() == LevelType.INFINITE) {
             WaterSystem.updateCheckpointWaterLevel(runData, -50f);
-            RunData.deathXValues = new ArrayList<>(); //reset
+            runData.deathXValues = new ArrayList<>(); //reset
             LevelGeneration.regenerateInfinite();
             tempRunData = loadLevel(LevelType.INFINITE); //regenerate!
         }
@@ -49,4 +49,12 @@ public class LevelSystem {
         }
     }
 
+    public void updateInfinite(RunData runData){
+        if(runData.getCurrentLevel() == LevelType.INFINITE) {
+            // Todo - 2000? why and where, define constant! 2000 is sprinkled in many areas!
+            if (PlayerData.y > LevelGeneration.getHighestYInInfinite() - 2000) {
+                LevelGeneration.addToInfiniteLevel(runData.getPlatforms(), runData.getCheckpoints(), runData.getFaucets(), runData.getCurrencies());
+            }
+        }
+    }
 }

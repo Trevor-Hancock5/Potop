@@ -36,7 +36,8 @@ public class PhysicsEngine {
     private static final float collisionPlayerHeightDivisor = 10f; //What amount of player height needs to be above a platform to land on top
 
     /// Returns state of Spark (player) for animating
-    public static AnimationKey updatePhysics(float delta, RunData runData, CameraSystem cameraSystem){
+    public static AnimationKey updatePhysics(float delta, RunData runData, CameraSystem cameraSystem,
+                                             LevelSystem levelSystem){
         //initialize animationKey variable to return - default to idle
         AnimationKey currAnimation = AnimationKey.IDLE;
 
@@ -317,7 +318,7 @@ public class PhysicsEngine {
         //Only dead if head hits water (because flame Afro!), so top 15 pixels of player rect
         if(waterRect.overlaps(playerRectFinal) && WaterSystem.getWaterLevel() >= sparkHeadY){
             if(!PlayerData.isDead){
-                RunData.deathXValues.add(PlayerData.x);
+                runData.deathXValues.add(PlayerData.x);
             }
             PlayerData.isDead = true;
             GameFlow.GAME_STATE = GameState.DEATH; //TODO - just use game state instead of isDead and other booleans?
@@ -341,12 +342,7 @@ public class PhysicsEngine {
         runData.time += delta;
 
         //update infinite level if needed
-        if(runData.getCurrentLevel() == LevelType.INFINITE) {
-            // Todo - 2000? why and where, define constant! 2000 is sprinkled in many areas!
-            if (PlayerData.y > LevelGeneration.getHighestYInInfinite() - 2000) {
-                LevelGeneration.addToInfiniteLevel(runData.getPlatforms(), runData.getCheckpoints(), runData.getFaucets(), runData.getCurrencies());
-            }
-        }
+        levelSystem.updateInfinite(runData);
 
         //update animation from least to most important (to choose which animation is shown - default is idle!)
         //todo -define constant

@@ -37,7 +37,7 @@ public class GameFlow {
                 gameAssets.sparkAnimator.play(AnimationKey.DEATH);
                 renderingSystem.drawShapes(runData, gameAssets, cameraSystem.getCamera());
                 renderingSystem.drawHUD(runData, cameraSystem.getHudCam(), runData.time);
-                renderingSystem.drawDeathText(cameraSystem.getCamera(), RunData.deathXValues);
+                renderingSystem.drawDeathText(cameraSystem.getCamera(), runData.deathXValues);
                 renderingSystem.drawDeathOverlay(cameraSystem.getHudCam());
                 tempRunData = handleDeathInput(runData, levelSystem);
                 break;
@@ -53,12 +53,13 @@ public class GameFlow {
                 gameAssets.sparkAnimator.update(delta);
 
                 if(!PlayerData.isDead){
-                    AnimationKey sparkAnimationState = PhysicsEngine.updatePhysics(delta, runData, cameraSystem);
+                    AnimationKey sparkAnimationState = PhysicsEngine.updatePhysics(delta, runData, cameraSystem,
+                                                    levelSystem);
                     gameAssets.sparkAnimator.play(sparkAnimationState);
                 }
 
-                if(PlayerData.isDead || !RunData.deathXValues.isEmpty()){
-                    renderingSystem.drawDeathText(cameraSystem.getCamera(), RunData.deathXValues);
+                if(PlayerData.isDead || !runData.deathXValues.isEmpty()){
+                    renderingSystem.drawDeathText(cameraSystem.getCamera(), runData.deathXValues);
                 }
 
                 if(Gdx.input.isKeyJustPressed(Input.Keys.R)){
