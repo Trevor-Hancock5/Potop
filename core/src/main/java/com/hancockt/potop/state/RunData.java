@@ -7,7 +7,9 @@ import com.hancockt.potop.features.Faucet;
 import com.hancockt.potop.features.Platform;
 import com.hancockt.potop.level.LevelType;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.logging.Level;
 
 public class RunData {
@@ -27,6 +29,10 @@ public class RunData {
     private LevelType currentLevel;
     private final LevelType nextLevel;
 
+    // Random
+    public static final long seed = System.currentTimeMillis();;
+    public static final Random rng = new Random(seed);
+
     public RunData(List<Checkpoint> checkpoints, List<Platform> platforms, Vector2 startPoint,
                      List<Faucet> faucets, List<Currency> currencies, LevelType currLevel, LevelType nextLevel) {
         currCheckpoint = null;
@@ -42,7 +48,8 @@ public class RunData {
     }
 
     public List<Checkpoint> getCheckpoints() {
-        return checkpoints;
+
+        return checkpoints == null ? new ArrayList<>() : checkpoints;
     }
 
     public List<Faucet> getFaucets() {

@@ -1,14 +1,13 @@
 package com.hancockt.potop.systems;
 
 import com.hancockt.potop.level.LevelType;
-import com.hancockt.potop.main.GameScreen;
 import com.hancockt.potop.state.PlayerData;
 import com.hancockt.potop.state.RunData;
 
 public class WaterSystem {
     private static float waterLevel;
     private static float waterRiseSpeed;
-    private static boolean waterRise = true;
+    private static final boolean waterRise = true;
     private static final float maxWaterRiseSpeed = 50;
 
 

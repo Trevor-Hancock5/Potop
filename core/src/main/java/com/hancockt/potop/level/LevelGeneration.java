@@ -12,15 +12,11 @@ import com.hancockt.potop.state.RunData;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.HashMap;
-import java.util.logging.Level;
 
 
-public class LevelLibrary {
+public class LevelGeneration {
     private static final Map<LevelType, RunData> ALL_LEVELS = new HashMap<>();
-    private static Random rng;
-    private static long seed;
     private static int highestInfiniteY = 0;
     private static final int BAND_HEIGHT = 250;
     private static Platform highestPlatform;
@@ -78,9 +74,6 @@ public class LevelLibrary {
 
     private static RunData buildInfiniteLevel(){
         //use seeds for reproducibility in infinite mode and leaderboard
-        seed = System.currentTimeMillis();
-        rng = new Random(seed);
-
         List<Checkpoint> checkpoints = new ArrayList<>();
         List<Platform> platforms = new ArrayList<>();
         List<Faucet> faucets = new ArrayList<>();
@@ -113,10 +106,10 @@ public class LevelLibrary {
     private static Platform generateBand(List<Platform> platforms, List<Checkpoint> checkpoints, float bandY,
                                          Platform highestPlatform, List<Faucet> faucets, List<Currency> currencies){
         //add checkpoint
-        float checkpointHeightDistance = rng.nextFloat(1000, 2000); //add some randomness for kicks and giggles!
+        float checkpointHeightDistance = RunData.rng.nextFloat(1000, 2000); //add some randomness for kicks and giggles!
         float skipCheckpointThreshold = 0.1f;
         boolean checkpointAdded = false;
-        if(checkpoints.isEmpty() || (bandY - checkpoints.getLast().getY() > checkpointHeightDistance && rng.nextFloat() > skipCheckpointThreshold)){
+        if(checkpoints.isEmpty() || (bandY - checkpoints.getLast().getY() > checkpointHeightDistance && RunData.rng.nextFloat() > skipCheckpointThreshold)){
             //add a checkpoint to the highest platform since it shouldn't overlap any other platform!
             checkpointAdded = true;
             float platformMidpoint = highestPlatform.getX() + (float)(highestPlatform.getWidth() / 2);
@@ -129,16 +122,16 @@ public class LevelLibrary {
         }
 
         //add faucets
-        float faucetHeightDistance = rng.nextFloat(500,1000);
+        float faucetHeightDistance = RunData.rng.nextFloat(500,1000);
         float skipFaucetThreshold = 0.33f;
         if(!checkpointAdded && (faucets.isEmpty() || (bandY - faucets.getLast().getY() > faucetHeightDistance
-                && rng.nextFloat() > skipFaucetThreshold))){
+                && RunData.rng.nextFloat() > skipFaucetThreshold))){
             //add a faucet to highest platform
             float platformMidpoint = highestPlatform.getX() + (float)(highestPlatform.getWidth() / 2);
             float faucetDimensions = 25; //width/height
             float faucetX = platformMidpoint - faucetDimensions / 2;
             float faucetY = highestPlatform.getY() + highestPlatform.getHeight() + 10; //float in air
-            float speedReduction = rng.nextFloat(10, 60); //how much to slow the water_rise_speed
+            float speedReduction = RunData.rng.nextFloat(10, 60); //how much to slow the water_rise_speed
             faucets.add(new Faucet(faucetX, faucetY, faucetDimensions, faucetDimensions, speedReduction, false));
         }
 
@@ -195,10 +188,10 @@ public class LevelLibrary {
             do {
                 needsRetry = false;
                 attempts++;
-                float width = rng.nextFloat(minWidth, maxWidth); //20 and max width!
-                float height = rng.nextFloat(minHeight, maxHeight); // 10 and max height!
-                float xVal = rng.nextFloat(LEVEL_WIDTH - width); //btwn 0 and (LEVEL_WIDTH - width)
-                float yVal = rng.nextFloat(bandY, Math.max(bandY, bandY + BAND_HEIGHT - height)); //btwn bandY and
+                float width = RunData.rng.nextFloat(minWidth, maxWidth); //20 and max width!
+                float height = RunData.rng.nextFloat(minHeight, maxHeight); // 10 and max height!
+                float xVal = RunData.rng.nextFloat(LEVEL_WIDTH - width); //btwn 0 and (LEVEL_WIDTH - width)
+                float yVal = RunData.rng.nextFloat(bandY, Math.max(bandY, bandY + BAND_HEIGHT - height)); //btwn bandY and
                 // (bandY + BAND_HEIGHT - height)
 
                 p = new Platform(xVal, yVal, width, height);
@@ -268,12 +261,12 @@ public class LevelLibrary {
                 //have the chance to still unlock the factory
 
                 float chance = p.getY() < chanceDecreaseThreshold ? prestigeCurrChanceMax : prestigeCurrChanceMin;
-                if(rng.nextFloat() < chance){
+                if(RunData.rng.nextFloat() < chance){
                     placedPrestige = true;
                 }
 
                 if(placedPrestige){
-                    int placementX = rng.nextInt(p.getX(), p.getX() + p.getWidth() - currencyWidth);
+                    int placementX = RunData.rng.nextInt(p.getX(), p.getX() + p.getWidth() - currencyWidth);
                     Currency curr = new Currency(placementX, p.getY() + p.getHeight(), true);
                     if(checkNoCurrencyOverlap(curr, platforms, checkpoints, faucets)) {
                         currencies.add(curr);
@@ -287,14 +280,14 @@ public class LevelLibrary {
                 int maxPlacements = Math.max(p.getWidth() / currencyWidth, 1); //at least 1 possible place on each platform
 
                 //how many do I want to place on this platform
-                int numPlacements = rng.nextInt(maxPlacements + 1); //+1 b/c exclusive bound
+                int numPlacements = RunData.rng.nextInt(maxPlacements + 1); //+1 b/c exclusive bound
 
                 float chanceOfPlacement = 0.05f; // only on 5% of platforms to start
                 float maxChanceOfPlacement = 0.5f;
                 float chance = Math.min(chanceOfPlacement + (bandY / maxPrestigeCurrencyThreshold), maxChanceOfPlacement);
-                if(numPlacements > 0 && rng.nextFloat() <= chance){
+                if(numPlacements > 0 && RunData.rng.nextFloat() <= chance){
                     //which side do I place from
-                    boolean placeFromLeft = rng.nextBoolean();
+                    boolean placeFromLeft = RunData.rng.nextBoolean();
                     Currency curr;
                     if(placeFromLeft){
                         for(int i = 0; i < numPlacements; i++){
@@ -387,13 +380,5 @@ public class LevelLibrary {
 
     public static void regenerateInfinite(){
         ALL_LEVELS.put(LevelType.INFINITE, buildInfiniteLevel());
-    }
-
-    public static Random getRng(){
-        return rng;
-    }
-
-    public static long getSeed(){
-        return seed;
     }
 }

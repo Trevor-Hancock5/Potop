@@ -4,21 +4,21 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Rectangle;
 import com.hancockt.potop.assets.AnimationKey;
-import com.hancockt.potop.features.Checkpoint;
 import com.hancockt.potop.features.Currency;
 import com.hancockt.potop.features.Faucet;
 import com.hancockt.potop.features.Platform;
-import com.hancockt.potop.level.LevelLibrary;
+import com.hancockt.potop.level.LevelGeneration;
 import com.hancockt.potop.level.LevelType;
 import com.hancockt.potop.state.GameState;
 import com.hancockt.potop.state.PersistentData;
 import com.hancockt.potop.state.PlayerData;
 import com.hancockt.potop.state.RunData;
+import com.hancockt.potop.systems.CheckpointSystem;
+import com.hancockt.potop.systems.CurrencySystem;
 import com.hancockt.potop.systems.WaterSystem;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class PhysicsEngine {
     private static final int accelerationX = 1600;
@@ -45,7 +45,6 @@ public class PhysicsEngine {
     private static final float faucetRange = 30f; //how close to faucet to interact
     private static final float faucetRotationSpeed = 240f; //degrees per second it spins
     public static final float faucetInteractionTime = 1.5f; //seconds TODO, owned by faucet!
-    private static final Random rng = LevelLibrary.getRng();
 
     /// Returns state of Spark (player) for animating
     public static AnimationKey updatePhysics(float delta, RunData runData){
@@ -311,36 +310,9 @@ public class PhysicsEngine {
 
         WaterSystem.updateWater(runData, delta);
 
-        //Checkpoints
         Rectangle playerRectFinal = new Rectangle(PlayerData.x, PlayerData.y, PlayerData.playerWidth, PlayerData.playerHeight);
-        for(Checkpoint c : runData.getCheckpoints()){
-            Rectangle checkpoint = new Rectangle(c.getX(), c.getY(), c.getWidth(), c.getHeight());
-            if(!c.isActivated() && checkpoint.overlaps(playerRectFinal)){
-                c.setActivated(true);
-                if(runData.currCheckpoint != null) {
-                    if(runData.getCurrentLevel() == LevelType.INFINITE){
-                        if (c.getY() > runData.currCheckpoint.getY()){
-                            runData.currCheckpoint = c;
-                            WaterSystem.updateCheckpointWaterLevel(runData);
-                            GameScreen.timeAtDeath = GameScreen.time;
+        CheckpointSystem.update(runData, playerRectFinal);
 
-                            // todo checkpoint currency amount! (make somewhat random? - define in checkpoint)
-                            spawnCurrency(runData, 25, c.getX(), c.getY(), c.getWidth(), c.getHeight());
-                        }
-                    } else {
-                        if (c.getOrder() > runData.currCheckpoint.getOrder()) {
-                            runData.currCheckpoint = c;
-                            WaterSystem.updateCheckpointWaterLevel(runData);
-                            GameScreen.timeAtDeath = GameScreen.time;
-                        }
-                    }
-                } else{
-                    runData.currCheckpoint = c;
-                    WaterSystem.updateCheckpointWaterLevel(runData);
-                    GameScreen.timeAtDeath = GameScreen.time;
-                }
-            }
-        }
 
         //Faucets
         Faucet nearFaucet = null;
@@ -369,7 +341,7 @@ public class PhysicsEngine {
                 }
 
                 // todo faucet currency amount! (make somewhat random? - define in faucet)
-                spawnCurrency(runData, 15, nearFaucet.getX(), nearFaucet.getY(), nearFaucet.getWidth(), nearFaucet.getHeight());
+                CurrencySystem.spawnCurrency(runData, 15, nearFaucet.getX(), nearFaucet.getY(), nearFaucet.getWidth(), nearFaucet.getHeight());
             }
         } else if(nearFaucet != null){
             //not holding down, start spinning back
@@ -405,11 +377,11 @@ public class PhysicsEngine {
 
                 if(c.getAbsorbTime() <= Currency.MAX_ABSORB_TIME) {
                     //better looking
-                    boolean entropy = rng.nextBoolean();
+                    boolean entropy = RunData.rng.nextBoolean();
 
                     if (entropy) {
-                        directionX *= rng.nextFloat(1, 2);
-                        directionY *= rng.nextFloat(1, 2);
+                        directionX *= RunData.rng.nextFloat(1, 2);
+                        directionY *= RunData.rng.nextFloat(1, 2);
                     }
                     c.changeVelocityX(directionX * Currency.ABSORB_ACCELERATION * delta);
                     c.changeVelocityY(directionY * Currency.ABSORB_ACCELERATION * delta);
@@ -492,8 +464,8 @@ public class PhysicsEngine {
         //update infinite level if needed
         if(runData.getCurrentLevel() == LevelType.INFINITE) {
             // Todo - 2000? why and where, define constant! 2000 is sprinkled in many areas!
-            if (PlayerData.y > LevelLibrary.getHighestYInInfinite() - 2000) {
-                LevelLibrary.addToInfiniteLevel(runData.getPlatforms(), runData.getCheckpoints(), runData.getFaucets(), runData.getCurrencies());
+            if (PlayerData.y > LevelGeneration.getHighestYInInfinite() - 2000) {
+                LevelGeneration.addToInfiniteLevel(runData.getPlatforms(), runData.getCheckpoints(), runData.getFaucets(), runData.getCurrencies());
             }
         }
 
@@ -520,19 +492,5 @@ public class PhysicsEngine {
         return currAnimation;
     }
 
-    private static void spawnCurrency(RunData runData, int numOfCurrency, float xRef, float yRef, float width, float height){
-        //TODO - add constants in currency for this!
-        // todo - move to currency!
-        for(int i = 0; i < numOfCurrency; i++){
-            float explodeXVelocity = rng.nextFloat(0, 450) * Math.signum(rng.nextFloat(-1, 1));
-            float explodeYVelocity = rng.nextFloat(0, 450) * Math.signum(rng.nextFloat(-1, 1));
 
-            runData.getCurrencies().add(new Currency(xRef + width / 2,
-                yRef + height / 2,
-                false, explodeXVelocity,
-                explodeYVelocity,
-//                rng.nextFloat(300, 450),
-                rng.nextFloat(0.05f, 0.15f))); // time
-        }
-    }
 }

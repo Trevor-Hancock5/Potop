@@ -18,12 +18,13 @@ import com.hancockt.potop.features.Checkpoint;
 import com.hancockt.potop.features.Currency;
 import com.hancockt.potop.features.Faucet;
 import com.hancockt.potop.features.Platform;
-import com.hancockt.potop.level.LevelLibrary;
+import com.hancockt.potop.level.LevelGeneration;
 import com.hancockt.potop.level.LevelType;
 import com.hancockt.potop.state.GameState;
 import com.hancockt.potop.state.PersistentData;
 import com.hancockt.potop.state.PlayerData;
 import com.hancockt.potop.state.RunData;
+import com.hancockt.potop.systems.CheckpointSystem;
 import com.hancockt.potop.systems.WaterSystem;
 
 import java.util.ArrayList;
@@ -277,7 +278,7 @@ public class GameScreen implements Screen {
 
                 if (Gdx.input.isKeyPressed(Input.Keys.L)) {
                     font.getData().setScale(2);
-                    font.draw(batch, "Seed: " + LevelLibrary.getSeed(), viewportWidth / 2, viewportHeight / 2);
+                    font.draw(batch, "Seed: " + RunData.seed, viewportWidth / 2, viewportHeight / 2);
                 }
 
                 font.getData().setScale(1.25f);
@@ -457,7 +458,7 @@ public class GameScreen implements Screen {
     }
 
     private void loadLevel(LevelType levelType) {
-        runData = LevelLibrary.getAllLevels().get(levelType);
+        runData = LevelGeneration.getAllLevels().get(levelType);
         PlayerData.x = runData.getStartPoint().x;
         PlayerData.y = runData.getStartPoint().y;
     }
@@ -572,16 +573,15 @@ public class GameScreen implements Screen {
         if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER)){
             time = 0f;
             timeAtDeath = 0f;
-            RunData data = LevelLibrary.getAllLevels().get(runData.getCurrentLevel());
+            RunData data = LevelGeneration.getAllLevels().get(runData.getCurrentLevel());
             LevelType next = data.getNextLevel();
             if(next != null){
                 if(runData.getCurrentLevel() == LevelType.LEARNING_MODE){
                     PersistentData.learningModeBeat = true;
                 }
                 WaterSystem.updateCheckpointWaterLevel(runData, -50f);
-                runData.currCheckpoint = null;
-                runData.setCheckpoints(null);
-                RunData nextLevel = LevelLibrary.getAllLevels().get(next);
+                CheckpointSystem.reset(runData);
+                RunData nextLevel = LevelGeneration.getAllLevels().get(next);
                 PlayerData.x = nextLevel.getStartPoint().x;
                 PlayerData.y = nextLevel.getStartPoint().y;
                 runData.setCurrentLevel(next);
@@ -603,12 +603,12 @@ public class GameScreen implements Screen {
         if (runData.getCurrentLevel() == LevelType.INFINITE) {
             WaterSystem.updateCheckpointWaterLevel(runData, -50f);
             deathXValues = new ArrayList<>(); //reset
-            LevelLibrary.regenerateInfinite();
+            LevelGeneration.regenerateInfinite();
             loadLevel(LevelType.INFINITE); //regenerate!
         }
         timeAtDeath = 0f;
         time = 0f;
-        runData.currCheckpoint = null;
+        CheckpointSystem.reset(runData);
         restart();
     }
 

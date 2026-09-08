@@ -24,16 +24,15 @@ Refactor order:
 1. Small independent systems
    - MAKE THE SYSTEMS SEPARATE FROM THE OBJECT - checkpointSystem AND checkpoint classes
    - GameScreen
-      - gameFlow
-      - CheckpointSystem
+      - currency system
       - Faucet
+      - Rendering
       - Level
       - Camera
-      - Rendering
+      - gameFlow
    - PhysicsEngine
-     - player system
-     - player collision
-     - currency system
+       - player system
+     - player collision (needed?)
 2. Improve gamescreen and physics engine, to use parameters instead of PlayerData.staticVar!
 3. Split GameScreen
 4. Check code style is met
@@ -45,6 +44,9 @@ Refactor order:
     - separate constants out for easier tuning (instead of file, place these in owner's class - player, checkpoint, etc. )
     - ensure codeStyle.md is met!
     - Go back through errors and imports!
+    - Go through TODOs!
+
+
 - Fix so that it works with different hz monitors (refresh rate! - how to emulate this and fix it? vsync?)
     - test by manually choosing delta?
     - add test: run spark for 10 seconds and record distance (could do the java tester bot, go into tutorial and run left

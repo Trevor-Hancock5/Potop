@@ -1,7 +1,7 @@
 package com.hancockt.potop.state;
 
 import com.hancockt.potop.features.Checkpoint;
-import com.hancockt.potop.level.LevelLibrary;
+import com.hancockt.potop.level.LevelGeneration;
 import com.hancockt.potop.level.LevelType;
 
 import java.util.List;
@@ -34,7 +34,7 @@ public class PlayerData {
 
     public static float reset(List<Checkpoint> checkpoints, LevelType currentLevel){
         float waterLevel;
-        RunData data = LevelLibrary.getAllLevels().get(currentLevel);
+        RunData data = LevelGeneration.getAllLevels().get(currentLevel);
 
         if(data.currCheckpoint != null){
             x = data.currCheckpoint.getX();
