@@ -10,9 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CurrencySystem {
-    private static final float currencyRange = 8f;
+    private final float currencyRange = 8f;
 
-    public static void update(RunData runData, float delta, float sparkHeadX, float sparkHeadY, Rectangle playerRect){
+    public void update(RunData runData, float delta, float sparkHeadX, float sparkHeadY, Rectangle playerRect){
         //update currency positions and explode times, once time is up, switch velocity towards spark's head
         for (Currency c : runData.getCurrencies()){
             if(c.getExplodeTime() > 0){
@@ -85,7 +85,7 @@ public class CurrencySystem {
         runData.getCurrencies().removeAll(toRemove);
     }
 
-    public static void spawnCurrency(RunData runData, int numOfCurrency, float xRef, float yRef, float width, float height){
+    public void spawnCurrency(RunData runData, int numOfCurrency, float xRef, float yRef, float width, float height){
         //TODO - add constants in currency for this!
         // todo - move to currency!
         for(int i = 0; i < numOfCurrency; i++){

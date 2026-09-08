@@ -28,7 +28,7 @@ public class CameraSystem {
         viewport = new ExtendViewport(VIEWPORT_WIDTH, VIEWPORT_HEIGHT, camera);
     }
 
-    public void updateCamera(float delta) {
+    public void updateCamera(float delta, WaterSystem waterSystem) {
         final float lowestCameraY = 240f;
 
         float deadzone = camera.viewportWidth / cameraDeadZoneDivisor;
@@ -44,7 +44,7 @@ public class CameraSystem {
         }
 
         float vertLookAhead = PlayerData.velocityY * 0.1f;
-        float targetY = PlayerData.isDead ? Math.max(WaterSystem.getWaterLevel(), lowestCameraY) : Math.max(PlayerData.y+25+vertLookAhead, lowestCameraY);
+        float targetY = PlayerData.isDead ? Math.max(waterSystem.getWaterLevel(), lowestCameraY) : Math.max(PlayerData.y+25+vertLookAhead, lowestCameraY);
 
         camera.position.x += (targetX - camera.position.x) * cameraLerpSpeed;
         camera.position.y += (targetY - camera.position.y) * (cameraLerpSpeed / 3);

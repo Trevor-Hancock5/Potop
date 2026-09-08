@@ -93,9 +93,10 @@ public class RenderingSystem {
         batch.end();
     }
 
-    public void drawShapes(RunData runData, GameAssets gameAssets, OrthographicCamera camera){
+    public void drawShapes(RunData runData, GameAssets gameAssets, OrthographicCamera camera, WaterSystem waterSystem,
+                           FaucetSystem faucetSystem){
         //Draw sprites first
-        drawSprites(runData, gameAssets, camera);
+        drawSprites(runData, gameAssets, camera, faucetSystem);
 
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
@@ -107,12 +108,12 @@ public class RenderingSystem {
         shapeRenderer.setColor(water);
 
         float camLeft = camera.position.x - CameraSystem.VIEWPORT_WIDTH / 2;
-        shapeRenderer.rect(camLeft, 0, CameraSystem.VIEWPORT_WIDTH, WaterSystem.getWaterLevel());
+        shapeRenderer.rect(camLeft, 0, CameraSystem.VIEWPORT_WIDTH, waterSystem.getWaterLevel());
 
         shapeRenderer.end();
     }
 
-    public void drawSprites(RunData runData, GameAssets gameAssets, OrthographicCamera camera){
+    public void drawSprites(RunData runData, GameAssets gameAssets, OrthographicCamera camera, FaucetSystem faucetSystem){
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
 
@@ -145,7 +146,7 @@ public class RenderingSystem {
 
             //Tint based on state for regular faucets
             if(!f.isWinFaucet() && f.getProgress() > 0){
-                float ratio = f.getProgress() / FaucetSystem.getFaucetInteractionTime(); //TODO
+                float ratio = f.getProgress() / faucetSystem.getFaucetInteractionTime(); //TODO
                 float gray = 0.5f; //TODO - owned by faucet, color distortion - nope rendering
 
                 float r = 1 - ratio * (1 - gray);
@@ -182,13 +183,13 @@ public class RenderingSystem {
         batch.end();
     }
 
-    public void drawDeathText(OrthographicCamera camera, List<Float> deathXValues) {
+    public void drawDeathText(OrthographicCamera camera, List<Float> deathXValues, WaterSystem waterSystem) {
         float bob = (float) Math.sin(TimeUtils.millis() / 300.0) * 2.5f;
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
 
         for(Float f : deathXValues) {
-            font.draw(batch, "lol", f, WaterSystem.getWaterLevel() + 10 + bob);
+            font.draw(batch, "lol", f, waterSystem.getWaterLevel() + 10 + bob);
         }
         batch.end();
     }

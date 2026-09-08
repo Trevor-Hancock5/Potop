@@ -4,6 +4,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Rectangle;
 import com.hancockt.potop.assets.AnimationKey;
+import com.hancockt.potop.features.Checkpoint;
+import com.hancockt.potop.features.Faucet;
 import com.hancockt.potop.features.Platform;
 import com.hancockt.potop.level.LevelGeneration;
 import com.hancockt.potop.level.LevelType;
@@ -36,8 +38,11 @@ public class PhysicsEngine {
     private static final float collisionPlayerHeightDivisor = 10f; //What amount of player height needs to be above a platform to land on top
 
     /// Returns state of Spark (player) for animating
+    // TODO - remove all system classes and gameflow calls out of here, this should be JUST physics
     public static AnimationKey updatePhysics(float delta, RunData runData, CameraSystem cameraSystem,
-                                             LevelSystem levelSystem){
+                                             LevelSystem levelSystem, WaterSystem waterSystem,
+                                             FaucetSystem faucetSystem, CurrencySystem currencySystem,
+                                             CheckpointSystem checkpointSystem){
         //initialize animationKey variable to return - default to idle
         AnimationKey currAnimation = AnimationKey.IDLE;
 
@@ -257,7 +262,7 @@ public class PhysicsEngine {
             PlayerData.coyoteSeconds = 0;
         }
 
-        float dangerBoost = WaterSystem.calculateDangerBoost();
+        float dangerBoost = waterSystem.calculateDangerBoost();
 
         //horizontal movement
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)){
@@ -298,31 +303,31 @@ public class PhysicsEngine {
             PlayerData.velocityX *= 1f + (speedRatio * 0.5f); // max of 1.5
         }
 
-        WaterSystem.updateWater(runData, delta);
+        waterSystem.updateWater(runData, delta);
 
         Rectangle playerRectFinal = new Rectangle(PlayerData.x, PlayerData.y, PlayerData.playerWidth, PlayerData.playerHeight);
-        CheckpointSystem.update(runData, playerRectFinal);
+        checkpointSystem.update(runData, playerRectFinal, waterSystem, currencySystem);
 
         // Define spark's head for future operations
         float sparkHeadX = PlayerData.x + ((float) PlayerData.playerWidth / 2);
         float sparkHeadY = PlayerData.y + PlayerData.playerHeight - 15; // TODO - define as constant somewhere!
 
-        CurrencySystem.update(runData, delta, sparkHeadX, sparkHeadY, playerRectFinal);
+        currencySystem.update(runData, delta, sparkHeadX, sparkHeadY, playerRectFinal);
 
         // Update currency first before faucets in case it's a win faucet which changes to win state!
-        FaucetSystem.update(runData, delta, playerRectFinal);
+        faucetSystem.update(runData, delta, playerRectFinal, waterSystem, currencySystem);
 
         //death check
-        Rectangle waterRect = new Rectangle(-50000, 0, 100000, WaterSystem.getWaterLevel());
+        Rectangle waterRect = new Rectangle(-50000, 0, 100000, waterSystem.getWaterLevel());
 
         //Only dead if head hits water (because flame Afro!), so top 15 pixels of player rect
-        if(waterRect.overlaps(playerRectFinal) && WaterSystem.getWaterLevel() >= sparkHeadY){
+        if(waterRect.overlaps(playerRectFinal) && waterSystem.getWaterLevel() >= sparkHeadY){
             if(!PlayerData.isDead){
                 runData.deathXValues.add(PlayerData.x);
             }
             PlayerData.isDead = true;
             GameFlow.GAME_STATE = GameState.DEATH; //TODO - just use game state instead of isDead and other booleans?
-            FaucetSystem.reset(runData);
+            faucetSystem.reset(runData);
         }
 
         // reset flags for wall slide/jump

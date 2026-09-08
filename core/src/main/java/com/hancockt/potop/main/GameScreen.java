@@ -5,6 +5,8 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.hancockt.potop.assets.AnimationKey;
 import com.hancockt.potop.assets.GameAssets;
+import com.hancockt.potop.features.Currency;
+import com.hancockt.potop.features.Faucet;
 import com.hancockt.potop.level.LevelGeneration;
 import com.hancockt.potop.level.LevelType;
 import com.hancockt.potop.state.GameState;
@@ -18,11 +20,15 @@ import java.util.ArrayList;
 /** First screen of the application. Displayed after the application is created. */
 public class GameScreen implements Screen {
     private final GameAssets gameAssets = new GameAssets();
-    private static RunData runData;
+    private RunData runData;
     RenderingSystem renderingSystem;
     CameraSystem cameraSystem;
     GameFlow gameFlow;
     LevelSystem levelSystem;
+    WaterSystem waterSystem;
+    FaucetSystem faucetSystem;
+    CurrencySystem currencySystem;
+    CheckpointSystem checkpointSystem;
 
     @Override
     public void show() {
@@ -34,9 +40,13 @@ public class GameScreen implements Screen {
         renderingSystem = new RenderingSystem();
         gameFlow = new GameFlow();
         levelSystem = new LevelSystem();
+        waterSystem = new WaterSystem();
+        faucetSystem = new FaucetSystem();
+        currencySystem = new CurrencySystem();
+        checkpointSystem = new CheckpointSystem();
 
         runData = levelSystem.loadLevel(LevelType.LEARNING_MODE);
-        levelSystem.restart(runData);
+        levelSystem.restart(runData, waterSystem, faucetSystem);
     }
 
     //REMEMBER: Everything in here is made 60 times a second!
@@ -47,7 +57,8 @@ public class GameScreen implements Screen {
             Gdx.app.exit();
         }
 
-        RunData temp = gameFlow.update(delta, runData, gameAssets, renderingSystem, cameraSystem, levelSystem);
+        RunData temp = gameFlow.update(delta, runData, gameAssets, renderingSystem, cameraSystem,
+                                    levelSystem, waterSystem, faucetSystem, currencySystem, checkpointSystem);
         if(temp != null){
             runData = temp;
         }

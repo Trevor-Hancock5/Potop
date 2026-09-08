@@ -21,14 +21,6 @@ test:
   - Make a single change/refactor, ensure it still works, and commit. then repeat!
 
 Refactor order:  
-1. Small independent systems
-   - MAKE THE SYSTEMS SEPARATE FROM THE OBJECT - checkpointSystem AND checkpoint classes
-   - GameScreen
-      - Level
-      - gameFlow
-   - PhysicsEngine
-       - player system
-     - player collision (needed?)
 1. update systems to NOT be static!
 2. Improve gamescreen and physics engine, to use parameters instead of PlayerData.staticVar!
 3. Split GameScreen
@@ -45,6 +37,8 @@ Refactor order:
     - Go through TODOs!
 
 
+- nerf faucets?
+- water level needs resetting when go from tutorial, pause, menu, then infinite mode!
 - Fix so that it works with different hz monitors (refresh rate! - how to emulate this and fix it? vsync?)
     - test by manually choosing delta?
     - add test: run spark for 10 seconds and record distance (could do the java tester bot, go into tutorial and run left

@@ -9,11 +9,11 @@ import com.hancockt.potop.state.GameState;
 import com.hancockt.potop.state.RunData;
 
 public class FaucetSystem {
-    private static final float faucetRange = 30f; //how close to faucet to interact
-    private static final float faucetRotationSpeed = 240f; //degrees per second it spins
-    private static final float faucetInteractionTime = 1.5f; //seconds TODO, owned by faucet!
+    private final float faucetRange = 30f; //how close to faucet to interact
+    private final float faucetRotationSpeed = 240f; //degrees per second it spins
+    private final float faucetInteractionTime = 1.5f; //seconds TODO, owned by faucet!
 
-    public static void reset(RunData runData){
+    public void reset(RunData runData){
         for (Faucet f : runData.getFaucets()) {
             f.setTurnedOff(false); //reset TODO - why?
             f.setRotation(0);
@@ -21,7 +21,8 @@ public class FaucetSystem {
         }
     }
 
-    public static void update (RunData runData, float delta, Rectangle playerRect){
+    public void update (RunData runData, float delta, Rectangle playerRect, WaterSystem waterSystem,
+                        CurrencySystem currencySystem){
         //Faucets
         Faucet nearFaucet = null;
         for(Faucet f : runData.getFaucets()) {
@@ -43,13 +44,13 @@ public class FaucetSystem {
             if(nearFaucet.getProgress() > faucetInteractionTime){
                 nearFaucet.setTurnedOff(true);
                 nearFaucet.setRotation(360);
-                WaterSystem.updateWaterRiseSpeed(-nearFaucet.getSpeedReduction());
+                waterSystem.updateWaterRiseSpeed(-nearFaucet.getSpeedReduction());
                 if(nearFaucet.isWinFaucet()){
                     finishedFinalFaucet = true;
                 }
 
                 // todo faucet currency amount! (make somewhat random? - define in faucet)
-                CurrencySystem.spawnCurrency(runData, 15, nearFaucet.getX(), nearFaucet.getY(), nearFaucet.getWidth(), nearFaucet.getHeight());
+                currencySystem.spawnCurrency(runData, 15, nearFaucet.getX(), nearFaucet.getY(), nearFaucet.getWidth(), nearFaucet.getHeight());
             }
         } else if(nearFaucet != null){
             //not holding down, start spinning back
@@ -67,7 +68,7 @@ public class FaucetSystem {
         }
     }
 
-    public static float getFaucetInteractionTime(){
+    public float getFaucetInteractionTime(){
         return faucetInteractionTime;
     }
 }
