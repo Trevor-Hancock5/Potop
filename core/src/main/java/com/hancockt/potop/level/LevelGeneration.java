@@ -9,10 +9,7 @@ import com.hancockt.potop.features.Platform;
 import com.hancockt.potop.state.PlayerData;
 import com.hancockt.potop.state.RunData;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.*;
 
 
 public class LevelGeneration {
@@ -25,7 +22,7 @@ public class LevelGeneration {
 
     static {
         ALL_LEVELS.put(LevelType.LEARNING_MODE, buildTutorialLevel());
-        ALL_LEVELS.put(LevelType.INFINITE, buildInfiniteLevel());
+        ALL_LEVELS.put(LevelType.INFINITE, buildInfiniteLevel(System.currentTimeMillis()));
     }
 
     public static Map<LevelType, RunData> getAllLevels(){
@@ -72,44 +69,46 @@ public class LevelGeneration {
         );
     }
 
-    private static RunData buildInfiniteLevel(){
+    private static RunData buildInfiniteLevel(long seed){
         //use seeds for reproducibility in infinite mode and leaderboard
         List<Checkpoint> checkpoints = new ArrayList<>();
         List<Platform> platforms = new ArrayList<>();
         List<Faucet> faucets = new ArrayList<>();
         List<Currency> currencies = new ArrayList<>();
 
+        Random rng = new Random(seed);
         //just call generate band for each band until height
         highestPlatform = new Platform(0,0,75,25);
         for(int i = 0; i <= 2000; i += BAND_HEIGHT) {
             highestPlatform = generateBand(platforms, checkpoints, i, highestPlatform,
-                                            faucets, currencies);
+                                            faucets, currencies, rng);
         }
 
         return new RunData(
-            checkpoints, platforms, new Vector2(0,0), faucets, currencies, LevelType.INFINITE, null
+            checkpoints, platforms, new Vector2(0,0), faucets, currencies, LevelType.INFINITE, null, seed
         );
     }
 
     public static void addToInfiniteLevel(List<Platform> platforms, List<Checkpoint> checkpoints,
-                                               List<Faucet> faucets, List<Currency> currencies){
+                                               List<Faucet> faucets, List<Currency> currencies, Random rng){
         //Add another 2000 height to the infinite level
         int maxAdditionY = highestInfiniteY + 2000;
         for(int i = highestInfiniteY; i < maxAdditionY; i += BAND_HEIGHT){
             highestPlatform = generateBand(platforms, checkpoints, i,
-                highestPlatform, faucets, currencies);
+                highestPlatform, faucets, currencies, rng);
         }
     }
 
     //todo - maybe more checkpoints when higher?
     //TODO - rework so that it uses LevelData for lists instead of passing them as arguments!
     private static Platform generateBand(List<Platform> platforms, List<Checkpoint> checkpoints, float bandY,
-                                         Platform highestPlatform, List<Faucet> faucets, List<Currency> currencies){
+                                         Platform highestPlatform, List<Faucet> faucets, List<Currency> currencies,
+                                         Random rng){
         //add checkpoint
-        float checkpointHeightDistance = RunData.rng.nextFloat(1000, 2000); //add some randomness for kicks and giggles!
+        float checkpointHeightDistance = rng.nextFloat(1000, 2000); //add some randomness for kicks and giggles!
         float skipCheckpointThreshold = 0.1f;
         boolean checkpointAdded = false;
-        if(checkpoints.isEmpty() || (bandY - checkpoints.getLast().getY() > checkpointHeightDistance && RunData.rng.nextFloat() > skipCheckpointThreshold)){
+        if(checkpoints.isEmpty() || (bandY - checkpoints.getLast().getY() > checkpointHeightDistance && rng.nextFloat() > skipCheckpointThreshold)){
             //add a checkpoint to the highest platform since it shouldn't overlap any other platform!
             checkpointAdded = true;
             float platformMidpoint = highestPlatform.getX() + (float)(highestPlatform.getWidth() / 2);
@@ -122,16 +121,16 @@ public class LevelGeneration {
         }
 
         //add faucets
-        float faucetHeightDistance = RunData.rng.nextFloat(500,1000);
+        float faucetHeightDistance = rng.nextFloat(500,1000);
         float skipFaucetThreshold = 0.33f;
         if(!checkpointAdded && (faucets.isEmpty() || (bandY - faucets.getLast().getY() > faucetHeightDistance
-                && RunData.rng.nextFloat() > skipFaucetThreshold))){
+                && rng.nextFloat() > skipFaucetThreshold))){
             //add a faucet to highest platform
             float platformMidpoint = highestPlatform.getX() + (float)(highestPlatform.getWidth() / 2);
             float faucetDimensions = 25; //width/height
             float faucetX = platformMidpoint - faucetDimensions / 2;
             float faucetY = highestPlatform.getY() + highestPlatform.getHeight() + 10; //float in air
-            float speedReduction = RunData.rng.nextFloat(10, 60); //how much to slow the water_rise_speed
+            float speedReduction = rng.nextFloat(10, 60); //how much to slow the water_rise_speed
             faucets.add(new Faucet(faucetX, faucetY, faucetDimensions, faucetDimensions, speedReduction, false));
         }
 
@@ -188,10 +187,10 @@ public class LevelGeneration {
             do {
                 needsRetry = false;
                 attempts++;
-                float width = RunData.rng.nextFloat(minWidth, maxWidth); //20 and max width!
-                float height = RunData.rng.nextFloat(minHeight, maxHeight); // 10 and max height!
-                float xVal = RunData.rng.nextFloat(LEVEL_WIDTH - width); //btwn 0 and (LEVEL_WIDTH - width)
-                float yVal = RunData.rng.nextFloat(bandY, Math.max(bandY, bandY + BAND_HEIGHT - height)); //btwn bandY and
+                float width = rng.nextFloat(minWidth, maxWidth); //20 and max width!
+                float height = rng.nextFloat(minHeight, maxHeight); // 10 and max height!
+                float xVal = rng.nextFloat(LEVEL_WIDTH - width); //btwn 0 and (LEVEL_WIDTH - width)
+                float yVal = rng.nextFloat(bandY, Math.max(bandY, bandY + BAND_HEIGHT - height)); //btwn bandY and
                 // (bandY + BAND_HEIGHT - height)
 
                 p = new Platform(xVal, yVal, width, height);
@@ -261,12 +260,12 @@ public class LevelGeneration {
                 //have the chance to still unlock the factory
 
                 float chance = p.getY() < chanceDecreaseThreshold ? prestigeCurrChanceMax : prestigeCurrChanceMin;
-                if(RunData.rng.nextFloat() < chance){
+                if(rng.nextFloat() < chance){
                     placedPrestige = true;
                 }
 
                 if(placedPrestige){
-                    int placementX = RunData.rng.nextInt(p.getX(), p.getX() + p.getWidth() - currencyWidth);
+                    int placementX = rng.nextInt(p.getX(), p.getX() + p.getWidth() - currencyWidth);
                     Currency curr = new Currency(placementX, p.getY() + p.getHeight(), true);
                     if(checkNoCurrencyOverlap(curr, platforms, checkpoints, faucets)) {
                         currencies.add(curr);
@@ -280,14 +279,14 @@ public class LevelGeneration {
                 int maxPlacements = Math.max(p.getWidth() / currencyWidth, 1); //at least 1 possible place on each platform
 
                 //how many do I want to place on this platform
-                int numPlacements = RunData.rng.nextInt(maxPlacements + 1); //+1 b/c exclusive bound
+                int numPlacements = rng.nextInt(maxPlacements + 1); //+1 b/c exclusive bound
 
                 float chanceOfPlacement = 0.05f; // only on 5% of platforms to start
                 float maxChanceOfPlacement = 0.5f;
                 float chance = Math.min(chanceOfPlacement + (bandY / maxPrestigeCurrencyThreshold), maxChanceOfPlacement);
-                if(numPlacements > 0 && RunData.rng.nextFloat() <= chance){
+                if(numPlacements > 0 && rng.nextFloat() <= chance){
                     //which side do I place from
-                    boolean placeFromLeft = RunData.rng.nextBoolean();
+                    boolean placeFromLeft = rng.nextBoolean();
                     Currency curr;
                     if(placeFromLeft){
                         for(int i = 0; i < numPlacements; i++){
@@ -379,6 +378,6 @@ public class LevelGeneration {
     }
 
     public static void regenerateInfinite(){
-        ALL_LEVELS.put(LevelType.INFINITE, buildInfiniteLevel());
+        ALL_LEVELS.put(LevelType.INFINITE, buildInfiniteLevel(System.currentTimeMillis()));
     }
 }

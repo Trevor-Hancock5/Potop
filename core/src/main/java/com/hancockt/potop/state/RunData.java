@@ -16,7 +16,7 @@ public class RunData {
 
     // Everything belonging to the current attempt
     // This is everything but stuff related to the player: platforms, checkpoints, etc.
-    public static int runMatches;
+    public int runMatches;
 
     public Checkpoint currCheckpoint; //current checkpoint player has made it to
     public float checkpointWaterLevel; //water level when user hit current checkpoint
@@ -34,11 +34,12 @@ public class RunData {
     private final LevelType nextLevel;
 
     // Random
-    public static final long seed = System.currentTimeMillis();;
-    public static final Random rng = new Random(seed);
+    public long seed;
+    public Random rng;
 
     public RunData(List<Checkpoint> checkpoints, List<Platform> platforms, Vector2 startPoint,
-                     List<Faucet> faucets, List<Currency> currencies, LevelType currLevel, LevelType nextLevel) {
+                     List<Faucet> faucets, List<Currency> currencies, LevelType currLevel,
+                     LevelType nextLevel, long seed) {
         currCheckpoint = null;
         checkpointWaterLevel = -checkpointMinWaterBuffer;
         this.checkpoints = checkpoints;
@@ -52,6 +53,14 @@ public class RunData {
         time = 0f;
         timeAtDeath = 0f;
         deathXValues = new ArrayList<>();
+        this.seed = seed;
+        this.rng = new Random(seed);
+    }
+
+    public RunData(List<Checkpoint> checkpoints, List<Platform> platforms, Vector2 startPoint,
+                   List<Faucet> faucets, List<Currency> currencies, LevelType currLevel,
+                   LevelType nextLevel){
+        this(checkpoints, platforms, startPoint, faucets, currencies,  currLevel, nextLevel, System.currentTimeMillis());
     }
 
     public List<Checkpoint> getCheckpoints() {

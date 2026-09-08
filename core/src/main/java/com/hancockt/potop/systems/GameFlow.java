@@ -21,7 +21,8 @@ public class GameFlow {
 
     public RunData update(float delta, RunData runData, GameAssets gameAssets, RenderingSystem renderingSystem,
                           CameraSystem cameraSystem, LevelSystem levelSystem, WaterSystem waterSystem,
-                          FaucetSystem faucetSystem, CurrencySystem currencySystem, CheckpointSystem checkpointSystem){
+                          FaucetSystem faucetSystem, CurrencySystem currencySystem, CheckpointSystem checkpointSystem,
+                          PhysicsEngine physicsEngine){
         RunData tempRunData = null;
         switch(GAME_STATE) {
             case MENU:
@@ -58,7 +59,7 @@ public class GameFlow {
                 gameAssets.sparkAnimator.update(delta);
 
                 if(!PlayerData.isDead){
-                    AnimationKey sparkAnimationState = PhysicsEngine.updatePhysics(delta, runData, cameraSystem,
+                    AnimationKey sparkAnimationState = physicsEngine.updatePhysics(delta, runData, cameraSystem,
                                                     levelSystem, waterSystem, faucetSystem, currencySystem, checkpointSystem);
                     gameAssets.sparkAnimator.play(sparkAnimationState);
                 }
@@ -80,7 +81,7 @@ public class GameFlow {
                 }
 
                 renderingSystem.drawShapes(runData, gameAssets, cameraSystem.getCamera(), waterSystem, faucetSystem);
-                cameraSystem.updateCamera(delta, waterSystem);
+                cameraSystem.updateCamera(delta, waterSystem, physicsEngine);
                 renderingSystem.drawHUD(runData, cameraSystem.getHudCam(), runData.time);
 
                 renderingSystem.instructions(runData, cameraSystem.getCamera());

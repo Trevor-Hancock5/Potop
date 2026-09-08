@@ -29,6 +29,7 @@ public class GameScreen implements Screen {
     FaucetSystem faucetSystem;
     CurrencySystem currencySystem;
     CheckpointSystem checkpointSystem;
+    PhysicsEngine physicsEngine;
 
     @Override
     public void show() {
@@ -44,6 +45,7 @@ public class GameScreen implements Screen {
         faucetSystem = new FaucetSystem();
         currencySystem = new CurrencySystem();
         checkpointSystem = new CheckpointSystem();
+        physicsEngine = new PhysicsEngine();
 
         runData = levelSystem.loadLevel(LevelType.LEARNING_MODE);
         levelSystem.restart(runData, waterSystem, faucetSystem);
@@ -58,7 +60,8 @@ public class GameScreen implements Screen {
         }
 
         RunData temp = gameFlow.update(delta, runData, gameAssets, renderingSystem, cameraSystem,
-                                    levelSystem, waterSystem, faucetSystem, currencySystem, checkpointSystem);
+                                    levelSystem, waterSystem, faucetSystem, currencySystem, checkpointSystem,
+                                    physicsEngine);
         if(temp != null){
             runData = temp;
         }

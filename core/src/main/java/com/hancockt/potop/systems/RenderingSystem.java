@@ -212,14 +212,14 @@ public class RenderingSystem {
         try {
             if (Gdx.input.isKeyPressed(Input.Keys.L)) {
                 font.getData().setScale(2);
-                font.draw(batch, "Seed: " + RunData.seed, CameraSystem.VIEWPORT_WIDTH / 2, CameraSystem.VIEWPORT_HEIGHT / 2);
+                font.draw(batch, "Seed: " + runData.seed, CameraSystem.VIEWPORT_WIDTH / 2, CameraSystem.VIEWPORT_HEIGHT / 2);
             }
 
             font.getData().setScale(1.25f);
             if (runData.getCurrentLevel() == LevelType.INFINITE) {
                 font.draw(batch, "Score: " + Math.round(PlayerData.y), CameraSystem.VIEWPORT_WIDTH - 175, CameraSystem.VIEWPORT_HEIGHT - 50);
                 font.draw(batch, "High Score: " + Math.round(PersistentData.highScore), CameraSystem.VIEWPORT_WIDTH - 175, CameraSystem.VIEWPORT_HEIGHT - 30);
-                font.draw(batch, "Matches: " + RunData.runMatches, CameraSystem.VIEWPORT_WIDTH - 175, CameraSystem.VIEWPORT_HEIGHT - 10);
+                font.draw(batch, "Matches: " + runData.runMatches, CameraSystem.VIEWPORT_WIDTH - 175, CameraSystem.VIEWPORT_HEIGHT - 10);
             } else {
                 font.draw(batch, "Time: " + String.format("%.1f", time), CameraSystem.VIEWPORT_WIDTH - 125, CameraSystem.VIEWPORT_HEIGHT - 10);
             }

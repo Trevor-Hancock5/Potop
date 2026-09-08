@@ -37,11 +37,11 @@ public class CurrencySystem {
 
                 if(c.getAbsorbTime() <= Currency.MAX_ABSORB_TIME) {
                     //better looking
-                    boolean entropy = RunData.rng.nextBoolean();
+                    boolean entropy = runData.rng.nextBoolean();
 
                     if (entropy) {
-                        directionX *= RunData.rng.nextFloat(1, 2);
-                        directionY *= RunData.rng.nextFloat(1, 2);
+                        directionX *= runData.rng.nextFloat(1, 2);
+                        directionY *= runData.rng.nextFloat(1, 2);
                     }
                     c.changeVelocityX(directionX * Currency.ABSORB_ACCELERATION * delta);
                     c.changeVelocityY(directionY * Currency.ABSORB_ACCELERATION * delta);
@@ -74,7 +74,7 @@ public class CurrencySystem {
             if(sparkHead.overlaps(curr) && c.getExplodeTime() < 0){
                 //Check if overlapping spark's head, this is what absorbs the currency
                 if(!c.isPrestige()) {
-                    RunData.runMatches += 1;
+                    runData.runMatches += 1;
                 } else{
                     PersistentData.unlockedFactory = true;
                 }
@@ -89,15 +89,15 @@ public class CurrencySystem {
         //TODO - add constants in currency for this!
         // todo - move to currency!
         for(int i = 0; i < numOfCurrency; i++){
-            float explodeXVelocity = RunData.rng.nextFloat(0, 450) * Math.signum(RunData.rng.nextFloat(-1, 1));
-            float explodeYVelocity = RunData.rng.nextFloat(0, 450) * Math.signum(RunData.rng.nextFloat(-1, 1));
+            float explodeXVelocity = runData.rng.nextFloat(0, 450) * Math.signum(runData.rng.nextFloat(-1, 1));
+            float explodeYVelocity = runData.rng.nextFloat(0, 450) * Math.signum(runData.rng.nextFloat(-1, 1));
 
             runData.getCurrencies().add(new Currency(xRef + width / 2,
                 yRef + height / 2,
                 false, explodeXVelocity,
                 explodeYVelocity,
 //                rng.nextFloat(300, 450),
-                RunData.rng.nextFloat(0.05f, 0.15f))); // time
+                runData.rng.nextFloat(0.05f, 0.15f))); // time
         }
     }
 }

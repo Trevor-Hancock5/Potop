@@ -16,30 +16,30 @@ import com.hancockt.potop.state.RunData;
 import com.hancockt.potop.systems.*;
 
 public class PhysicsEngine {
-    private static final int accelerationX = 1600;
-    private static final int maxSpeedX = 425;
-    private static final float groundFriction = 0.935f;
-    private static final float airFriction = 0.99f;
-    private static final float gravity = 1000f;
-    private static final float fallGravityMultiplier = 1.6f;
-    public static final int maxFallSpeed = -1200;
-    private static final float jumpForce = 350f;
-    private static final float jumpHoldForce = 350f;
-    private static final float coyoteThreshold = 0.1f; //Can be off platform for x seconds and still jump
-    private static final float jumpBufferThreshold = 0.1f;
-    private static final float downforceFallAcceleration = -300f;
-    private static final float collisionThreshold = 5f; //number of pixels into platform and still pop out one side
-    private static final float nudgeSpeed = 50f;
-    private static final float nudgeThreshold = 5f;
-    private static final float airControlDivisor = 6f;
-    private static final float wallSlideMaxSpeed = -115f;
-    private static final float wallProximity = 5f; //how many pixels count as on wall
-    private static final float wallJumpCooldownThreshold = 0.25f; //seconds until wall jump again - prevents wall scaling
-    private static final float collisionPlayerHeightDivisor = 10f; //What amount of player height needs to be above a platform to land on top
+    private final int accelerationX = 1600;
+    private final int maxSpeedX = 425;
+    private final float groundFriction = 0.935f;
+    private final float airFriction = 0.99f;
+    private final float gravity = 1000f;
+    private final float fallGravityMultiplier = 1.6f;
+    public final int maxFallSpeed = -1200;
+    private final float jumpForce = 350f;
+    private final float jumpHoldForce = 350f;
+    private final float coyoteThreshold = 0.1f; //Can be off platform for x seconds and still jump
+    private final float jumpBufferThreshold = 0.1f;
+    private final float downforceFallAcceleration = -300f;
+    private final float collisionThreshold = 5f; //number of pixels into platform and still pop out one side
+    private final float nudgeSpeed = 50f;
+    private final float nudgeThreshold = 5f;
+    private final float airControlDivisor = 6f;
+    private final float wallSlideMaxSpeed = -115f;
+    private final float wallProximity = 5f; //how many pixels count as on wall
+    private final float wallJumpCooldownThreshold = 0.25f; //seconds until wall jump again - prevents wall scaling
+    private final float collisionPlayerHeightDivisor = 10f; //What amount of player height needs to be above a platform to land on top
 
     /// Returns state of Spark (player) for animating
     // TODO - remove all system classes and gameflow calls out of here, this should be JUST physics
-    public static AnimationKey updatePhysics(float delta, RunData runData, CameraSystem cameraSystem,
+    public AnimationKey updatePhysics(float delta, RunData runData, CameraSystem cameraSystem,
                                              LevelSystem levelSystem, WaterSystem waterSystem,
                                              FaucetSystem faucetSystem, CurrencySystem currencySystem,
                                              CheckpointSystem checkpointSystem){

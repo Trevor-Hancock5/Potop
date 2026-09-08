@@ -28,7 +28,7 @@ public class CameraSystem {
         viewport = new ExtendViewport(VIEWPORT_WIDTH, VIEWPORT_HEIGHT, camera);
     }
 
-    public void updateCamera(float delta, WaterSystem waterSystem) {
+    public void updateCamera(float delta, WaterSystem waterSystem, PhysicsEngine physicsEngine) {
         final float lowestCameraY = 240f;
 
         float deadzone = camera.viewportWidth / cameraDeadZoneDivisor;
@@ -50,15 +50,15 @@ public class CameraSystem {
         camera.position.y += (targetY - camera.position.y) * (cameraLerpSpeed / 3);
 
         if(PlayerData.justLanded && screenShakeAccumulation < screenShake){
-            if(PlayerData.impactVelocity / PhysicsEngine.maxFallSpeed > 0.5){ //TODO
+            if(PlayerData.impactVelocity / physicsEngine.maxFallSpeed > 0.5){ //TODO
                 screenShakeAccumulation += delta / 2;
             } else {
                 screenShakeAccumulation += delta;
             }
 
             // For both, we are changing from -3 to 3
-            camera.position.x += (float) ((Math.random() - 0.5) * (screenShakeIntensity * (2 + PlayerData.impactVelocity / PhysicsEngine.maxFallSpeed))); //TODO
-            camera.position.y += (float) ((Math.random() - 0.5) * (screenShakeIntensity * (2 + PlayerData.impactVelocity / PhysicsEngine.maxFallSpeed)));
+            camera.position.x += (float) ((Math.random() - 0.5) * (screenShakeIntensity * (2 + PlayerData.impactVelocity / physicsEngine.maxFallSpeed))); //TODO
+            camera.position.y += (float) ((Math.random() - 0.5) * (screenShakeIntensity * (2 + PlayerData.impactVelocity / physicsEngine.maxFallSpeed)));
         }
         camera.update();
     }
