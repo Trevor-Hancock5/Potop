@@ -7,8 +7,6 @@ import com.hancockt.potop.main.GameScreen;
 import com.hancockt.potop.state.RunData;
 
 public class CheckpointSystem {
-
-
     public static void reset(RunData runData){
         runData.currCheckpoint = null;
     }
@@ -24,7 +22,7 @@ public class CheckpointSystem {
                         if (c.getY() > runData.currCheckpoint.getY()){
                             runData.currCheckpoint = c;
                             WaterSystem.updateCheckpointWaterLevel(runData);
-                            GameScreen.timeAtDeath = GameScreen.time;
+                            runData.timeAtDeath = runData.time;
 
                             // todo checkpoint currency amount! (make somewhat random? - define in checkpoint)
                             CurrencySystem.spawnCurrency(runData, 25, c.getX(), c.getY(), c.getWidth(), c.getHeight());
@@ -33,13 +31,13 @@ public class CheckpointSystem {
                         if (c.getOrder() > runData.currCheckpoint.getOrder()) {
                             runData.currCheckpoint = c;
                             WaterSystem.updateCheckpointWaterLevel(runData);
-                            GameScreen.timeAtDeath = GameScreen.time;
+                            runData.timeAtDeath = runData.time;
                         }
                     }
                 } else{
                     runData.currCheckpoint = c;
                     WaterSystem.updateCheckpointWaterLevel(runData);
-                    GameScreen.timeAtDeath = GameScreen.time;
+                    runData.timeAtDeath = runData.time;
                 }
             }
         }

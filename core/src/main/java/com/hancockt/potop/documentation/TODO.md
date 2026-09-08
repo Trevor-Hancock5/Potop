@@ -78,6 +78,7 @@ Refactor order:
       secret, His developer is single lol"
 - Make a learning mode: infinite mode with adjusted settings.
     - limited currency (no prestige), none after set height
+    - reset high score after beating learning mode
     - Add brief prompt with minimal settings (just left right and jump, and a note about settings)
     - when within range of wall jump, add a prompt for that (pause and prompt the user)
     - prompt for flare/restart/checkpoint/faucet. Basically prompt on first interaction

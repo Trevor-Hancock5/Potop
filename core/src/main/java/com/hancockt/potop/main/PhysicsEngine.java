@@ -317,10 +317,10 @@ public class PhysicsEngine {
         //Only dead if head hits water (because flame Afro!), so top 15 pixels of player rect
         if(waterRect.overlaps(playerRectFinal) && WaterSystem.getWaterLevel() >= sparkHeadY){
             if(!PlayerData.isDead){
-                GameScreen.deathXValues.add(PlayerData.x);
+                RunData.deathXValues.add(PlayerData.x);
             }
             PlayerData.isDead = true;
-            GameScreen.gameState = GameState.DEATH; //TODO - just use game state instead of isDead and other booleans?
+            GameFlow.GAME_STATE = GameState.DEATH; //TODO - just use game state instead of isDead and other booleans?
             FaucetSystem.reset(runData);
         }
 
@@ -338,7 +338,7 @@ public class PhysicsEngine {
         //update score LAST
         PersistentData.highScore = Math.max(PersistentData.highScore, PlayerData.y);
 
-        GameScreen.time += delta;
+        runData.time += delta;
 
         //update infinite level if needed
         if(runData.getCurrentLevel() == LevelType.INFINITE) {

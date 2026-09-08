@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Random;
 
 public class RunData {
+    // TODO - convert this to object and no static, so then you can separate runs!
+
     // Everything belonging to the current attempt
     // This is everything but stuff related to the player: platforms, checkpoints, etc.
     public static int runMatches;
@@ -19,6 +21,9 @@ public class RunData {
     public Checkpoint currCheckpoint; //current checkpoint player has made it to
     public float checkpointWaterLevel; //water level when user hit current checkpoint
     protected static final float checkpointMinWaterBuffer = 200f;
+    public float time = 0f;
+    public float timeAtDeath = 0f;
+    public static List<Float> deathXValues = new ArrayList<>();
 
     private List<Checkpoint> checkpoints;
     private final List<Faucet> faucets;

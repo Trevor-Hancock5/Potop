@@ -63,7 +63,7 @@ public class FaucetSystem {
 
         //Check win condition before death
         if(finishedFinalFaucet){
-            GameScreen.gameState = GameState.WIN;
+            GameFlow.GAME_STATE = GameState.WIN;
         }
     }
 
