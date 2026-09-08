@@ -15,13 +15,13 @@ public class WaterSystem {
         return waterLevel;
     }
 
-    public void restart(RunData runData){
-        waterLevel = PlayerData.reset(runData.getCheckpoints(), runData.getCurrentLevel());
-        waterRiseSpeed = Math.min(50f, 8f + (PlayerData.y / 200f)); //full speed always after ~8k height
+    public void restart(RunData runData, PlayerData playerData){
+        waterLevel = playerData.reset(runData.getCheckpoints(), runData.getCurrentLevel());
+        waterRiseSpeed = Math.min(50f, 8f + (playerData.y / 200f)); //full speed always after ~8k height
     }
 
-    public float calculateDangerBoost(){
-        float distanceFromWater = PlayerData.y - waterLevel;
+    public float calculateDangerBoost(PlayerData playerData){
+        float distanceFromWater = playerData.y - waterLevel;
         final float dangerBoostDistance = 400f;
         float dangerBoost = Math.max(0, 1 - (distanceFromWater / dangerBoostDistance));
         dangerBoost = 1 + (dangerBoost / 4); // from 1 to 1.25!

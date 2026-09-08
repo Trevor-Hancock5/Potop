@@ -28,7 +28,7 @@ public class CameraSystem {
         viewport = new ExtendViewport(VIEWPORT_WIDTH, VIEWPORT_HEIGHT, camera);
     }
 
-    public void updateCamera(float delta, WaterSystem waterSystem, PhysicsEngine physicsEngine) {
+    public void updateCamera(float delta, PlayerData playerData, WaterSystem waterSystem, PhysicsEngine physicsEngine) {
         final float lowestCameraY = 240f;
 
         float deadzone = camera.viewportWidth / cameraDeadZoneDivisor;
@@ -37,28 +37,28 @@ public class CameraSystem {
 
         float targetX = camera.position.x; //default is to stay put
 
-        if(PlayerData.x < deadzoneLeft){
-            targetX = PlayerData.x + (deadzone / 2);
-        } else if (PlayerData.x > deadzoneRight){
-            targetX = PlayerData.x - (deadzone / 2);
+        if(playerData.x < deadzoneLeft){
+            targetX = playerData.x + (deadzone / 2);
+        } else if (playerData.x > deadzoneRight){
+            targetX = playerData.x - (deadzone / 2);
         }
 
-        float vertLookAhead = PlayerData.velocityY * 0.1f;
-        float targetY = PlayerData.isDead ? Math.max(waterSystem.getWaterLevel(), lowestCameraY) : Math.max(PlayerData.y+25+vertLookAhead, lowestCameraY);
+        float vertLookAhead = playerData.velocityY * 0.1f;
+        float targetY = playerData.isDead ? Math.max(waterSystem.getWaterLevel(), lowestCameraY) : Math.max(playerData.y+25+vertLookAhead, lowestCameraY);
 
         camera.position.x += (targetX - camera.position.x) * cameraLerpSpeed;
         camera.position.y += (targetY - camera.position.y) * (cameraLerpSpeed / 3);
 
-        if(PlayerData.justLanded && screenShakeAccumulation < screenShake){
-            if(PlayerData.impactVelocity / physicsEngine.maxFallSpeed > 0.5){ //TODO
+        if(playerData.justLanded && screenShakeAccumulation < screenShake){
+            if(playerData.impactVelocity / physicsEngine.maxFallSpeed > 0.5){ //TODO
                 screenShakeAccumulation += delta / 2;
             } else {
                 screenShakeAccumulation += delta;
             }
 
             // For both, we are changing from -3 to 3
-            camera.position.x += (float) ((Math.random() - 0.5) * (screenShakeIntensity * (2 + PlayerData.impactVelocity / physicsEngine.maxFallSpeed))); //TODO
-            camera.position.y += (float) ((Math.random() - 0.5) * (screenShakeIntensity * (2 + PlayerData.impactVelocity / physicsEngine.maxFallSpeed)));
+            camera.position.x += (float) ((Math.random() - 0.5) * (screenShakeIntensity * (2 + playerData.impactVelocity / physicsEngine.maxFallSpeed))); //TODO
+            camera.position.y += (float) ((Math.random() - 0.5) * (screenShakeIntensity * (2 + playerData.impactVelocity / physicsEngine.maxFallSpeed)));
         }
         camera.update();
     }

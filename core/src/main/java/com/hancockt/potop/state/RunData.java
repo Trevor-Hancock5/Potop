@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.Random;
 
 public class RunData {
-    // TODO - convert this to object and no static, so then you can separate runs!
-
     // Everything belonging to the current attempt
     // This is everything but stuff related to the player: platforms, checkpoints, etc.
     public int runMatches;

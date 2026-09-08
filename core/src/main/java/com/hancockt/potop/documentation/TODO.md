@@ -21,16 +21,8 @@ test:
   - Make a single change/refactor, ensure it still works, and commit. then repeat!
 
 Refactor order:  
-1. update systems to NOT be static!
-2. Improve gamescreen and physics engine, to use parameters instead of PlayerData.staticVar!
-3. Split GameScreen
 4. Check code style is met
 
-    - minimize duplicate code
-    - move runtime state into it's own class!
-    - make separate systems (physics, water, spawn, collision, etc.) for maintainability! - each has update()
-    - separate update (game state) from render (drawing)
-    - separate constants out for easier tuning (instead of file, place these in owner's class - player, checkpoint, etc. )
     - ensure codeStyle.md is met!
     - Tunable values labeled //TUNABLE?
     - Go back through errors and imports!

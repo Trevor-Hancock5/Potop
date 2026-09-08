@@ -12,7 +12,8 @@ import java.util.List;
 public class CurrencySystem {
     private final float currencyRange = 8f;
 
-    public void update(RunData runData, float delta, float sparkHeadX, float sparkHeadY, Rectangle playerRect){
+    public void update(RunData runData, PersistentData persistentData, PlayerData playerData, float delta,
+                       float sparkHeadX, float sparkHeadY, Rectangle playerRect){
         //update currency positions and explode times, once time is up, switch velocity towards spark's head
         for (Currency c : runData.getCurrencies()){
             if(c.getExplodeTime() > 0){
@@ -60,8 +61,8 @@ public class CurrencySystem {
 
         //check if overlapping currency
         // TODO - test using just sparkHeadX and sparkHeadY instead
-        Rectangle sparkHead = new Rectangle(PlayerData.x + ((float) PlayerData.playerWidth / 4),
-            PlayerData.y + PlayerData.playerHeight - 10, (float) PlayerData.playerWidth / 2, 10);
+        Rectangle sparkHead = new Rectangle(playerData.x + ((float) playerData.playerWidth / 4),
+            playerData.y + playerData.playerHeight - 10, (float) playerData.playerWidth / 2, 10);
         List<Currency> toRemove = new ArrayList<>();
         for(Currency c : runData.getCurrencies()){
             Rectangle curr = new Rectangle(c.getX() - currencyRange, c.getY() - currencyRange,
@@ -76,7 +77,7 @@ public class CurrencySystem {
                 if(!c.isPrestige()) {
                     runData.runMatches += 1;
                 } else{
-                    PersistentData.unlockedFactory = true;
+                    persistentData.unlockedFactory = true;
                 }
                 toRemove.add(c);
             }

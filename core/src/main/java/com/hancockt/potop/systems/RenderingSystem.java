@@ -71,11 +71,11 @@ public class RenderingSystem {
         batch.end();
     }
 
-    public void drawDeathOverlay(OrthographicCamera hudCam){
+    public void drawDeathOverlay(OrthographicCamera hudCam, PlayerData playerData){
         batch.setProjectionMatrix(hudCam.combined);
         batch.begin();
 
-        drawCenteredText("You drowned. Score: " + Math.round(PlayerData.y), 30, 1.5f);
+        drawCenteredText("You drowned. Score: " + Math.round(playerData.y), 30, 1.5f);
         drawCenteredText("Press R to retry!", 0, 1);
 
         // TODO - if new high score, display !
@@ -93,10 +93,10 @@ public class RenderingSystem {
         batch.end();
     }
 
-    public void drawShapes(RunData runData, GameAssets gameAssets, OrthographicCamera camera, WaterSystem waterSystem,
+    public void drawShapes(RunData runData, PlayerData playerData, GameAssets gameAssets, OrthographicCamera camera, WaterSystem waterSystem,
                            FaucetSystem faucetSystem){
         //Draw sprites first
-        drawSprites(runData, gameAssets, camera, faucetSystem);
+        drawSprites(runData, playerData, gameAssets, camera, faucetSystem);
 
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
@@ -113,7 +113,7 @@ public class RenderingSystem {
         shapeRenderer.end();
     }
 
-    public void drawSprites(RunData runData, GameAssets gameAssets, OrthographicCamera camera, FaucetSystem faucetSystem){
+    public void drawSprites(RunData runData, PlayerData playerData, GameAssets gameAssets, OrthographicCamera camera, FaucetSystem faucetSystem){
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
 
@@ -178,7 +178,7 @@ public class RenderingSystem {
         }
 
         //SPARK
-        batch.draw(gameAssets.sparkAnimator.getCurrentFrame(), PlayerData.x, PlayerData.y, PlayerData.playerWidth, PlayerData.playerHeight);
+        batch.draw(gameAssets.sparkAnimator.getCurrentFrame(), playerData.x, playerData.y, playerData.playerWidth, playerData.playerHeight);
 
         batch.end();
     }
@@ -206,7 +206,7 @@ public class RenderingSystem {
         font.getData().setScale(1f); //reset
     }
 
-    public void drawHUD(RunData runData, OrthographicCamera hudCam, float time){
+    public void drawHUD(RunData runData, PersistentData persistentData, PlayerData playerData, OrthographicCamera hudCam, float time){
         batch.setProjectionMatrix(hudCam.combined);
         batch.begin();
         try {
@@ -217,8 +217,8 @@ public class RenderingSystem {
 
             font.getData().setScale(1.25f);
             if (runData.getCurrentLevel() == LevelType.INFINITE) {
-                font.draw(batch, "Score: " + Math.round(PlayerData.y), CameraSystem.VIEWPORT_WIDTH - 175, CameraSystem.VIEWPORT_HEIGHT - 50);
-                font.draw(batch, "High Score: " + Math.round(PersistentData.highScore), CameraSystem.VIEWPORT_WIDTH - 175, CameraSystem.VIEWPORT_HEIGHT - 30);
+                font.draw(batch, "Score: " + Math.round(playerData.y), CameraSystem.VIEWPORT_WIDTH - 175, CameraSystem.VIEWPORT_HEIGHT - 50);
+                font.draw(batch, "High Score: " + Math.round(persistentData.highScore), CameraSystem.VIEWPORT_WIDTH - 175, CameraSystem.VIEWPORT_HEIGHT - 30);
                 font.draw(batch, "Matches: " + runData.runMatches, CameraSystem.VIEWPORT_WIDTH - 175, CameraSystem.VIEWPORT_HEIGHT - 10);
             } else {
                 font.draw(batch, "Time: " + String.format("%.1f", time), CameraSystem.VIEWPORT_WIDTH - 125, CameraSystem.VIEWPORT_HEIGHT - 10);

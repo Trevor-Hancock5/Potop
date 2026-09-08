@@ -13,23 +13,23 @@ import java.util.*;
 
 
 public class LevelGeneration {
-    private static final Map<LevelType, RunData> ALL_LEVELS = new HashMap<>();
-    private static int highestInfiniteY = 0;
     private static final int BAND_HEIGHT = 250;
-    private static Platform highestPlatform;
     private static final float LEVEL_WIDTH = 3000;
+    private static final Map<LevelType, RunData> ALL_LEVELS = new HashMap<>();
 
+    private int highestInfiniteY = 0;
+    private Platform highestPlatform;
 
-    static {
+    public LevelGeneration(long seed, PlayerData playerData){
         ALL_LEVELS.put(LevelType.LEARNING_MODE, buildTutorialLevel());
-        ALL_LEVELS.put(LevelType.INFINITE, buildInfiniteLevel(System.currentTimeMillis()));
+        ALL_LEVELS.put(LevelType.INFINITE, buildInfiniteLevel(seed, playerData));
     }
 
     public static Map<LevelType, RunData> getAllLevels(){
         return ALL_LEVELS;
     }
 
-    public static int getHighestYInInfinite(){
+    public int getHighestYInInfinite(){
         return highestInfiniteY;
     }
 
@@ -69,7 +69,7 @@ public class LevelGeneration {
         );
     }
 
-    private static RunData buildInfiniteLevel(long seed){
+    private RunData buildInfiniteLevel(long seed, PlayerData playerData){
         //use seeds for reproducibility in infinite mode and leaderboard
         List<Checkpoint> checkpoints = new ArrayList<>();
         List<Platform> platforms = new ArrayList<>();
@@ -81,7 +81,7 @@ public class LevelGeneration {
         highestPlatform = new Platform(0,0,75,25);
         for(int i = 0; i <= 2000; i += BAND_HEIGHT) {
             highestPlatform = generateBand(platforms, checkpoints, i, highestPlatform,
-                                            faucets, currencies, rng);
+                                            faucets, currencies, rng, playerData);
         }
 
         return new RunData(
@@ -89,21 +89,21 @@ public class LevelGeneration {
         );
     }
 
-    public static void addToInfiniteLevel(List<Platform> platforms, List<Checkpoint> checkpoints,
-                                               List<Faucet> faucets, List<Currency> currencies, Random rng){
+    public void addToInfiniteLevel(List<Platform> platforms, List<Checkpoint> checkpoints,
+                                               List<Faucet> faucets, List<Currency> currencies, Random rng, PlayerData playerData){
         //Add another 2000 height to the infinite level
         int maxAdditionY = highestInfiniteY + 2000;
         for(int i = highestInfiniteY; i < maxAdditionY; i += BAND_HEIGHT){
             highestPlatform = generateBand(platforms, checkpoints, i,
-                highestPlatform, faucets, currencies, rng);
+                highestPlatform, faucets, currencies, rng, playerData);
         }
     }
 
     //todo - maybe more checkpoints when higher?
     //TODO - rework so that it uses LevelData for lists instead of passing them as arguments!
-    private static Platform generateBand(List<Platform> platforms, List<Checkpoint> checkpoints, float bandY,
+    private Platform generateBand(List<Platform> platforms, List<Checkpoint> checkpoints, float bandY,
                                          Platform highestPlatform, List<Faucet> faucets, List<Currency> currencies,
-                                         Random rng){
+                                         Random rng, PlayerData playerData){
         //add checkpoint
         float checkpointHeightDistance = rng.nextFloat(1000, 2000); //add some randomness for kicks and giggles!
         float skipCheckpointThreshold = 0.1f;
@@ -267,7 +267,7 @@ public class LevelGeneration {
                 if(placedPrestige){
                     int placementX = rng.nextInt(p.getX(), p.getX() + p.getWidth() - currencyWidth);
                     Currency curr = new Currency(placementX, p.getY() + p.getHeight(), true);
-                    if(checkNoCurrencyOverlap(curr, platforms, checkpoints, faucets)) {
+                    if(checkNoCurrencyOverlap(playerData, curr, platforms, checkpoints, faucets)) {
                         currencies.add(curr);
                     }
                 }
@@ -291,7 +291,7 @@ public class LevelGeneration {
                     if(placeFromLeft){
                         for(int i = 0; i < numPlacements; i++){
                             curr = new Currency(p.getX() + i * Currency.WIDTH, p.getY() + p.getHeight());
-                            if(checkNoCurrencyOverlap(curr, platforms, checkpoints, faucets)) {
+                            if(checkNoCurrencyOverlap(playerData, curr, platforms, checkpoints, faucets)) {
                                 currencies.add(curr);
                             }
                         }
@@ -299,7 +299,7 @@ public class LevelGeneration {
                         //From 1 to numPlacements so it doesn't hang over the edge
                         for(int i = 1; i <= numPlacements; i++){
                             curr = new Currency(p.getX() + p.getWidth() - i * Currency.WIDTH, p.getY() + p.getHeight());
-                            if(checkNoCurrencyOverlap(curr, platforms, checkpoints, faucets)) {
+                            if(checkNoCurrencyOverlap(playerData, curr, platforms, checkpoints, faucets)) {
                                 currencies.add(curr);
                             }
                         }
@@ -312,7 +312,7 @@ public class LevelGeneration {
         return highestPlatform;
     }
 
-    private static boolean checkNoCurrencyOverlap(Currency curr, List<Platform> platforms, List<Checkpoint> checkpoints,
+    private boolean checkNoCurrencyOverlap(PlayerData playerData, Currency curr, List<Platform> platforms, List<Checkpoint> checkpoints,
                                                   List<Faucet> faucets){
         Rectangle currencyRectangle = new Rectangle(curr.getX(), curr.getY(),
                                                 Currency.WIDTH, Currency.HEIGHT);
@@ -320,7 +320,7 @@ public class LevelGeneration {
         //base check of overlap
         boolean platformOverlap = platforms.stream()
             .anyMatch(p ->
-                new Rectangle(p.getX(), p.getY() - PlayerData.playerHeight, p.getWidth(), p.getHeight() + PlayerData.playerHeight).overlaps(currencyRectangle));
+                new Rectangle(p.getX(), p.getY() - playerData.playerHeight, p.getWidth(), p.getHeight() + playerData.playerHeight).overlaps(currencyRectangle));
 
         boolean checkpointOverlap = checkpoints.stream()
             .anyMatch(c ->
@@ -377,7 +377,7 @@ public class LevelGeneration {
         throw new RuntimeException("Module not found: " + name);
     }
 
-    public static void regenerateInfinite(){
-        ALL_LEVELS.put(LevelType.INFINITE, buildInfiniteLevel(System.currentTimeMillis()));
+    public void regenerateInfinite(long seed, PlayerData playerData){
+        ALL_LEVELS.put(LevelType.INFINITE, buildInfiniteLevel(seed, playerData));
     }
 }

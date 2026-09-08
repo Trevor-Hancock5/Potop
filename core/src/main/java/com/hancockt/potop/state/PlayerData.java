@@ -10,29 +10,29 @@ public class PlayerData {
     // Everything belonging to the current state of the game in relation to the player
     // everything about the player this run: x, y, physics, etc.
 
-    public static float x;
-    public static float y;
-    public static float velocityY;
-    public static float velocityX;
-    public static float impactVelocity; //velocity when landing! use for screen shake
+    public float x;
+    public float y;
+    public float velocityY;
+    public float velocityX;
+    public float impactVelocity; //velocity when landing! use for screen shake
 
-    public static boolean onGround = false;
-    public static boolean isDead = false;
-    public static boolean justLanded = false; //for screen shake
-    public static boolean touchingWallLeft = false;
-    public static boolean touchingWallRight = false;
-    public static boolean lastWallLeft = false;
-    public static boolean lastWallRight = false;
+    public boolean onGround = false;
+    public boolean isDead = false;
+    public boolean justLanded = false; //for screen shake
+    public boolean touchingWallLeft = false;
+    public boolean touchingWallRight = false;
+    public boolean lastWallLeft = false;
+    public boolean lastWallRight = false;
 
-    public static float coyoteSeconds; //number of seconds off ground
-    public static float wallCoyoteSeconds; //number of seconds off wall
-    public static float jumpBuffer; // number of seconds since pressed jump
-    public static float wallJumpCooldown = 0f;
+    public float coyoteSeconds; //number of seconds off ground
+    public float wallCoyoteSeconds; //number of seconds off wall
+    public float jumpBuffer; // number of seconds since pressed jump
+    public float wallJumpCooldown = 0f;
 
-    public static final int playerWidth = 20;
-    public static final int playerHeight = 50;
+    public final int playerWidth = 20;
+    public final int playerHeight = 50;
 
-    public static float reset(List<Checkpoint> checkpoints, LevelType currentLevel){
+    public float reset(List<Checkpoint> checkpoints, LevelType currentLevel){
         float waterLevel;
         RunData data = LevelGeneration.getAllLevels().get(currentLevel);
 
