@@ -22,6 +22,7 @@ public class GameAssets {
     public Music backgroundMusic;
 
     private static final float backgroundMusicVolume = 0.6f; //TUNABLE
+    private record SliceRowRequest(int row, int frameCount, int frameWidth, int frameHeight) {}
 
     public void load(){
         //Art
@@ -49,12 +50,12 @@ public class GameAssets {
         Texture spark = new Texture(Gdx.files.internal("pixelArt/spark.png"));
 
         //separate animations
-        TextureRegion[] idle = sliceRow(spark, 0, 13, 32, 64);
-        TextureRegion[] runLeft = sliceRow(spark, 1, 9, 32, 64);
-        TextureRegion[] jump = sliceRow(spark, 2, 11, 32, 64);
-        TextureRegion[] fall = sliceRow(spark, 3, 7, 32, 64);
-        TextureRegion[] death = sliceRow(spark, 4, 6, 32, 64);
-        TextureRegion[] runRight = sliceRow(spark, 5, 9, 32, 64);
+        TextureRegion[] idle = sliceRow(spark, new SliceRowRequest(0, 13, 32, 64));
+        TextureRegion[] runLeft = sliceRow(spark, new SliceRowRequest(1, 9, 32, 64));
+        TextureRegion[] jump = sliceRow(spark, new SliceRowRequest(2, 11, 32, 64));
+        TextureRegion[] fall = sliceRow(spark, new SliceRowRequest(3, 7, 32, 64));
+        TextureRegion[] death = sliceRow(spark, new SliceRowRequest(4, 6, 32, 64));
+        TextureRegion[] runRight = sliceRow(spark, new SliceRowRequest(5, 9, 32, 64));
 
         //get default frame
         TextureRegion defaultFrame = idle[0]; //(maybe default to last frame of current animation)
@@ -86,7 +87,7 @@ public class GameAssets {
 
         //checkpointAnimator
         Texture checkpoint_active = new Texture(Gdx.files.internal("pixelArt/checkpoint_active.png"));
-        TextureRegion[] checkpoint = sliceRow(checkpoint_active, 0, 6, 40, 100);
+        TextureRegion[] checkpoint = sliceRow(checkpoint_active, new SliceRowRequest(0, 6, 40, 100));
         Animation<TextureRegion> checkpointAnimation = new Animation<>(0.1f, checkpoint);
         checkpointAnimation.setPlayMode(Animation.PlayMode.LOOP);
         checkpointAnimator = new SpriteAnimator(new TextureRegion(checkpoint_inactive));
@@ -94,10 +95,10 @@ public class GameAssets {
 
     }
 
-    private TextureRegion[] sliceRow(Texture texture, int row, int frameCount, int frameWidth, int frameHeight){
-        TextureRegion[][] ret = TextureRegion.split(texture, frameWidth, frameHeight);
-        TextureRegion[] frames = new TextureRegion[frameCount];
-        System.arraycopy(ret[row], 0, frames, 0, frameCount);
+    private TextureRegion[] sliceRow(Texture texture, SliceRowRequest sliceRowRequest){
+        TextureRegion[][] ret = TextureRegion.split(texture, sliceRowRequest.frameWidth(), sliceRowRequest.frameHeight());
+        TextureRegion[] frames = new TextureRegion[sliceRowRequest.frameCount()];
+        System.arraycopy(ret[sliceRowRequest.row()], 0, frames, 0, sliceRowRequest.frameCount());
         return frames;
     }
 

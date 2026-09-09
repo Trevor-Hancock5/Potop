@@ -7,30 +7,47 @@ import com.hancockt.potop.assets.GameAssets;
 import com.hancockt.potop.level.LevelGeneration;
 import com.hancockt.potop.level.LevelType;
 import com.hancockt.potop.state.GameState;
-import com.hancockt.potop.state.PersistentData;
-import com.hancockt.potop.state.PlayerData;
 import com.hancockt.potop.state.RunData;
 import com.hancockt.potop.systems.*;
 
 public class GameFlow {
     public static GameState GAME_STATE = GameState.MENU; //start with menu
+    private final GameAssets gameAssets;
+    private final RenderingSystem renderingSystem;
+    private final CameraSystem cameraSystem;
+    private final LevelSystem levelSystem;
+    private final WaterSystem waterSystem;
+    private final FaucetSystem faucetSystem;
+    private final PhysicsEngine physicsEngine;
 
-    public RunData update(float delta, RunData runData, PersistentData persistentData, PlayerData playerData,
-                          GameAssets gameAssets,
-                          RenderingSystem renderingSystem, CameraSystem cameraSystem, LevelSystem levelSystem,
-                          WaterSystem waterSystem, FaucetSystem faucetSystem, CurrencySystem currencySystem,
-                          CheckpointSystem checkpointSystem, PhysicsEngine physicsEngine, LevelGeneration levelGeneration){
+    public GameFlow(GameAssets gameAssets, RenderingSystem renderingSystem, CameraSystem cameraSystem,
+                    LevelSystem levelSystem, WaterSystem waterSystem, FaucetSystem faucetSystem,
+                    PhysicsEngine physicsEngine) {
+        this.gameAssets = gameAssets;
+        this.renderingSystem = renderingSystem;
+        this.cameraSystem = cameraSystem;
+        this.levelSystem = levelSystem;
+        this.waterSystem = waterSystem;
+        this.faucetSystem = faucetSystem;
+        this.physicsEngine = physicsEngine;
+    }
+
+    public RunData update(FrameRuntimeContext frameRuntimeContext){
+        var runData = frameRuntimeContext.runData();
+        var persistentData = frameRuntimeContext.persistentData();
+        var playerData = frameRuntimeContext.playerData();
+        float delta = frameRuntimeContext.delta();
+
         RunData tempRunData = null;
         switch(GAME_STATE) {
             case MENU:
-                tempRunData = handleMenuInput(runData, playerData, persistentData, levelSystem, waterSystem, faucetSystem);
+                tempRunData = handleMenuInput(frameRuntimeContext);
                 renderingSystem.drawMenu(cameraSystem.getHudCam(), gameAssets);
                 break;
             case PAUSE:
-                tempRunData = handlePauseInput(runData, playerData, levelSystem, waterSystem,
-                    faucetSystem, checkpointSystem, levelGeneration);
-                renderingSystem.drawShapes(runData, playerData, gameAssets, cameraSystem.getCamera(), waterSystem, faucetSystem); //still draw game in background
-                renderingSystem.drawHUD(runData, persistentData, playerData, cameraSystem.getHudCam(), runData.time);
+                tempRunData = handlePauseInput(frameRuntimeContext);
+                renderingSystem.drawShapes(buildRenderWorldView(frameRuntimeContext), gameAssets, cameraSystem.getCamera()); //still draw game in background
+                renderingSystem.drawHUD(buildHudView(frameRuntimeContext), cameraSystem.getHudCam());
                 renderingSystem.drawPauseOverlay(cameraSystem.getHudCam());
                 break;
             case DEATH:
@@ -39,18 +56,16 @@ public class GameFlow {
                 gameAssets.sparkAnimator.update(delta);
 
                 gameAssets.sparkAnimator.play(AnimationKey.DEATH);
-                renderingSystem.drawShapes(runData, playerData, gameAssets, cameraSystem.getCamera(), waterSystem, faucetSystem);
-                renderingSystem.drawHUD(runData, persistentData, playerData, cameraSystem.getHudCam(), runData.time);
-                renderingSystem.drawDeathText(cameraSystem.getCamera(), runData.deathXValues, waterSystem);
+                renderingSystem.drawShapes(buildRenderWorldView(frameRuntimeContext), gameAssets, cameraSystem.getCamera());
+                renderingSystem.drawHUD(buildHudView(frameRuntimeContext), cameraSystem.getHudCam());
+                renderingSystem.drawDeathText(cameraSystem.getCamera(), runData.deathXValues, waterSystem.getWaterLevel());
                 renderingSystem.drawDeathOverlay(cameraSystem.getHudCam(), playerData);
-                tempRunData = handleDeathInput(runData, playerData, levelGeneration, levelSystem, waterSystem,
-                    faucetSystem, checkpointSystem);
+                tempRunData = handleDeathInput(frameRuntimeContext);
                 break;
             case WIN:
-                tempRunData = handleWinInput(runData, persistentData, playerData, levelSystem, waterSystem, faucetSystem,
-                    checkpointSystem, levelGeneration);
-                renderingSystem.drawShapes(runData, playerData, gameAssets, cameraSystem.getCamera(), waterSystem, faucetSystem);
-                renderingSystem.drawHUD(runData, persistentData, playerData, cameraSystem.getHudCam(), runData.time);
+                tempRunData = handleWinInput(frameRuntimeContext);
+                renderingSystem.drawShapes(buildRenderWorldView(frameRuntimeContext), gameAssets, cameraSystem.getCamera());
+                renderingSystem.drawHUD(buildHudView(frameRuntimeContext), cameraSystem.getHudCam());
                 renderingSystem.drawWinOverlay(cameraSystem.getHudCam());
                 break;
             case PLAYING:
@@ -59,32 +74,30 @@ public class GameFlow {
                 gameAssets.sparkAnimator.update(delta);
 
                 if(GameFlow.GAME_STATE != GameState.DEATH){
-                    AnimationKey sparkAnimationState = physicsEngine.updatePhysics(delta, runData, persistentData, playerData,
-                                                    cameraSystem, levelSystem, waterSystem, faucetSystem,
-                                                    currencySystem, checkpointSystem, levelGeneration);
+                    AnimationKey sparkAnimationState = physicsEngine.updatePhysics(frameRuntimeContext);
                     gameAssets.sparkAnimator.play(sparkAnimationState);
                 }
 
                 if(GameFlow.GAME_STATE == GameState.DEATH || !runData.deathXValues.isEmpty()){
-                    renderingSystem.drawDeathText(cameraSystem.getCamera(), runData.deathXValues, waterSystem);
+                    renderingSystem.drawDeathText(cameraSystem.getCamera(), runData.deathXValues, waterSystem.getWaterLevel());
                 }
 
                 if(Gdx.input.isKeyJustPressed(Input.Keys.R)){
-                    levelSystem.restart(runData, playerData, waterSystem, faucetSystem);
+                    levelSystem.restart(runData, playerData);
                 }
 
                 if(Gdx.input.isKeyJustPressed(Input.Keys.Q)){
-                    tempRunData = levelSystem.fullReset(runData, playerData, levelGeneration, waterSystem, faucetSystem,
-                        checkpointSystem);
+                    tempRunData = levelSystem.fullReset(runData, playerData);
                 }
 
                 if(Gdx.input.isKeyJustPressed(Input.Keys.P)){
                     GAME_STATE = GameState.PAUSE;
                 }
 
-                renderingSystem.drawShapes(runData, playerData, gameAssets, cameraSystem.getCamera(), waterSystem, faucetSystem);
-                cameraSystem.updateCamera(delta, playerData, waterSystem, physicsEngine);
-                renderingSystem.drawHUD(runData, persistentData, playerData, cameraSystem.getHudCam(), runData.time);
+                renderingSystem.drawShapes(buildRenderWorldView(frameRuntimeContext), gameAssets, cameraSystem.getCamera());
+                cameraSystem.updateCamera(new CameraUpdateContext(delta, playerData, GAME_STATE,
+                    waterSystem.getWaterLevel(), PhysicsEngine.maxFallSpeed));
+                renderingSystem.drawHUD(buildHudView(frameRuntimeContext), cameraSystem.getHudCam());
 
                 renderingSystem.instructions(runData, cameraSystem.getCamera());
                 break;
@@ -93,12 +106,14 @@ public class GameFlow {
         return tempRunData;
     }
 
-    private RunData handleMenuInput(RunData runData, PlayerData playerData, PersistentData persistentData, LevelSystem levelSystem,
-                                    WaterSystem waterSystem, FaucetSystem faucetSystem){
+    private RunData handleMenuInput(FrameRuntimeContext frameRuntimeContext){
+        var runData = frameRuntimeContext.runData();
+        var playerData = frameRuntimeContext.playerData();
+        var persistentData = frameRuntimeContext.persistentData();
         RunData tempRunData = null;
         if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
             tempRunData = levelSystem.loadLevel(LevelType.LEARNING_MODE);
-            levelSystem.restart(runData, playerData, waterSystem, faucetSystem);
+            levelSystem.restart(runData, playerData);
             GAME_STATE = GameState.PLAYING;
         }
 
@@ -106,12 +121,12 @@ public class GameFlow {
         if(Gdx.input.isKeyJustPressed(Input.Keys.I)){
             if(persistentData.learningModeBeat) {
                 tempRunData = levelSystem.loadLevel(LevelType.INFINITE);
-                levelSystem.restart(runData, playerData, waterSystem, faucetSystem);
+                levelSystem.restart(runData, playerData);
                 GAME_STATE = GameState.PLAYING;
             } else if(Gdx.input.isKeyJustPressed(Input.Keys.I)){
                 //TODO - remove, just for testing!
                 tempRunData = levelSystem.loadLevel(LevelType.INFINITE);
-                levelSystem.restart(runData, playerData, waterSystem, faucetSystem);
+                levelSystem.restart(runData, playerData);
                 GAME_STATE = GameState.PLAYING;
             }
         }
@@ -119,47 +134,48 @@ public class GameFlow {
         return tempRunData;
     }
 
-    private RunData handlePauseInput(RunData runData, PlayerData playerData, LevelSystem levelSystem, WaterSystem waterSystem,
-                                     FaucetSystem faucetSystem, CheckpointSystem checkpointSystem, LevelGeneration levelGeneration){
+    private RunData handlePauseInput(FrameRuntimeContext frameRuntimeContext){
+        var runData = frameRuntimeContext.runData();
+        var playerData = frameRuntimeContext.playerData();
         RunData tempRunData = null;
         if(Gdx.input.isKeyJustPressed(Input.Keys.P)){
             GAME_STATE = GameState.PLAYING;
         }
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.M)){
-            tempRunData = levelSystem.fullReset(runData, playerData, levelGeneration, waterSystem, faucetSystem,
-                checkpointSystem);
+            tempRunData = levelSystem.fullReset(runData, playerData);
             GAME_STATE = GameState.MENU;
         }
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.R)){
             GAME_STATE = GameState.PLAYING;
-            levelSystem.restart(runData, playerData, waterSystem, faucetSystem);
+            levelSystem.restart(runData, playerData);
         }
 
         return tempRunData;
     }
 
-    private RunData handleDeathInput(RunData runData, PlayerData playerData, LevelGeneration levelGeneration, LevelSystem levelSystem, WaterSystem waterSystem,
-                                     FaucetSystem faucetSystem, CheckpointSystem checkpointSystem){
+    private RunData handleDeathInput(FrameRuntimeContext frameRuntimeContext){
+        var runData = frameRuntimeContext.runData();
+        var playerData = frameRuntimeContext.playerData();
         RunData tempRunData = null;
         if(Gdx.input.isKeyJustPressed(Input.Keys.R)){
-            levelSystem.restart(runData, playerData, waterSystem, faucetSystem);
+            levelSystem.restart(runData, playerData);
             GAME_STATE = GameState.PLAYING;
         }
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.Q)){
-            tempRunData = levelSystem.fullReset(runData, playerData, levelGeneration, waterSystem, faucetSystem,
-                checkpointSystem);
+            tempRunData = levelSystem.fullReset(runData, playerData);
             GAME_STATE = GameState.PLAYING;
         }
 
         return tempRunData;
     }
 
-    private RunData handleWinInput(RunData runData, PersistentData persistentData, PlayerData playerData, LevelSystem levelSystem,
-                                   WaterSystem waterSystem, FaucetSystem faucetSystem, CheckpointSystem checkpointSystem,
-                                   LevelGeneration levelGeneration){
+    private RunData handleWinInput(FrameRuntimeContext frameRuntimeContext){
+        var runData = frameRuntimeContext.runData();
+        var persistentData = frameRuntimeContext.persistentData();
+        var playerData = frameRuntimeContext.playerData();
         RunData tempRunData = null;
         if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER)){
             runData.time = 0f;
@@ -171,13 +187,13 @@ public class GameFlow {
                     persistentData.learningModeBeat = true;
                 }
                 waterSystem.updateCheckpointWaterLevel(runData, true);
-                checkpointSystem.reset(runData);
+                levelSystem.resetCheckpointProgress(runData);
                 RunData nextLevel = LevelGeneration.getAllLevels().get(next);
                 playerData.x = nextLevel.getStartPoint().x;
                 playerData.y = nextLevel.getStartPoint().y;
                 runData.setCurrentLevel(next);
                 tempRunData = levelSystem.loadLevel(next);
-                levelSystem.restart(runData, playerData, waterSystem, faucetSystem);
+                levelSystem.restart(runData, playerData);
                 GAME_STATE = GameState.PLAYING;
             } else{
                 GAME_STATE = GameState.MENU;
@@ -185,11 +201,20 @@ public class GameFlow {
         }
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.Q)){
-            tempRunData = levelSystem.fullReset(runData, playerData, levelGeneration, waterSystem, faucetSystem,
-                checkpointSystem);
+            tempRunData = levelSystem.fullReset(runData, playerData);
             GAME_STATE = GameState.PLAYING;
         }
 
         return tempRunData;
+    }
+
+    private RenderWorldView buildRenderWorldView(FrameRuntimeContext frameRuntimeContext) {
+        return new RenderWorldView(frameRuntimeContext.runData(),
+            frameRuntimeContext.playerData(), waterSystem.getWaterLevel(), faucetSystem.getFaucetInteractionTime());
+    }
+
+    private HudView buildHudView(FrameRuntimeContext frameRuntimeContext) {
+        return new HudView(frameRuntimeContext.runData(), frameRuntimeContext.persistentData(),
+            frameRuntimeContext.playerData(), frameRuntimeContext.runData().time);
     }
 }

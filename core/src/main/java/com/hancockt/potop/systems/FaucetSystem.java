@@ -14,6 +14,13 @@ public class FaucetSystem {
     private static final float faucetInteractionTime = 1.5f; //seconds - TUNABLE
     private static final int faucetCurrencyMin = 10; // TUNABLE
     private static final int faucetCurrencyMax = 20; // TUNABLE
+    private final WaterSystem waterSystem;
+    private final CurrencySystem currencySystem;
+
+    public FaucetSystem(WaterSystem waterSystem, CurrencySystem currencySystem) {
+        this.waterSystem = waterSystem;
+        this.currencySystem = currencySystem;
+    }
 
     public void reset(RunData runData){
         for (Faucet f : runData.getFaucets()) {
@@ -23,8 +30,7 @@ public class FaucetSystem {
         }
     }
 
-    public void update (RunData runData, float delta, Rectangle playerRect, WaterSystem waterSystem,
-                        CurrencySystem currencySystem){
+    public void update (RunData runData, float delta, Rectangle playerRect){
         //Faucets
         Faucet nearFaucet = null;
         for(Faucet f : runData.getFaucets()) {
@@ -52,7 +58,8 @@ public class FaucetSystem {
                 }
 
                 int numCurrency = runData.rng.nextInt(faucetCurrencyMin, faucetCurrencyMax);
-                currencySystem.spawnCurrency(runData, numCurrency, nearFaucet.getX(), nearFaucet.getY(), nearFaucet.getWidth(), nearFaucet.getHeight());
+                currencySystem.spawnCurrency(runData, numCurrency,
+                    new Rectangle(nearFaucet.getX(), nearFaucet.getY(), nearFaucet.getWidth(), nearFaucet.getHeight()));
             }
         } else if(nearFaucet != null){
             //not holding down, start spinning back

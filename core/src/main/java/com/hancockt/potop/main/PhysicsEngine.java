@@ -47,15 +47,35 @@ public class PhysicsEngine {
     private static final float showFallAnimationThreshold = -100f; //TUNABLE
 
     private static final int framesPerSecond = 60;
+    private final CameraSystem cameraSystem;
+    private final LevelSystem levelSystem;
+    private final WaterSystem waterSystem;
+    private final FaucetSystem faucetSystem;
+    private final CurrencySystem currencySystem;
+    private final CheckpointSystem checkpointSystem;
+    private final LevelGeneration levelGeneration;
+
+    public PhysicsEngine(CameraSystem cameraSystem, LevelSystem levelSystem, WaterSystem waterSystem,
+                         FaucetSystem faucetSystem, CurrencySystem currencySystem, CheckpointSystem checkpointSystem,
+                         LevelGeneration levelGeneration) {
+        this.cameraSystem = cameraSystem;
+        this.levelSystem = levelSystem;
+        this.waterSystem = waterSystem;
+        this.faucetSystem = faucetSystem;
+        this.currencySystem = currencySystem;
+        this.checkpointSystem = checkpointSystem;
+        this.levelGeneration = levelGeneration;
+    }
 
 
     /// Returns state of Spark (player) for animating
     // TODO - remove all system classes and gameflow calls out of here, this should be JUST physics
-    public AnimationKey updatePhysics(float delta, RunData runData, PersistentData persistentData, PlayerData playerData,
-                                      CameraSystem cameraSystem,
-                                      LevelSystem levelSystem, WaterSystem waterSystem,
-                                      FaucetSystem faucetSystem, CurrencySystem currencySystem,
-                                      CheckpointSystem checkpointSystem, LevelGeneration levelGeneration){
+    public AnimationKey updatePhysics(FrameRuntimeContext frameRuntimeContext){
+        float delta = frameRuntimeContext.delta();
+        RunData runData = frameRuntimeContext.runData();
+        PersistentData persistentData = frameRuntimeContext.persistentData();
+        PlayerData playerData = frameRuntimeContext.playerData();
+
         //initialize animationKey variable to return - default to idle
         AnimationKey currAnimation = AnimationKey.IDLE;
 
@@ -319,16 +339,13 @@ public class PhysicsEngine {
         waterSystem.updateWater(runData, delta);
 
         Rectangle playerRectFinal = new Rectangle(playerData.x, playerData.y, PlayerData.playerWidth, PlayerData.playerHeight);
-        checkpointSystem.update(runData, playerRectFinal, waterSystem, currencySystem);
-
-        // Define spark's head for future operations
-        float sparkHeadX = playerData.x + ((float) PlayerData.playerWidth / 2);
+        checkpointSystem.update(runData, playerRectFinal);
         float sparkHeadY = playerData.y + PlayerData.playerHeight - 15;
 
-        currencySystem.update(runData, persistentData, playerData, delta, sparkHeadX, sparkHeadY, playerRectFinal);
+        currencySystem.update(frameRuntimeContext, playerRectFinal);
 
         // Update currency first before faucets in case it's a win faucet which changes to win state!
-        faucetSystem.update(runData, delta, playerRectFinal, waterSystem, currencySystem);
+        faucetSystem.update(runData, delta, playerRectFinal);
 
         //death check
         Rectangle waterRect = new Rectangle(-50000, 0, 100000, waterSystem.getWaterLevel());
@@ -359,7 +376,7 @@ public class PhysicsEngine {
         runData.time += delta;
 
         //update infinite level if needed
-        levelSystem.updateInfinite(runData, playerData, levelGeneration);
+        levelSystem.updateInfinite(runData, playerData);
 
         //update animation from least to most important (to choose which animation is shown - default is idle!)
         if(playerData.velocityX < -showRunAnimationThreshold){

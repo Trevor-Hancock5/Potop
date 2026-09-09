@@ -98,45 +98,49 @@ public class LevelGeneration {
         List<Faucet> faucets = new ArrayList<>();
         List<Currency> currencies = new ArrayList<>();
 
-        Random rng = new Random(seed);
+        RunData runData = new RunData(
+            checkpoints, platforms, new Vector2(0,0), faucets, currencies, LevelType.INFINITE, null, seed
+        );
+        runData.rng = new Random(seed);
+
         //just call generate band for each band until height
         highestPlatform = new Platform(0,0,75,25);
         for(int i = 0; i <= GENERATION_HEIGHT; i += BAND_HEIGHT) {
-            highestPlatform = generateBand(platforms, checkpoints, i, highestPlatform,
-                                            faucets, currencies, rng, playerData);
+            generateBand(runData, i, playerData);
         }
 
-        return new RunData(
-            checkpoints, platforms, new Vector2(0,0), faucets, currencies, LevelType.INFINITE, null, seed
-        );
+        return runData;
     }
 
-    public void addToInfiniteLevel(List<Platform> platforms, List<Checkpoint> checkpoints,
-                                               List<Faucet> faucets, List<Currency> currencies, Random rng, PlayerData playerData){
+    public void addToInfiniteLevel(RunData runData, PlayerData playerData){
         //Add another 2000 height to the infinite level
         int maxAdditionY = highestInfiniteY + GENERATION_HEIGHT;
         for(int i = highestInfiniteY; i < maxAdditionY; i += BAND_HEIGHT){
-            highestPlatform = generateBand(platforms, checkpoints, i,
-                highestPlatform, faucets, currencies, rng, playerData);
+            generateBand(runData, i, playerData);
         }
     }
 
     //todo - maybe more checkpoints when higher?
     //TODO - rework so that it uses LevelData for lists instead of passing them as arguments! - runData?
-    private Platform generateBand(List<Platform> platforms, List<Checkpoint> checkpoints, float bandY,
-                                         Platform highestPlatform, List<Faucet> faucets, List<Currency> currencies,
-                                         Random rng, PlayerData playerData){
+    private void generateBand(RunData runData, float bandY, PlayerData playerData){
+        List<Platform> platforms = runData.getPlatforms();
+        List<Checkpoint> checkpoints = runData.getCheckpoints();
+        List<Faucet> faucets = runData.getFaucets();
+        List<Currency> currencies = runData.getCurrencies();
+        Random rng = runData.rng;
+        Platform bandHighestPlatform = highestPlatform;
+
         //add checkpoint
         float checkpointHeightDistance = rng.nextFloat(minCheckpointHeightDistance, maxCheckpointHeightDistance); //add some randomness for kicks and giggles!
         boolean checkpointAdded = false;
         if(checkpoints.isEmpty() || (bandY - checkpoints.getLast().getY() > checkpointHeightDistance && rng.nextFloat() > skipCheckpointThreshold)){
             //add a checkpoint to the highest platform since it shouldn't overlap any other platform!
             checkpointAdded = true;
-            float platformMidpoint = highestPlatform.getX() + (float)(highestPlatform.getWidth() / 2);
-            float checkpointWidth = Math.min(25, highestPlatform.getWidth());
+            float platformMidpoint = bandHighestPlatform.getX() + (float)(bandHighestPlatform.getWidth() / 2);
+            float checkpointWidth = Math.min(25, bandHighestPlatform.getWidth());
             float checkpointHeight = 75;
             float checkpointX = platformMidpoint - (checkpointWidth / 2);
-            float checkpointY = highestPlatform.getY() + highestPlatform.getHeight();
+            float checkpointY = bandHighestPlatform.getY() + bandHighestPlatform.getHeight();
             checkpoints.add(new Checkpoint(checkpointX, checkpointY, checkpointWidth, checkpointHeight,
                             checkpoints.size()));
         }
@@ -146,10 +150,10 @@ public class LevelGeneration {
         if(!checkpointAdded && (faucets.isEmpty() || (bandY - faucets.getLast().getY() > faucetHeightDistance
                 && rng.nextFloat() > skipFaucetThreshold))){
             //add a faucet to highest platform
-            float platformMidpoint = highestPlatform.getX() + (float)(highestPlatform.getWidth() / 2);
+            float platformMidpoint = bandHighestPlatform.getX() + (float)(bandHighestPlatform.getWidth() / 2);
             float faucetDimensions = 25; //width/height
             float faucetX = platformMidpoint - faucetDimensions / 2;
-            float faucetY = highestPlatform.getY() + highestPlatform.getHeight() + faucetGapAbovePlatform; //float in air
+            float faucetY = bandHighestPlatform.getY() + bandHighestPlatform.getHeight() + faucetGapAbovePlatform; //float in air
             float speedReduction = rng.nextFloat(minFaucetSpeedReduction, maxFaucetSpeedReduction); //how much to slow the water_rise_speed
             faucets.add(new Faucet(faucetX, faucetY, faucetDimensions, faucetDimensions, speedReduction, false));
         }
@@ -244,7 +248,7 @@ public class LevelGeneration {
                 }
 
                 //check reachability - need at least one. First one added is reachable!
-                if(checkReachability(p, highestPlatform)){
+                if(checkReachability(p, bandHighestPlatform)){
                     reachable = true;
                 }
 
@@ -260,8 +264,8 @@ public class LevelGeneration {
 
         // check if new highest platform for checkpoint making and add currency!
         for(Platform p : bandPlatforms) {
-            if (p.getY() + p.getHeight() > highestPlatform.getY() + highestPlatform.getHeight()) {
-                highestPlatform = p;
+            if (p.getY() + p.getHeight() > bandHighestPlatform.getY() + bandHighestPlatform.getHeight()) {
+                bandHighestPlatform = p;
             }
 
             int currencyWidth = 16;
@@ -283,7 +287,7 @@ public class LevelGeneration {
                 if(placedPrestige){
                     int placementX = rng.nextInt(p.getX(), p.getX() + p.getWidth() - currencyWidth);
                     Currency curr = new Currency(placementX, p.getY() + p.getHeight(), true);
-                    if(checkNoCurrencyOverlap(playerData, curr, platforms, checkpoints, faucets)) {
+                    if(checkNoCurrencyOverlap(playerData, curr, runData)) {
                         currencies.add(curr);
                     }
                 }
@@ -305,7 +309,7 @@ public class LevelGeneration {
                     if(placeFromLeft){
                         for(int i = 0; i < numPlacements; i++){
                             curr = new Currency(p.getX() + i * Currency.WIDTH, p.getY() + p.getHeight());
-                            if(checkNoCurrencyOverlap(playerData, curr, platforms, checkpoints, faucets)) {
+                            if(checkNoCurrencyOverlap(playerData, curr, runData)) {
                                 currencies.add(curr);
                             }
                         }
@@ -313,7 +317,7 @@ public class LevelGeneration {
                         //From 1 to numPlacements so it doesn't hang over the edge
                         for(int i = 1; i <= numPlacements; i++){
                             curr = new Currency(p.getX() + p.getWidth() - i * Currency.WIDTH, p.getY() + p.getHeight());
-                            if(checkNoCurrencyOverlap(playerData, curr, platforms, checkpoints, faucets)) {
+                            if(checkNoCurrencyOverlap(playerData, curr, runData)) {
                                 currencies.add(curr);
                             }
                         }
@@ -322,12 +326,14 @@ public class LevelGeneration {
             }
         }
 
+        highestPlatform = bandHighestPlatform;
         highestInfiniteY = (int) (bandY + BAND_HEIGHT);
-        return highestPlatform;
     }
 
-    private boolean checkNoCurrencyOverlap(PlayerData playerData, Currency curr, List<Platform> platforms, List<Checkpoint> checkpoints,
-                                                  List<Faucet> faucets){
+    private boolean checkNoCurrencyOverlap(PlayerData playerData, Currency curr, RunData runData){
+        List<Platform> platforms = runData.getPlatforms();
+        List<Checkpoint> checkpoints = runData.getCheckpoints();
+        List<Faucet> faucets = runData.getFaucets();
         Rectangle currencyRectangle = new Rectangle(curr.getX(), curr.getY(),
                                                 Currency.WIDTH, Currency.HEIGHT);
 

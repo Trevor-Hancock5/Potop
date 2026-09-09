@@ -8,12 +8,19 @@ import com.hancockt.potop.state.RunData;
 public class CheckpointSystem {
     private static final int checkpointCurrencyMin = 20; //TUNABLE
     private static final int checkpointCurrencyMax = 30; //TUNABLE
+    private final WaterSystem waterSystem;
+    private final CurrencySystem currencySystem;
+
+    public CheckpointSystem(WaterSystem waterSystem, CurrencySystem currencySystem) {
+        this.waterSystem = waterSystem;
+        this.currencySystem = currencySystem;
+    }
 
     public void reset(RunData runData){
         runData.currCheckpoint = null;
     }
 
-    public void update(RunData runData, Rectangle playerRect, WaterSystem waterSystem, CurrencySystem currencySystem){
+    public void update(RunData runData, Rectangle playerRect){
         //Checkpoints
         for(Checkpoint c : runData.getCheckpoints()){
             Rectangle checkpoint = new Rectangle(c.getX(), c.getY(), c.getWidth(), c.getHeight());
@@ -27,7 +34,8 @@ public class CheckpointSystem {
                             runData.timeAtDeath = runData.time;
 
                             int numCurrency = runData.rng.nextInt(checkpointCurrencyMin, checkpointCurrencyMax);
-                            currencySystem.spawnCurrency(runData, numCurrency, c.getX(), c.getY(), c.getWidth(), c.getHeight());
+                            currencySystem.spawnCurrency(runData, numCurrency,
+                                new Rectangle(c.getX(), c.getY(), c.getWidth(), c.getHeight()));
                         }
                     } else {
                         if (c.getOrder() > runData.currCheckpoint.getOrder()) {

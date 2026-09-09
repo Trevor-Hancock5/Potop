@@ -2,6 +2,7 @@ package com.hancockt.potop.systems;
 
 import com.badlogic.gdx.math.Rectangle;
 import com.hancockt.potop.features.Currency;
+import com.hancockt.potop.main.FrameRuntimeContext;
 import com.hancockt.potop.state.PersistentData;
 import com.hancockt.potop.state.PlayerData;
 import com.hancockt.potop.state.RunData;
@@ -15,8 +16,14 @@ public class CurrencySystem {
     private static final float minExplodeTime = 0.05f; //TUNABLE
     private static final float maxExplodeTime = 0.15f; //TUNABLE
 
-    public void update(RunData runData, PersistentData persistentData, PlayerData playerData, float delta,
-                       float sparkHeadX, float sparkHeadY, Rectangle playerRect){
+    public void update(FrameRuntimeContext frameRuntimeContext, Rectangle playerRect){
+        RunData runData = frameRuntimeContext.runData();
+        PersistentData persistentData = frameRuntimeContext.persistentData();
+        PlayerData playerData = frameRuntimeContext.playerData();
+        float delta = frameRuntimeContext.delta();
+        float sparkHeadX = playerData.x + ((float) PlayerData.playerWidth / 2);
+        float sparkHeadY = playerData.y + PlayerData.playerHeight - 15;
+
         //update currency positions and explode times, once time is up, switch velocity towards spark's head
         for (Currency c : runData.getCurrencies()){
             if(c.getExplodeTime() > 0){
@@ -88,13 +95,14 @@ public class CurrencySystem {
         runData.getCurrencies().removeAll(toRemove);
     }
 
-    public void spawnCurrency(RunData runData, int numOfCurrency, float xRef, float yRef, float width, float height){
+    public void spawnCurrency(RunData runData, int numOfCurrency, Rectangle spawnBounds){
         for(int i = 0; i < numOfCurrency; i++){
             float explodeXVelocity = runData.rng.nextFloat(0, explodeVelocityMax) * Math.signum(runData.rng.nextFloat(-1, 1));
             float explodeYVelocity = runData.rng.nextFloat(0, explodeVelocityMax) * Math.signum(runData.rng.nextFloat(-1, 1));
             float explodeTime = runData.rng.nextFloat(minExplodeTime, maxExplodeTime);
 
-            runData.getCurrencies().add(new Currency(xRef + width / 2, yRef + height / 2,false,
+            runData.getCurrencies().add(new Currency(spawnBounds.x + spawnBounds.width / 2,
+                spawnBounds.y + spawnBounds.height / 2,false,
                 explodeXVelocity, explodeYVelocity, explodeTime));
         }
     }

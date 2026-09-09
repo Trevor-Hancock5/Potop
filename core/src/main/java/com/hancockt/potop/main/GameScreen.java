@@ -38,22 +38,24 @@ public class GameScreen implements Screen {
         gameAssets.load();
         playerData = new PlayerData();
         levelGeneration = new LevelGeneration(seed, playerData);
-        levelSystem = new LevelSystem();
+        waterSystem = new WaterSystem();
+        currencySystem = new CurrencySystem();
+        faucetSystem = new FaucetSystem(waterSystem, currencySystem);
+        checkpointSystem = new CheckpointSystem(waterSystem, currencySystem);
+        levelSystem = new LevelSystem(levelGeneration, waterSystem, faucetSystem, checkpointSystem);
         runData = levelSystem.loadLevel(LevelType.LEARNING_MODE);
 
         cameraSystem = new CameraSystem();
         renderingSystem = new RenderingSystem();
-        gameFlow = new GameFlow();
-        waterSystem = new WaterSystem();
-        faucetSystem = new FaucetSystem();
-        currencySystem = new CurrencySystem();
-        checkpointSystem = new CheckpointSystem();
-        physicsEngine = new PhysicsEngine();
+        physicsEngine = new PhysicsEngine(cameraSystem, levelSystem, waterSystem, faucetSystem, currencySystem,
+            checkpointSystem, levelGeneration);
+        gameFlow = new GameFlow(gameAssets, renderingSystem, cameraSystem, levelSystem, waterSystem, faucetSystem,
+            physicsEngine);
 
         persistentData = new PersistentData(); //TODO - long term save/loading save
 
 
-        levelSystem.restart(runData, playerData, waterSystem, faucetSystem);
+        levelSystem.restart(runData, playerData);
     }
 
     //REMEMBER: Everything in here is made 60 times a second!
@@ -64,9 +66,7 @@ public class GameScreen implements Screen {
             Gdx.app.exit();
         }
 
-        RunData temp = gameFlow.update(delta, runData, persistentData, playerData, gameAssets, renderingSystem, cameraSystem,
-                                    levelSystem, waterSystem, faucetSystem, currencySystem, checkpointSystem,
-                                    physicsEngine, levelGeneration);
+        RunData temp = gameFlow.update(new FrameRuntimeContext(delta, runData, persistentData, playerData));
         if(temp != null){
             runData = temp;
         }

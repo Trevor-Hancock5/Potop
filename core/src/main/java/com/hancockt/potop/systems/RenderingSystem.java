@@ -99,10 +99,9 @@ public class RenderingSystem {
         batch.end();
     }
 
-    public void drawShapes(RunData runData, PlayerData playerData, GameAssets gameAssets, OrthographicCamera camera, WaterSystem waterSystem,
-                           FaucetSystem faucetSystem){
+    public void drawShapes(RenderWorldView renderWorldView, GameAssets gameAssets, OrthographicCamera camera){
         //Draw sprites first
-        drawSprites(runData, playerData, gameAssets, camera, faucetSystem);
+        drawSprites(renderWorldView, gameAssets, camera);
 
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
@@ -114,12 +113,14 @@ public class RenderingSystem {
         shapeRenderer.setColor(water);
 
         float camLeft = camera.position.x - CameraSystem.VIEWPORT_WIDTH / 2;
-        shapeRenderer.rect(camLeft, 0, CameraSystem.VIEWPORT_WIDTH, waterSystem.getWaterLevel());
+        shapeRenderer.rect(camLeft, 0, CameraSystem.VIEWPORT_WIDTH, renderWorldView.waterLevel());
 
         shapeRenderer.end();
     }
 
-    public void drawSprites(RunData runData, PlayerData playerData, GameAssets gameAssets, OrthographicCamera camera, FaucetSystem faucetSystem){
+    public void drawSprites(RenderWorldView renderWorldView, GameAssets gameAssets, OrthographicCamera camera){
+        RunData runData = renderWorldView.runData();
+        PlayerData playerData = renderWorldView.playerData();
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
 
@@ -152,7 +153,7 @@ public class RenderingSystem {
 
             //Tint based on state for regular faucets
             if(!f.isWinFaucet() && f.getProgress() > 0){
-                float ratio = f.getProgress() / faucetSystem.getFaucetInteractionTime();
+                float ratio = f.getProgress() / renderWorldView.faucetInteractionTime();
                 float r = 1 - ratio * (1 - faucetGray);
                 float g = 1 - ratio * (1 - faucetGray);
                 float b = 1 - ratio * (1 - faucetGray);
@@ -187,13 +188,13 @@ public class RenderingSystem {
         batch.end();
     }
 
-    public void drawDeathText(OrthographicCamera camera, List<Float> deathXValues, WaterSystem waterSystem) {
+    public void drawDeathText(OrthographicCamera camera, List<Float> deathXValues, float waterLevel) {
         float bob = (float) Math.sin(TimeUtils.millis() / DEATH_TEXT_BOB_PERIOD) * DEATH_TEXT_BOB_AMOUNT;
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
 
         for(Float f : deathXValues) {
-            font.draw(batch, DEATH_TEXT, f, waterSystem.getWaterLevel() + DEATH_TEXT_WATER_OFFSET + bob);
+            font.draw(batch, DEATH_TEXT, f, waterLevel + DEATH_TEXT_WATER_OFFSET + bob);
         }
         batch.end();
     }
@@ -210,7 +211,11 @@ public class RenderingSystem {
         font.getData().setScale(1f); //reset
     }
 
-    public void drawHUD(RunData runData, PersistentData persistentData, PlayerData playerData, OrthographicCamera hudCam, float time){
+    public void drawHUD(HudView hudView, OrthographicCamera hudCam){
+        RunData runData = hudView.runData();
+        PersistentData persistentData = hudView.persistentData();
+        PlayerData playerData = hudView.playerData();
+        float time = hudView.time();
         batch.setProjectionMatrix(hudCam.combined);
         batch.begin();
         try {
@@ -293,7 +298,7 @@ public class RenderingSystem {
             yValues.add(2245f);
             scaleValues.add(0.75f);
 
-            drawText(text, xValues, yValues, scaleValues, camera);
+            drawText(new TextDrawRequest(text, xValues, yValues, scaleValues), camera);
         }
 
         if (runData.getCurrentLevel() == LevelType.INFINITE) {
@@ -312,18 +317,18 @@ public class RenderingSystem {
             yValues.add(140f);
             scaleValues.add(0.75f);
 
-            drawText(text, xValues, yValues, scaleValues, camera);
+            drawText(new TextDrawRequest(text, xValues, yValues, scaleValues), camera);
         }
     }
 
-    public void drawText(List<String> text, List<Float> xPos, List<Float> yPos, List<Float> scale, OrthographicCamera camera){
+    public void drawText(TextDrawRequest request, OrthographicCamera camera){
         batch.begin();
         batch.setProjectionMatrix(camera.combined);
 
-        for(int i = 0; i < text.size(); i++) {
-            font.getData().setScale(scale.get(i));
+        for(int i = 0; i < request.text().size(); i++) {
+            font.getData().setScale(request.scale().get(i));
 
-            font.draw(batch, text.get(i), xPos.get(i), yPos.get(i));
+            font.draw(batch, request.text().get(i), request.xPos().get(i), request.yPos().get(i));
         }
 
         batch.end();
