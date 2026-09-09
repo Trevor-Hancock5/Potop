@@ -316,18 +316,22 @@ public class PhysicsEngine {
             playerData.velocityX *= 1f + (speedRatio * 0.5f); // max of 1.5
         }
 
+        // TODO - move out
         waterSystem.updateWater(runData, delta);
 
         Rectangle playerRectFinal = new Rectangle(playerData.x, playerData.y, PlayerData.playerWidth, PlayerData.playerHeight);
+        // TODO - move out
         checkpointSystem.update(runData, playerRectFinal, waterSystem, currencySystem);
 
         // Define spark's head for future operations
         float sparkHeadX = playerData.x + ((float) PlayerData.playerWidth / 2);
         float sparkHeadY = playerData.y + PlayerData.playerHeight - 15;
 
+        // TODO - move out
         currencySystem.update(runData, persistentData, playerData, delta, sparkHeadX, sparkHeadY, playerRectFinal);
 
         // Update currency first before faucets in case it's a win faucet which changes to win state!
+        // TODO - move out
         faucetSystem.update(runData, delta, playerRectFinal, waterSystem, currencySystem);
 
         //death check
@@ -359,8 +363,13 @@ public class PhysicsEngine {
         runData.time += delta;
 
         //update infinite level if needed
+        // TODO - move out
         levelSystem.updateInfinite(runData, playerData, levelGeneration);
 
+
+        // TODO - move out
+        // TODO - move out
+        // TODO - move out
         //update animation from least to most important (to choose which animation is shown - default is idle!)
         if(playerData.velocityX < -showRunAnimationThreshold){
             currAnimation = AnimationKey.RUN_LEFT;
