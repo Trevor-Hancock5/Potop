@@ -16,6 +16,7 @@ public class PlayerData {
     public float velocityY;
     public float velocityX;
     public float impactVelocity; //velocity when landing! use for screen shake
+    public boolean receivedInput; //Don't update water until player presses movement keys
 
     public boolean onGround = false;
     public boolean justLanded = false; //for screen shake
@@ -35,6 +36,7 @@ public class PlayerData {
     public float reset(LevelType currentLevel){
         float waterLevel;
         RunData data = LevelGeneration.getAllLevels().get(currentLevel);
+        receivedInput = false;
 
         if(data.currCheckpoint != null){
             x = data.currCheckpoint.getX();

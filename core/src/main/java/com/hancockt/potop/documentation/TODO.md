@@ -17,15 +17,6 @@
 test:
 
 
-- Refactor code before adding upgrades because my goodness that'd be disgusting!
-  - Make a single change/refactor, ensure it still works, and commit. then repeat!
-
-Refactor order:  
-1. Check code style is met
-2. Fix the paramter drilling/deep coupling/dependency!
-
-- nerf faucets?
-- water level needs resetting when go from tutorial, pause, menu, then infinite mode!
 - Fix so that it works with different hz monitors (refresh rate! - how to emulate this and fix it? vsync?)
     - test by manually choosing delta?
     - add test: run spark for 10 seconds and record distance (could do the java tester bot, go into tutorial and run left
@@ -36,6 +27,7 @@ Refactor order:
       - Also check this for faucets and checkpoints and platforms. Nothing should overlap anything else!
       - Make a test! For test you can just test every object against every other one?
 - When you wall jump but stuck inside another wall, it shifts to the other wall's inside. Weird
+  - Just barely in the other wall when doing a standard or launch wall jump (so maybe some check regarding not overlapping!)
 - improve performance! seems slow! - Make an active platforms/collectibles that is within like 2k above and
   enough platforms to the previous 2 checkpoints
   - At a score of 10k (could be useful to just print out number of everything!):
@@ -43,10 +35,11 @@ Refactor order:
     Highest y platform: 12214
     Curr checkpoint y: 1989.0
     Lowest platform y still there: 500
+- Add some tests!
 
 ## Necessary Improvements!
 - setting to turn off screen shake!
-- No water rising UNTIL input has been received!
+- nerf faucets? (probably less of them as you go higher!
 - improve infinite mode generation: guarenteed way up in each half of the playing width!
 - fix regular jump animation
 - update platform art so good for wide blocks!
@@ -180,6 +173,8 @@ Refactor order:
 - transitions between screens
 - add settings for everything!
 - credits screen
+- Fix the paramter drilling/deep coupling/dependency! - future
+  - Better state machine!
 
 
 

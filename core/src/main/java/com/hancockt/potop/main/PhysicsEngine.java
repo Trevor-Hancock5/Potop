@@ -50,7 +50,6 @@ public class PhysicsEngine {
 
 
     /// Returns state of Spark (player) for animating
-    // TODO - remove all system classes and gameflow calls out of here, this should be JUST physics
     public AnimationKey updatePhysics(float delta, RunData runData, PersistentData persistentData, PlayerData playerData,
                                       CameraSystem cameraSystem,
                                       LevelSystem levelSystem, WaterSystem waterSystem,
@@ -63,6 +62,7 @@ public class PhysicsEngine {
         playerData.jumpBuffer += delta;
         if(Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)
             || Gdx.input.isKeyJustPressed(Input.Keys.W)){
+            playerData.receivedInput = true;
             playerData.jumpBuffer = 0; //just tried to jump
         }
 
@@ -80,12 +80,14 @@ public class PhysicsEngine {
         //Holding jump
         if ((Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.SPACE)
             || Gdx.input.isKeyPressed(Input.Keys.W)) && !playerData.onGround && playerData.velocityY > 0) {
+            playerData.receivedInput = true;
             playerData.velocityY += jumpHoldForce * delta;
         }
 
         //Or holding down
         float currFriction = groundFriction;
         if(Gdx.input.isKeyPressed(Input.Keys.DOWN) || Gdx.input.isKeyPressed(Input.Keys.S)){
+            playerData.receivedInput = true;
             if(!playerData.onGround) {
                 playerData.velocityY += downforceFallAcceleration * delta;
             } else{
@@ -216,10 +218,12 @@ public class PhysicsEngine {
 
         //wall jump
         if((onWall || playerData.wallCoyoteSeconds < coyoteThreshold)
-            && playerData.wallJumpCooldown >= wallJumpCooldownThreshold
-            && (Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)
-                    || Gdx.input.isKeyJustPressed(Input.Keys.W) || playerData.jumpBuffer < jumpBufferThreshold)
-            && !playerData.onGround){
+                && playerData.wallJumpCooldown >= wallJumpCooldownThreshold
+                && (Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)
+                        || Gdx.input.isKeyJustPressed(Input.Keys.W) || playerData.jumpBuffer < jumpBufferThreshold)
+                && !playerData.onGround){
+
+            playerData.receivedInput = true;
             //jump fires, reset cooldown
             playerData.wallJumpCooldown = 0f;
 
@@ -279,6 +283,7 @@ public class PhysicsEngine {
 
         //horizontal movement
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)){
+            playerData.receivedInput = true;
             if(playerData.onGround) {
                 playerData.velocityX -= accelerationX * delta * dangerBoost;
             } else{
@@ -287,6 +292,7 @@ public class PhysicsEngine {
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) {
+            playerData.receivedInput = true;
             if(playerData.onGround) {
                 playerData.velocityX += accelerationX * delta * dangerBoost;
             } else{
@@ -304,6 +310,7 @@ public class PhysicsEngine {
         if ((Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)
                     || Gdx.input.isKeyJustPressed(Input.Keys.W)|| playerData.jumpBuffer < jumpBufferThreshold)
                     && (playerData.onGround || playerData.coyoteSeconds <= coyoteThreshold)) {
+            playerData.receivedInput = true;
             playerData.coyoteSeconds = 100; //reset so can't double jump
             playerData.jumpBuffer = 100; //reset so can't double jump!
             playerData.velocityY = jumpForce * dangerBoost;
@@ -317,7 +324,9 @@ public class PhysicsEngine {
         }
 
         // TODO - move out
-        waterSystem.updateWater(runData, delta);
+        if(playerData.receivedInput) {
+            waterSystem.updateWater(runData, delta);
+        }
 
         Rectangle playerRectFinal = new Rectangle(playerData.x, playerData.y, PlayerData.playerWidth, PlayerData.playerHeight);
         // TODO - move out
