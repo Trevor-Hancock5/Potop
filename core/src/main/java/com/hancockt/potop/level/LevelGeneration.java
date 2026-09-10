@@ -19,6 +19,7 @@ public class LevelGeneration {
 
     private static final int BAND_HEIGHT = 250; //TUNABLE
     private static final float LEVEL_WIDTH = 3000; //TUNABLE
+    private static final int PRE_GENERATION_HEIGHT = 10_000; //TUNABLE
     public static final int GENERATION_HEIGHT = 2000; //TUNABLE
     private static final float minCheckpointHeightDistance = 1000f; //TUNABLE
     private static final float maxCheckpointHeightDistance = 2000f; //TUNABLE
@@ -30,7 +31,7 @@ public class LevelGeneration {
     private static final float minFaucetSpeedReduction = 10; //TUNABLE
     private static final float maxFaucetSpeedReduction = 60; //TUNABLE
     private static final float minNumPlatformsPerBand = 5; //TUNABLE
-    private static final int maxAttemptsPlacingPlatforms = 50; //TUNABLE
+    private static final int maxAttemptsPlacingPlatforms = 1000; //TUNABLE
     private static final int maxPrestigeCurrencyThreshold = 10_000; //TUNABLE
     private static final int minPrestigeCurrencyThreshold = 1_000; //TUNABLE
     private static final int chanceDecreaseThreshold = 5_000; //TUNABLE
@@ -41,6 +42,7 @@ public class LevelGeneration {
     private static final int reachableHorizontalMax = 325; //TUNABLE
     private static final int reachableVerticalMax = 100; //TUNABLE
 
+    public static ArrayList<Integer> attemptsList = new ArrayList<>(); //TODO - just for testing
 
     public LevelGeneration(long seed, PlayerData playerData){
         ALL_LEVELS.put(LevelType.LEARNING_MODE, buildTutorialLevel());
@@ -101,7 +103,8 @@ public class LevelGeneration {
         Random rng = new Random(seed);
         //just call generate band for each band until height
         highestPlatform = new Platform(0,0,75,25);
-        for(int i = 0; i <= GENERATION_HEIGHT; i += BAND_HEIGHT) {
+        // Generate up to PRE_GENERATION_HEIGHT to improve performance
+        for(int i = 0; i <= PRE_GENERATION_HEIGHT; i += BAND_HEIGHT) {
             highestPlatform = generateBand(platforms, checkpoints, i, highestPlatform,
                                             faucets, currencies, rng, playerData);
         }
@@ -217,9 +220,12 @@ public class LevelGeneration {
                 p = new Platform(xVal, yVal, width, height);
 
                 //check overlap and checkpoints (check last checkpoint only)
-                for(Platform bp : bandPlatforms){
-                    Rectangle currP = new Rectangle(p.getX(), p.getY(), p.getWidth(), p.getHeight());
-                    Rectangle bandP = new Rectangle(bp.getX(), bp.getY(), bp.getWidth(), bp.getHeight());
+                for(Platform allP : platforms){
+                    // All gaps between platforms horizontally should be playerWidth wide
+                    Rectangle currP = new Rectangle(p.getX() - ((float) PlayerData.playerWidth), p.getY(),
+                        p.getWidth() + ((float) PlayerData.playerWidth), p.getHeight());
+                    Rectangle bandP = new Rectangle(allP.getX() - ((float) PlayerData.playerWidth), allP.getY(),
+                        allP.getWidth() + ((float) PlayerData.playerWidth), allP.getHeight());
 
                     boolean overlapPlatform = currP.overlaps(bandP);
                     if(overlapPlatform){
@@ -251,6 +257,7 @@ public class LevelGeneration {
                 // until next band
             } while ((attempts < maxAttemptsPlacingPlatforms) && (needsRetry || overlapsFaucet || overlapsCheckpoint || !reachable));
 
+            attemptsList.add(attempts);
             platforms.add(p);
             bandPlatforms.add(p);
         }
