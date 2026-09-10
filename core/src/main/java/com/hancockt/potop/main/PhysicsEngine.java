@@ -42,6 +42,8 @@ public class PhysicsEngine {
     private static final float jumpPercentWallLaunchSide = 1.2f; //TUNABLE
     private static final float jumpPercentWallJumpUp = 1f; //TUNABLE
     private static final float jumpPercentWallJumpSide = .85f; //TUNABLE
+    // short period after a wall-jump during which side collision snapping is ignored
+    private static final float wallJumpSideCollisionIgnore = 0.04f; //TUNABLE
 
     private static final float showRunAnimationThreshold = 50f; //TUNABLE
     private static final float showFallAnimationThreshold = -100f; //TUNABLE
@@ -157,8 +159,11 @@ public class PhysicsEngine {
             if ((float) p.getWidth() / 2 > collisionThreshold) {
                 collisionPoint = p.getX() + p.getWidth() - collisionThreshold;
             }
-            if (playerRect.overlaps(platformRect) && playerData.velocityX < 0 && prevX + (float) (PlayerData.playerWidth / 2) >= collisionPoint
-                    && playerData.y + (PlayerData.playerHeight / collisionPlayerHeightDivisor) < p.getY() + p.getHeight()) {
+            if (playerRect.overlaps(platformRect)
+                    && playerData.velocityX < 0
+                    && prevX + (float) (PlayerData.playerWidth / 2) >= collisionPoint
+                    && playerData.y + (PlayerData.playerHeight / collisionPlayerHeightDivisor) < p.getY() + p.getHeight()
+                    && playerData.wallJumpCooldown >= wallJumpSideCollisionIgnore) {
                 playerData.x = p.getX() + p.getWidth();
                 playerData.velocityX = -1;
                 playerData.touchingWallRight = true;
@@ -170,8 +175,11 @@ public class PhysicsEngine {
             if ((float) p.getWidth() / 2 > collisionThreshold) {
                 collisionPoint = p.getX() + collisionThreshold;
             }
-            if (playerRect.overlaps(platformRect) && playerData.velocityX > 0 && prevX + (float) (PlayerData.playerWidth / 2) <= collisionPoint
-                    && playerData.y + (PlayerData.playerHeight / collisionPlayerHeightDivisor) < p.getY() + p.getHeight()) {
+            if (playerRect.overlaps(platformRect)
+                    && playerData.velocityX > 0
+                    && prevX + (float) (PlayerData.playerWidth / 2) <= collisionPoint
+                    && playerData.y + (PlayerData.playerHeight / collisionPlayerHeightDivisor) < p.getY() + p.getHeight()
+                    && playerData.wallJumpCooldown >= wallJumpSideCollisionIgnore) {
                 playerData.x = p.getX() - PlayerData.playerWidth;
                 playerData.velocityX = 1;
                 playerData.touchingWallLeft = true;
