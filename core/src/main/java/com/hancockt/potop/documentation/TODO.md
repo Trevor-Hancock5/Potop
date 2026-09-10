@@ -28,17 +28,9 @@ test:
   are inaccessible. So fix that!
       - Also check this for faucets and checkpoints and platforms. Nothing should overlap anything else!
       - Make a test! For test you can just test every object against every other one?
-- When you wall jump but stuck inside another wall, it shifts to the other wall's inside. Weird
-  - Just barely in the other wall when doing a standard or launch wall jump (so maybe some check regarding not overlapping!)
-  - INSTEAD, NO WALL JUMP IF YOU ARE INSIDE A PLATFORM
 - improve performance! seems slow! - Make an active platforms/collectibles that is within like 2k above and
   enough platforms to the previous 2 checkpoints
-  - At a score of 10k (could be useful to just print out number of everything!):
-    Num platforms made: 2225
-    Highest y platform: 12214
-    Curr checkpoint y: 1989.0
-    Lowest platform y still there: 500
-- Add some tests!
+- Add some tests!!
 
 ## Necessary Improvements!
 - setting to turn off screen shake!
