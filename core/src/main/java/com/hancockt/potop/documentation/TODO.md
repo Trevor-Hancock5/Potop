@@ -19,6 +19,7 @@ test:
 - optional parameters (default values), maybe replace some calls with RunData/PlayerData! (like levelGeneration)
 
 - Fix so that it works with different hz monitors (refresh rate! - how to emulate this and fix it? vsync?)
+    - PHYSICS WORKS, CAMERA DOESN'T!!
     - test by manually choosing delta?
     - add test: run spark for 10 seconds and record distance (could do the java tester bot, go into tutorial and run left
       and then get x on different simulation framerates)
@@ -29,6 +30,7 @@ test:
       - Make a test! For test you can just test every object against every other one?
 - When you wall jump but stuck inside another wall, it shifts to the other wall's inside. Weird
   - Just barely in the other wall when doing a standard or launch wall jump (so maybe some check regarding not overlapping!)
+  - INSTEAD, NO WALL JUMP IF YOU ARE INSIDE A PLATFORM
 - improve performance! seems slow! - Make an active platforms/collectibles that is within like 2k above and
   enough platforms to the previous 2 checkpoints
   - At a score of 10k (could be useful to just print out number of everything!):
