@@ -47,8 +47,10 @@ public class CameraSystem {
         float vertLookAhead = playerData.velocityY * verticalLookaheadFactor;
         float targetY = GameFlow.GAME_STATE == GameState.DEATH ? Math.max(waterSystem.getWaterLevel(), lowestCameraY) : Math.max(playerData.y+25+vertLookAhead, lowestCameraY);
 
-        camera.position.x += (targetX - camera.position.x) * cameraLerpSpeed;
-        camera.position.y += (targetY - camera.position.y) * (cameraLerpSpeed / 3);
+        float lerpFactor = 1f - (float)Math.pow(1f - cameraLerpSpeed, delta * 60f);
+
+        camera.position.x += (targetX - camera.position.x) * lerpFactor;
+        camera.position.y += (targetY - camera.position.y) * (lerpFactor / 3f);
 
         if(playerData.justLanded && screenShakeAccumulation < screenShake){
             if(playerData.impactVelocity / physicsEngine.maxFallSpeed > 0.5){
@@ -58,8 +60,9 @@ public class CameraSystem {
             }
 
             // For both, we are changing from -3 to 3
-            camera.position.x += (float) ((Math.random() - 0.5) * (screenShakeIntensity * (2 + playerData.impactVelocity / physicsEngine.maxFallSpeed)));
-            camera.position.y += (float) ((Math.random() - 0.5) * (screenShakeIntensity * (2 + playerData.impactVelocity / physicsEngine.maxFallSpeed)));
+            float shakeScale = delta * 60f; // normalizes to 60fps equivalent
+            camera.position.x += (float)((Math.random() - 0.5) * (screenShakeIntensity * (2 + playerData.impactVelocity / physicsEngine.maxFallSpeed)) * shakeScale);
+            camera.position.y += (float)((Math.random() - 0.5) * (screenShakeIntensity * (2 + playerData.impactVelocity / physicsEngine.maxFallSpeed)) * shakeScale);
         }
         camera.update();
     }
