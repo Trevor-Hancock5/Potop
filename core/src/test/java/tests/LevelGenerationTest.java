@@ -1,6 +1,9 @@
 package tests;
 
 import com.badlogic.gdx.math.Rectangle;
+import com.hancockt.potop.features.Checkpoint;
+import com.hancockt.potop.features.Currency;
+import com.hancockt.potop.features.Faucet;
 import com.hancockt.potop.features.Platform;
 import com.hancockt.potop.level.LevelGeneration;
 import com.hancockt.potop.level.LevelType;
@@ -31,7 +34,7 @@ public class LevelGenerationTest {
                     Platform p2 = platforms.get(k);
                     Rectangle r1 = new Rectangle(p1.getX(), p1.getY(), p1.getWidth(), p1.getHeight());
                     Rectangle r2 = new Rectangle(p2.getX(), p2.getY(), p2.getWidth(), p2.getHeight());
-                    assertFalse(r1.overlaps(r2), new StringBuilder().append("i,j,k: ").append(i).append(",").append(j).append(",").append(k).append(". seed: ").append(runData.seed).append(". p1 (x,y): (").append(p1.getX()).append(",").append(p1.getY()).append("). ").append("p2 (x,y): (").append(p2.getX()).append(",").append(p2.getY()).append("). \n").append(printStats(maxList, avgList)).toString());
+                    assertFalse(r1.overlaps(r2), "platform overlaps another platform");
                 }
             }
 
@@ -57,6 +60,16 @@ public class LevelGenerationTest {
         for(int i = 0; i < NUM_GENERATED_LEVELS; i ++){
             RunData runData = generateLevel();
             //CHECK
+            List<Faucet> faucets = runData.getFaucets();
+            for(int j = 0; j < faucets.size(); j++){
+                for(int k = j+1; k < faucets.size(); k++){
+                    Faucet f1 = faucets.get(j);
+                    Faucet f2 = faucets.get(k);
+                    Rectangle r1 = new Rectangle(f1.getX(), f1.getY(), f1.getWidth(), f1.getHeight());
+                    Rectangle r2 = new Rectangle(f2.getX(), f2.getY(), f2.getWidth(), f2.getHeight());
+                    assertFalse(r1.overlaps(r2), "Faucet overlaps faucet");
+                }
+            }
         }
     }
 
@@ -65,14 +78,37 @@ public class LevelGenerationTest {
         for(int i = 0; i < NUM_GENERATED_LEVELS; i ++){
             RunData runData = generateLevel();
             //CHECK
+            List<Checkpoint> checkpoints = runData.getCheckpoints();
+            for(int j = 0; j < checkpoints.size(); j++){
+                for(int k = j+1; k < checkpoints.size(); k++){
+                    Checkpoint c1 = checkpoints.get(j);
+                    Checkpoint c2 = checkpoints.get(k);
+                    Rectangle r1 = new Rectangle(c1.getX(), c1.getY(), c1.getWidth(), c1.getHeight());
+                    Rectangle r2 = new Rectangle(c2.getX(), c2.getY(), c2.getWidth(), c2.getHeight());
+                    assertFalse(r1.overlaps(r2), "checkpoint overlaps another checkpoint");
+                }
+            }
         }
     }
 
     @Test
     public void currencyShouldNotOverlapCurrency(){
+        float width = Currency.WIDTH;
+        float height = Currency.HEIGHT;
         for(int i = 0; i < NUM_GENERATED_LEVELS; i ++){
             RunData runData = generateLevel();
             //CHECK
+            List<Currency> currencies = runData.getCurrencies();
+            for(int j = 0; j < currencies.size(); j++){
+                for(int k = j+1; k < currencies.size(); k++){
+                    Currency c1 = currencies.get(j);
+                    Currency c2 = currencies.get(k);
+
+                    Rectangle r1 = new Rectangle(c1.getX(), c1.getY(), width, height);
+                    Rectangle r2 = new Rectangle(c2.getX(), c2.getY(), width, height);
+                    assertFalse(r1.overlaps(r2), "Currency overlaps another currency");
+                }
+            }
         }
     }
 
@@ -82,6 +118,27 @@ public class LevelGenerationTest {
         for(int i = 0; i < NUM_GENERATED_LEVELS; i ++){
             RunData runData = generateLevel();
             //CHECK
+            List<Platform> platforms = runData.getPlatforms();
+            List<Faucet> faucets = runData.getFaucets();
+            List<Checkpoint> checkpoints = runData.getCheckpoints();
+            List<Currency> currencies = runData.getCurrencies();
+            for(Platform p : platforms){
+                Rectangle platRect = new Rectangle(p.getX(), p.getY(), p.getWidth(), p.getHeight());
+                for(Faucet f : faucets){
+                    Rectangle fRect = new Rectangle(f.getX(), f.getY(), f.getWidth(), f.getHeight());
+                    assertFalse(platRect.overlaps(fRect), "Faucet overlaps a platform");
+                }
+
+                for(Checkpoint c : checkpoints){
+                    Rectangle checkRect = new Rectangle(c.getX(), c.getY(), c.getWidth(), c.getHeight());
+                    assertFalse(platRect.overlaps(checkRect), "Checkpoint overlaps platform");
+                }
+
+                for(Currency curr : currencies){
+                    Rectangle currRect = new Rectangle(curr.getX(), curr.getY(), Currency.WIDTH, Currency.HEIGHT);
+                    assertFalse(platRect.overlaps(currRect), "Currency overlaps platform");
+                }
+            }
         }
     }
 
@@ -91,6 +148,19 @@ public class LevelGenerationTest {
         for(int i = 0; i < NUM_GENERATED_LEVELS; i ++){
             RunData runData = generateLevel();
             //CHECK
+            for(Faucet f : runData.getFaucets()){
+                Rectangle fRect = new Rectangle(f.getX(), f.getY(), f.getWidth(), f.getHeight());
+
+                for(Checkpoint c : runData.getCheckpoints()){
+                    Rectangle cRect = new Rectangle(c.getX(), c.getY(), c.getWidth(), c.getHeight());
+                    assertFalse(fRect.overlaps(cRect), "Checkpoint overlaps faucet");
+                }
+
+                for(Currency c : runData.getCurrencies()){
+                    Rectangle cRect = new Rectangle(c.getX(), c.getY(), Currency.WIDTH, Currency.HEIGHT);
+                    assertFalse(fRect.overlaps(cRect), "Currency overlaps faucet");
+                }
+            }
         }
     }
 
@@ -99,6 +169,14 @@ public class LevelGenerationTest {
         for(int i = 0; i < NUM_GENERATED_LEVELS; i ++){
             RunData runData = generateLevel();
             //CHECK
+            for(Checkpoint c : runData.getCheckpoints()){
+                Rectangle checkRect = new Rectangle(c.getX(), c.getY(), c.getWidth(), c.getHeight());
+
+                for(Currency curr : runData.getCurrencies()){
+                    Rectangle currRect = new Rectangle(curr.getX(), curr.getY(), Currency.WIDTH, Currency.HEIGHT);
+                    assertFalse(checkRect.overlaps(currRect), "Currency overlaps checkpoint");
+                }
+            }
         }
     }
 
