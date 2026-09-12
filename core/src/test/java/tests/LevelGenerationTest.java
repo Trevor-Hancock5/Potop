@@ -11,8 +11,7 @@ import com.hancockt.potop.state.PlayerData;
 import com.hancockt.potop.state.RunData;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -204,8 +203,146 @@ public class LevelGenerationTest {
     //(max height of checkpoint, and average distance between checkpoints and faucets)
     //more info check then test!
 
-    //TODO - check platform reachability?
-    // get distances between the closest platforms between bands
+    //TODO - check platform reachability
+    @Test
+    public void checkReachability(){
+        // limited amount of failures - assume wall jumping can fix?
+
+        final int maxLeap = 550; // Horizontal
+        final int maxJump = 150; // Vertical
+        final float fallMultiplierForLeap = 1.5f; // If falling, allow for further leap //TODO - check!
+        final int totalTestHeight = 100_000;
+        final int reachableBuffer = 1000;
+        final float percentLeapAtMaxJump = 0.9f;
+
+        // For fails
+        int highestY = 0;
+        long seed;
+
+        for(int i = 0; i < NUM_GENERATED_LEVELS / 5; i++) {
+            highestY = 0;
+            RunData runData = generateLevel(totalTestHeight);
+            seed = runData.seed;
+
+            List<Platform> platforms = runData.getPlatforms();
+            //Disregard boundary walls
+            platforms.removeIf(Platform::isBoundaryWall);
+            platforms.sort(Comparator.comparingInt(Platform::getY));
+
+            List<Platform> startingPlatforms = platforms.stream()
+                .takeWhile(p -> p.getY() < maxJump) //use this since platforms is sorted!
+                .toList();
+
+            // platforms that are reachable that need to be checked for what they can reach
+            Queue<Platform> reachable = new ArrayDeque<>(startingPlatforms);
+
+            // platforms that have been visited and CAN be reached! (so no need to check again!)
+            Set<Platform> visited = new HashSet<>(startingPlatforms);
+
+            while (!reachable.isEmpty()){
+                Platform curr = reachable.poll();
+
+                // Update highest y
+                if(curr.getY() + curr.getHeight() > highestY){
+                    highestY = curr.getY() + curr.getHeight();
+                }
+
+                //Check if at top
+                if (curr.getY() + curr.getHeight() >= totalTestHeight - reachableBuffer){ //minus 1,000 for wiggle room
+                    break;
+                }
+
+                float leftX = curr.getX() - (maxLeap * fallMultiplierForLeap);
+                float rightX = curr.getX() + curr.getWidth() + (maxLeap * fallMultiplierForLeap);
+                float downY = curr.getY() - (2 * maxJump);
+                float upY = curr.getY() + curr.getHeight() + maxJump;
+
+                //get potential platforms within bounding box - using fact it's sorted for speed
+                List<Platform> closeToCurr = new ArrayList<>();
+                for (Platform p : platforms) {
+                    if (p.getY() + p.getHeight() < downY) continue; // Too low, keep looking
+                    if (p.getY() > upY) break; // Too high, stop looking completely (because it's sorted!)
+
+                    // It's in the vertical window, now check horizontal
+                    if (p.getX() + p.getWidth() > leftX && p.getX() < rightX) {
+                        if (!visited.contains(p)) {
+                            // Only add platforms that haven't been visited (and are reachable)
+                            closeToCurr.add(p);
+                        }
+                    }
+                }
+
+                //check if they are actually reachable!
+                for(Platform p : closeToCurr){
+                    float dx;
+                    if(p.getX() + p.getWidth() < curr.getX()){
+                        dx = curr.getX() - (p.getX() + p.getWidth());
+                    } else if(p.getX() > curr.getX() + curr.getWidth()){
+                        dx = p.getX() - (curr.getX() + curr.getWidth());
+                    } else{
+                        //platform edges are within current platform
+                        dx = 0;
+                    }
+
+                    float dy;
+                    if(p.getY() > curr.getY() + curr.getHeight()){
+                        dy = p.getY() - (curr.getY() + curr.getHeight());
+                    } else if (p.getY() + p.getHeight() < curr.getY()){
+                        dy = -1 * (curr.getY() - (p.getY() + p.getHeight())); // Make negative to indicate drop
+                    } else{
+                        dy = 0;
+                    }
+
+                    if(dy < 0){
+                        // check downward jump
+                        if((-1 * dy) > 0.5f * maxJump){
+                            // Big enough fall to justify a larger leap distance!
+                            if(dx <= maxLeap * fallMultiplierForLeap){
+                                reachable.offer(p);
+                                visited.add(p);
+                            }
+                        } else{
+                            //small fall, no extra horizontal distance allowed
+                            if(dx <= maxLeap){
+                                reachable.offer(p);
+                                visited.add(p);
+                            }
+                        }
+                    } else{
+                        // upward jump, account for jump and leap combo!
+                        dy = Math.abs(dy);
+                        if(dy <= maxJump){
+                            float forgiveness = 1.0f - percentLeapAtMaxJump;
+                            float allowedDx = maxLeap * (1.0f - (forgiveness * (dy / maxJump)));
+
+                            if(dx < allowedDx){
+                                reachable.offer(p);
+                                visited.add(p);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (highestY < totalTestHeight - reachableBuffer) {
+                System.out.println("TEST DIED ON SEED: " + seed);
+                System.out.println("Highest platform reached was:");
+
+                // Find the platform that matches highestY
+                for (Platform p : visited) {
+                    if (p.getY() + p.getHeight() == highestY) {
+                        System.out.println("X: " + p.getX() + ", Y: " + p.getY() +
+                            ", Width: " + p.getWidth() + ", Height: " + p.getHeight());
+                        break;
+                    }
+                }
+                System.out.println("Go to this seed and stand on this platform. Where do you jump next?");
+            }
+
+            assertFalse(reachable.isEmpty(), "Reachable empty at: " + highestY + ". For seed: " + seed); // there should still be reachable platforms!
+            assertTrue(highestY >= totalTestHeight - reachableBuffer, "Highest platform y is not within reachable buffer!");
+        }
+    }
 
     @Test
     public void checkPrestigeCurrency(){
