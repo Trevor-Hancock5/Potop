@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class LevelGenerationTest {
     private static final int NUM_GENERATED_LEVELS = 100;
@@ -25,7 +26,7 @@ public class LevelGenerationTest {
         ArrayList<Integer> maxList = new ArrayList<>();
         ArrayList<Double> avgList = new ArrayList<>();
         for(int i = 0; i < NUM_GENERATED_LEVELS; i ++){
-            RunData runData = generateLevel();
+            RunData runData = generateLevel(TEST_HEIGHT);
             //CHECK
             List<Platform> platforms = runData.getPlatforms();
             for(int j = 0; j < platforms.size(); j++){
@@ -58,7 +59,7 @@ public class LevelGenerationTest {
     @Test
     public void faucetsShouldNotOverlapFaucets(){
         for(int i = 0; i < NUM_GENERATED_LEVELS; i ++){
-            RunData runData = generateLevel();
+            RunData runData = generateLevel(TEST_HEIGHT);
             //CHECK
             List<Faucet> faucets = runData.getFaucets();
             for(int j = 0; j < faucets.size(); j++){
@@ -76,7 +77,7 @@ public class LevelGenerationTest {
     @Test
     public void checkpointsShouldNotOverlapCheckpoints(){
         for(int i = 0; i < NUM_GENERATED_LEVELS; i ++){
-            RunData runData = generateLevel();
+            RunData runData = generateLevel(TEST_HEIGHT);
             //CHECK
             List<Checkpoint> checkpoints = runData.getCheckpoints();
             for(int j = 0; j < checkpoints.size(); j++){
@@ -96,7 +97,7 @@ public class LevelGenerationTest {
         float width = Currency.WIDTH;
         float height = Currency.HEIGHT;
         for(int i = 0; i < NUM_GENERATED_LEVELS; i ++){
-            RunData runData = generateLevel();
+            RunData runData = generateLevel(TEST_HEIGHT);
             //CHECK
             List<Currency> currencies = runData.getCurrencies();
             for(int j = 0; j < currencies.size(); j++){
@@ -116,7 +117,7 @@ public class LevelGenerationTest {
     public void platformsShouldNotOverlapOtherObjects(){
         //faucet, checkpoint, currency
         for(int i = 0; i < NUM_GENERATED_LEVELS; i ++){
-            RunData runData = generateLevel();
+            RunData runData = generateLevel(TEST_HEIGHT);
             //CHECK
             List<Platform> platforms = runData.getPlatforms();
             List<Faucet> faucets = runData.getFaucets();
@@ -146,7 +147,7 @@ public class LevelGenerationTest {
     public void faucetsShouldNotOverlapOtherObjects(){
         //checkpoints and currency
         for(int i = 0; i < NUM_GENERATED_LEVELS; i ++){
-            RunData runData = generateLevel();
+            RunData runData = generateLevel(TEST_HEIGHT);
             //CHECK
             for(Faucet f : runData.getFaucets()){
                 Rectangle fRect = new Rectangle(f.getX(), f.getY(), f.getWidth(), f.getHeight());
@@ -167,7 +168,7 @@ public class LevelGenerationTest {
     @Test
     public void checkpointsShouldNotOverlapCurrency(){
         for(int i = 0; i < NUM_GENERATED_LEVELS; i ++){
-            RunData runData = generateLevel();
+            RunData runData = generateLevel(TEST_HEIGHT);
             //CHECK
             for(Checkpoint c : runData.getCheckpoints()){
                 Rectangle checkRect = new Rectangle(c.getX(), c.getY(), c.getWidth(), c.getHeight());
@@ -180,16 +181,67 @@ public class LevelGenerationTest {
         }
     }
 
+    // TODO - currency reachable!
+    @Test
+    public void isCurrencyReachable(){
+        for(int i = 0; i < NUM_GENERATED_LEVELS; i++){
+            RunData runData = generateLevel(TEST_HEIGHT);
+            for(Currency c : runData.getCurrencies()){
+                //adjust dimensions to check reachability
+                Rectangle cRect = new Rectangle(c.getX(), c.getY(),
+                    Currency.WIDTH, Currency.HEIGHT);
+
+                for(Platform p : runData.getPlatforms()){
+                    Rectangle pRect = new Rectangle(p.getX(), p.getY() - PlayerData.playerHeight, p.getWidth(),
+                        p.getHeight() + PlayerData.playerHeight);
+                    assertFalse(pRect.overlaps(cRect), "Currency not reachable");
+                }
+            }
+        }
+    }
+
+    // TODO - distance check between checkpoints and faucets
+    //(max height of checkpoint, and average distance between checkpoints and faucets)
+    //more info check then test!
+
+    //TODO - check platform reachability?
+    // get distances between the closest platforms between bands
+
+    @Test
+    public void checkPrestigeCurrency(){
+        int numRuns = NUM_GENERATED_LEVELS * 25; //This is quick and easy test but need more samples!
+        float goalAveragePrestigePerLevel = 0.05f; //1 in 20 runs has a prestige
+
+        ArrayList<Integer> numPrestigePerLevel = new ArrayList<>();
+        for(int i = 0; i < numRuns; i++){
+            int numPrestige = 0;
+            RunData runData = generateLevel(LevelGeneration.getMaxPrestigeCurrencyThreshold());
+            for(Currency c : runData.getCurrencies()){
+                if(c.isPrestige()){
+                    numPrestige++;
+                }
+            }
+            numPrestigePerLevel.add(numPrestige);
+
+            if(numPrestige > LevelGeneration.maxPrestigePlaced){
+                System.out.println("Num prestige placed: " + numPrestige);
+            }
+            assertFalse(numPrestige > LevelGeneration.maxPrestigePlaced, "More than max allowed prestige currency spawned in a level!");
+        }
+        double average = numPrestigePerLevel.stream().mapToInt(Integer::intValue).average().orElse(0.0);
+        System.out.println("Average prestige currency spawn: " + average);
+        assertTrue(average <= goalAveragePrestigePerLevel * 2 && average > goalAveragePrestigePerLevel / 2, "Too high/low of average spawning for prestige: " + average); //no higher than this
+    }
 
 
-    private RunData generateLevel(){
+    private RunData generateLevel(int height){
         long seed = System.currentTimeMillis();
         PlayerData playerData = new PlayerData();
-        LevelGeneration levelGeneration = new LevelGeneration(seed, playerData);
+        LevelGeneration levelGeneration = new LevelGeneration(seed);
         RunData runData = LevelGeneration.getAllLevels().get(LevelType.INFINITE); // at 10_000
 
-        for(int i = 10_000; i < TEST_HEIGHT; i += 2000) {
-            levelGeneration.addToInfiniteLevel(runData.getPlatforms(), runData.getCheckpoints(), runData.getFaucets(), runData.getCurrencies(), runData.rng, playerData);
+        for(int i = 10_000; i < height; i += 2000) {
+            levelGeneration.addToInfiniteLevel(runData.getPlatforms(), runData.getCheckpoints(), runData.getFaucets(), runData.getCurrencies(), runData.rng);
         }
         return runData;
     }
@@ -207,13 +259,13 @@ public class LevelGenerationTest {
             .orElse(0.0); // fallback value if the list is empty
 
         double maxAvg = avgList.stream()
-            .mapToInt(Double::intValue)
+            .mapToDouble(Double::doubleValue)
             .max()
             .orElse(0); // fallback value if the list is empty
 
 // Average (returns an OptionalDouble)
         double averageAverage = avgList.stream()
-            .mapToInt(Double::intValue)
+            .mapToDouble(Double::doubleValue)
             .average()
             .orElse(0.0); // fallback value if the list is empty
 
@@ -225,6 +277,42 @@ public class LevelGenerationTest {
         ret += "max max: " + maxMax + "\n";
 
         return ret;
+    }
+
+
+
+    // TODO - use?
+    public class JumpMetrics {
+
+        public static double computeMaxLeap(double vx, double jumpVelocity, double gravity) {
+            double y = 0;
+            double x = 0;
+            double vy = jumpVelocity; // upward impulse
+
+            // Simulate frame-by-frame until the player lands back at y <= 0
+            while (true) {
+                x += vx;
+                y += vy;
+                vy -= gravity;
+
+                if (y <= 0 && vy < 0) {
+                    break; // Hit the ground
+                }
+            }
+            return x;
+        }
+
+        public static double computeMaxJump(double jumpVelocity, double gravity) {
+            double y = 0;
+            double vy = jumpVelocity;
+
+            // Simulate until the apex (vy <= 0)
+            while (vy > 0) {
+                y += vy;
+                vy -= gravity;
+            }
+            return y;
+        }
     }
 }
 

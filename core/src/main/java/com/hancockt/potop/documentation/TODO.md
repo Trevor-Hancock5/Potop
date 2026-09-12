@@ -13,28 +13,17 @@
 # Milestones:
 ## Bug/code fix
 
-
-test: 
-
 - optional parameters (default values), maybe replace some calls with RunData/PlayerData! (like levelGeneration)
-
-- Fix so that it works with different hz monitors (refresh rate! - how to emulate this and fix it? vsync?)
-    - PHYSICS WORKS, CAMERA DOESN'T!!
-    - test by manually choosing delta?
-    - add test: run spark for 10 seconds and record distance (could do the java tester bot, go into tutorial and run left
-      and then get x on different simulation framerates)
-- Bug (add some tests - as much as you can add for testing!!): matches on checkpoints or even platforms, i think this is due to interband generation. So when platforms,
-  faucets, and checkpoints are added on top of previous band, it doesn't do anything about the currency. Meaning some
-  are inaccessible. So fix that!
-      - Also check this for faucets and checkpoints and platforms. Nothing should overlap anything else!
-      - Make a test! For test you can just test every object against every other one?
+- update max horizontal and max vertical for physics! 
 - improve performance! seems slow! - Make an active platforms/collectibles that is within like 2k above and
   enough platforms to the previous 2 checkpoints
-- Add some tests!!
+  - How to quantify? Test? See if it's needed?
+  - Need to speed up level generation for testing!
 
 ## Necessary Improvements!
 - setting to turn off screen shake!
-- nerf faucets? (probably less of them as you go higher!
+- nerf faucets? (probably less of them as you go higher!) 
+- Denser level generation
 - improve infinite mode generation: guarenteed way up in each half of the playing width!
 - fix regular jump animation
 - update platform art so good for wide blocks!

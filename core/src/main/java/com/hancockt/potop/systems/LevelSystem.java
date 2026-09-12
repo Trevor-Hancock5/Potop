@@ -30,7 +30,7 @@ public class LevelSystem {
         if (runData.getCurrentLevel() == LevelType.INFINITE) {
             waterSystem.updateCheckpointWaterLevel(runData, true);
             runData.deathXValues = new ArrayList<>(); //reset
-            levelGeneration.regenerateInfinite(seed, playerData);
+            levelGeneration.regenerateInfinite(seed);
             tempRunData = loadLevel(LevelType.INFINITE); //regenerate!
         }
         if(tempRunData != null){
@@ -54,7 +54,7 @@ public class LevelSystem {
         if(runData.getCurrentLevel() == LevelType.INFINITE) {
             if (playerData.y > levelGeneration.getHighestYInInfinite() - LevelGeneration.GENERATION_HEIGHT) {
                 levelGeneration.addToInfiniteLevel(runData.getPlatforms(), runData.getCheckpoints(),
-                    runData.getFaucets(), runData.getCurrencies(), runData.rng, playerData);
+                    runData.getFaucets(), runData.getCurrencies(), runData.rng);
             }
         }
     }

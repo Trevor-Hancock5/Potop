@@ -36,17 +36,20 @@ public class LevelGeneration {
     private static final int minPrestigeCurrencyThreshold = 1_000; //TUNABLE
     private static final int chanceDecreaseThreshold = 5_000; //TUNABLE
     private static final float prestigeCurrChanceMax = 0.0001f; // TUNABLE todo - tune this, use a test. Generate up to 10k 100 times and in 50% of runs >=1 is placed
-    private static float prestigeCurrChanceMin = 0.000001f; //TUNABLE
+    private static final float prestigeCurrChanceMin = 0.000001f; //TUNABLE
     private static final float minCurrencyChanceOfPlacement = 0.05f; // only on 5% of platforms to start - TUNABLE
     private static final float maxCurrencyChanceOfPlacement = 0.5f; //TUNABLE
     private static final int reachableHorizontalMax = 325; //TUNABLE - TODO check
     private static final int reachableVerticalMax = 100; //TUNABLE - TODO check
+    private static int numPrestigePlaced = 0;
+    public static final int maxPrestigePlaced = 5;
 
     public static ArrayList<Integer> attemptsList = new ArrayList<>(); //TODO - just for testing
 
-    public LevelGeneration(long seed, PlayerData playerData){
+    public LevelGeneration(long seed){
+        numPrestigePlaced = 0; //reset
         ALL_LEVELS.put(LevelType.LEARNING_MODE, buildTutorialLevel());
-        ALL_LEVELS.put(LevelType.INFINITE, buildInfiniteLevel(seed, playerData));
+        ALL_LEVELS.put(LevelType.INFINITE, buildInfiniteLevel(seed));
     }
 
     public static Map<LevelType, RunData> getAllLevels(){
@@ -55,6 +58,10 @@ public class LevelGeneration {
 
     public int getHighestYInInfinite(){
         return highestInfiniteY;
+    }
+
+    public static int getMaxPrestigeCurrencyThreshold(){
+        return maxPrestigeCurrencyThreshold;
     }
 
     private static RunData buildTutorialLevel(){
@@ -93,8 +100,7 @@ public class LevelGeneration {
         );
     }
 
-    private RunData buildInfiniteLevel(long seed, PlayerData playerData){
-        //use seeds for reproducibility in infinite mode and leaderboard
+    private RunData buildInfiniteLevel(long seed){
         List<Checkpoint> checkpoints = new ArrayList<>();
         List<Platform> platforms = new ArrayList<>();
         List<Faucet> faucets = new ArrayList<>();
@@ -117,7 +123,7 @@ public class LevelGeneration {
     }
 
     public void addToInfiniteLevel(List<Platform> platforms, List<Checkpoint> checkpoints,
-                                               List<Faucet> faucets, List<Currency> currencies, Random rng, PlayerData playerData){
+                                               List<Faucet> faucets, List<Currency> currencies, Random rng){
         //Add another 2000 height to the infinite level
         int maxAdditionY = highestInfiniteY + GENERATION_HEIGHT;
         for(int i = highestInfiniteY; i < maxAdditionY; i += BAND_HEIGHT){
@@ -277,28 +283,28 @@ public class LevelGeneration {
             //prestige currency chance, super low chance just in case player can't reach factory threshold
             boolean hasFactory = false; //TODO - once logic in place, get this dynamically!
 
-            boolean placedPrestige = false;
-            if(!hasFactory && p.getY() < maxPrestigeCurrencyThreshold && p.getY() > minPrestigeCurrencyThreshold){
+            boolean justPlacedPrestige = false;
+            if(!hasFactory && p.getY() < maxPrestigeCurrencyThreshold && p.getY() > minPrestigeCurrencyThreshold
+                    && numPrestigePlaced < maxPrestigePlaced){ // Only place 1 prestige currency per generation!
                 //The factory unlocks at 10k height or if they get a firewood before that point
                 //So this is for players that can't get to 10k, thus, the lower they are the higher chance it is so they
                 //have the chance to still unlock the factory
 
                 float chance = p.getY() < chanceDecreaseThreshold ? prestigeCurrChanceMax : prestigeCurrChanceMin;
-                if(rng.nextFloat() < chance){
-                    placedPrestige = true;
-                }
 
-                if(placedPrestige){
+                if(rng.nextFloat() < chance){
                     int placementX = rng.nextInt(p.getX(), p.getX() + p.getWidth() - (int)Currency.WIDTH);
                     Currency curr = new Currency(placementX, p.getY() + p.getHeight(), true);
                     if(checkNoCurrencyOverlap(curr, platforms, checkpoints, faucets)) {
+                        justPlacedPrestige = true;
                         currencies.add(curr);
+                        numPrestigePlaced++;
                     }
                 }
             }
 
             //standard currency getting placed
-            if(!placedPrestige){
+            if(!justPlacedPrestige){
                 //how many can I place on this platform?
                 int maxPlacements = Math.max((int) (p.getWidth() / Currency.WIDTH), 1); //at least 1 possible place on each platform
 
@@ -408,7 +414,7 @@ public class LevelGeneration {
         throw new RuntimeException("Module not found: " + name);
     }
 
-    public void regenerateInfinite(long seed, PlayerData playerData){
-        ALL_LEVELS.put(LevelType.INFINITE, buildInfiniteLevel(seed, playerData));
+    public void regenerateInfinite(long seed){
+        ALL_LEVELS.put(LevelType.INFINITE, buildInfiniteLevel(seed));
     }
 }

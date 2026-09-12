@@ -94,6 +94,7 @@ public class CurrencySystem {
             float explodeYVelocity = runData.rng.nextFloat(0, explodeVelocityMax) * Math.signum(runData.rng.nextFloat(-1, 1));
             float explodeTime = runData.rng.nextFloat(minExplodeTime, maxExplodeTime);
 
+            // This spawns currency in the middle of a checkpoint/faucet with explode velocity/time
             runData.getCurrencies().add(new Currency(xRef + width / 2, yRef + height / 2,false,
                 explodeXVelocity, explodeYVelocity, explodeTime));
         }

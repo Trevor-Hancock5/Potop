@@ -37,7 +37,7 @@ public class GameScreen implements Screen {
         seed = System.currentTimeMillis();
         gameAssets.load();
         playerData = new PlayerData();
-        levelGeneration = new LevelGeneration(seed, playerData);
+        levelGeneration = new LevelGeneration(seed);
         levelSystem = new LevelSystem();
         runData = levelSystem.loadLevel(LevelType.LEARNING_MODE);
 
