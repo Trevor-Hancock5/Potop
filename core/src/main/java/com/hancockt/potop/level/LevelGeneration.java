@@ -31,7 +31,7 @@ public class LevelGeneration {
     private static final float minFaucetSpeedReduction = 10; //TUNABLE
     private static final float maxFaucetSpeedReduction = 60; //TUNABLE
     private static final float minNumPlatformsPerBand = 5; //TUNABLE
-    private static final int maxAttemptsPlacingPlatforms = 1000; //TUNABLE
+    private static final int maxAttemptsPlacingPlatforms = 1000; //TUNABLE - TODO, reduce this by removing any overlapping things!
     private static final int maxPrestigeCurrencyThreshold = 10_000; //TUNABLE
     private static final int minPrestigeCurrencyThreshold = 1_000; //TUNABLE
     private static final int chanceDecreaseThreshold = 5_000; //TUNABLE
@@ -39,8 +39,8 @@ public class LevelGeneration {
     private static float prestigeCurrChanceMin = 0.000001f; //TUNABLE
     private static final float minCurrencyChanceOfPlacement = 0.05f; // only on 5% of platforms to start - TUNABLE
     private static final float maxCurrencyChanceOfPlacement = 0.5f; //TUNABLE
-    private static final int reachableHorizontalMax = 325; //TUNABLE
-    private static final int reachableVerticalMax = 100; //TUNABLE
+    private static final int reachableHorizontalMax = 325; //TUNABLE - TODO check
+    private static final int reachableVerticalMax = 100; //TUNABLE - TODO check
 
     public static ArrayList<Integer> attemptsList = new ArrayList<>(); //TODO - just for testing
 
@@ -106,8 +106,10 @@ public class LevelGeneration {
         // Generate up to PRE_GENERATION_HEIGHT to improve performance
         for(int i = 0; i <= PRE_GENERATION_HEIGHT; i += BAND_HEIGHT) {
             highestPlatform = generateBand(platforms, checkpoints, i, highestPlatform,
-                                            faucets, currencies, rng, playerData);
+                                            faucets, currencies, rng);
         }
+
+        removeOverlappingCurrency(currencies, platforms, checkpoints, faucets);
 
         return new RunData(
             checkpoints, platforms, new Vector2(0,0), faucets, currencies, LevelType.INFINITE, null, seed
@@ -120,15 +122,16 @@ public class LevelGeneration {
         int maxAdditionY = highestInfiniteY + GENERATION_HEIGHT;
         for(int i = highestInfiniteY; i < maxAdditionY; i += BAND_HEIGHT){
             highestPlatform = generateBand(platforms, checkpoints, i,
-                highestPlatform, faucets, currencies, rng, playerData);
+                highestPlatform, faucets, currencies, rng);
         }
+        removeOverlappingCurrency(currencies, platforms, checkpoints, faucets);
     }
 
     //todo - maybe more checkpoints when higher?
     //TODO - rework so that it uses LevelData for lists instead of passing them as arguments! - runData?
     private Platform generateBand(List<Platform> platforms, List<Checkpoint> checkpoints, float bandY,
                                          Platform highestPlatform, List<Faucet> faucets, List<Currency> currencies,
-                                         Random rng, PlayerData playerData){
+                                         Random rng){
         //add checkpoint
         float checkpointHeightDistance = rng.nextFloat(minCheckpointHeightDistance, maxCheckpointHeightDistance); //add some randomness for kicks and giggles!
         boolean checkpointAdded = false;
@@ -271,8 +274,6 @@ public class LevelGeneration {
                 highestPlatform = p;
             }
 
-            int currencyWidth = 16;
-
             //prestige currency chance, super low chance just in case player can't reach factory threshold
             boolean hasFactory = false; //TODO - once logic in place, get this dynamically!
 
@@ -288,9 +289,9 @@ public class LevelGeneration {
                 }
 
                 if(placedPrestige){
-                    int placementX = rng.nextInt(p.getX(), p.getX() + p.getWidth() - currencyWidth);
+                    int placementX = rng.nextInt(p.getX(), p.getX() + p.getWidth() - (int)Currency.WIDTH);
                     Currency curr = new Currency(placementX, p.getY() + p.getHeight(), true);
-                    if(checkNoCurrencyOverlap(playerData, curr, platforms, checkpoints, faucets)) {
+                    if(checkNoCurrencyOverlap(curr, platforms, checkpoints, faucets)) {
                         currencies.add(curr);
                     }
                 }
@@ -299,7 +300,7 @@ public class LevelGeneration {
             //standard currency getting placed
             if(!placedPrestige){
                 //how many can I place on this platform?
-                int maxPlacements = Math.max(p.getWidth() / currencyWidth, 1); //at least 1 possible place on each platform
+                int maxPlacements = Math.max((int) (p.getWidth() / Currency.WIDTH), 1); //at least 1 possible place on each platform
 
                 //how many do I want to place on this platform
                 int numPlacements = rng.nextInt(maxPlacements + 1); //+1 b/c exclusive bound
@@ -312,7 +313,7 @@ public class LevelGeneration {
                     if(placeFromLeft){
                         for(int i = 0; i < numPlacements; i++){
                             curr = new Currency(p.getX() + i * Currency.WIDTH, p.getY() + p.getHeight());
-                            if(checkNoCurrencyOverlap(playerData, curr, platforms, checkpoints, faucets)) {
+                            if(checkNoCurrencyOverlap(curr, platforms, checkpoints, faucets)) {
                                 currencies.add(curr);
                             }
                         }
@@ -320,7 +321,7 @@ public class LevelGeneration {
                         //From 1 to numPlacements so it doesn't hang over the edge
                         for(int i = 1; i <= numPlacements; i++){
                             curr = new Currency(p.getX() + p.getWidth() - i * Currency.WIDTH, p.getY() + p.getHeight());
-                            if(checkNoCurrencyOverlap(playerData, curr, platforms, checkpoints, faucets)) {
+                            if(checkNoCurrencyOverlap(curr, platforms, checkpoints, faucets)) {
                                 currencies.add(curr);
                             }
                         }
@@ -333,7 +334,7 @@ public class LevelGeneration {
         return highestPlatform;
     }
 
-    private boolean checkNoCurrencyOverlap(PlayerData playerData, Currency curr, List<Platform> platforms, List<Checkpoint> checkpoints,
+    private boolean checkNoCurrencyOverlap(Currency curr, List<Platform> platforms, List<Checkpoint> checkpoints,
                                                   List<Faucet> faucets){
         Rectangle currencyRectangle = new Rectangle(curr.getX(), curr.getY(),
                                                 Currency.WIDTH, Currency.HEIGHT);
@@ -341,7 +342,7 @@ public class LevelGeneration {
         //base check of overlap
         boolean platformOverlap = platforms.stream()
             .anyMatch(p ->
-                new Rectangle(p.getX(), p.getY() - playerData.playerHeight, p.getWidth(), p.getHeight() + playerData.playerHeight).overlaps(currencyRectangle));
+                new Rectangle(p.getX(), p.getY() - PlayerData.playerHeight, p.getWidth(), p.getHeight() + PlayerData.playerHeight).overlaps(currencyRectangle));
 
         boolean checkpointOverlap = checkpoints.stream()
             .anyMatch(c ->
@@ -352,6 +353,18 @@ public class LevelGeneration {
                 new Rectangle(f.getX(), f.getY() - faucetGapAbovePlatform, f.getWidth(), f.getHeight() + faucetGapAbovePlatform).overlaps(currencyRectangle));
 
         return !platformOverlap && !checkpointOverlap && !faucetOverlap;
+    }
+
+    private void removeOverlappingCurrency(List<Currency> currencies, List<Platform> platforms,
+                                           List<Checkpoint> checkpoints, List<Faucet> faucets){
+        ArrayList<Currency> toRemove = new ArrayList<>();
+        for(Currency c : currencies){
+            if(!checkNoCurrencyOverlap(c, platforms, checkpoints, faucets)){
+                toRemove.add(c);
+            }
+        }
+
+        currencies.removeAll(toRemove);
     }
 
     private static boolean checkReachability(Platform currPlatform, Platform highestPlatform){
