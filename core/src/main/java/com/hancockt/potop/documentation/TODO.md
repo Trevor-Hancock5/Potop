@@ -9,18 +9,22 @@
 
   ***Go top to bottom for milestones but then any order w/i a milestone!***
 
+- Added top, right, getRect for features. As you add new stuff use that and then replace as you go!
+- Trim parameters when possible
 
 # Milestones:
 ## Bug/code fix
 
-- optional parameters (default values), maybe replace some calls with RunData/PlayerData! (like levelGeneration)
-- update max horizontal and max vertical for physics! 
 - improve performance! seems slow! - Make an active platforms/collectibles that is within like 2k above and
   enough platforms to the previous 2 checkpoints
   - How to quantify? Test? See if it's needed?
   - Need to speed up level generation for testing!
 
 ## Necessary Improvements!
+- less dense higher? more dense lower?
+- less platforms by bounding walls?
+- improve wall buffer (when you jump up through a tiny platform, don't nudge them onto the edge of the wall if they have
+  - big veloY and low veloX (absolute value). Kinda sketchy and annoying!
 - setting to turn off screen shake!
 - nerf faucets? (probably less of them as you go higher!) 
 - Denser level generation

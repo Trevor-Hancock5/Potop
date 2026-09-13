@@ -1,5 +1,7 @@
 package com.hancockt.potop.features;
 
+import com.badlogic.gdx.math.Rectangle;
+
 public class Checkpoint {
     private final float x;
     private final float y;
@@ -53,5 +55,17 @@ public class Checkpoint {
 
     public void setActivated (boolean activated) {
         this.activated = activated;
+    }
+
+    public float top(){
+        return y + height;
+    }
+
+    public float right(){
+        return x + width;
+    }
+
+    public Rectangle getRect(){
+        return new Rectangle(x, y, width, height);
     }
 }

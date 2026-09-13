@@ -1,5 +1,7 @@
 package com.hancockt.potop.features;
 
+import com.badlogic.gdx.math.Rectangle;
+
 public class Currency {
     private float x;
     private float y;
@@ -95,5 +97,17 @@ public class Currency {
 
     public void setVelocityY(float velocityY){
         this.velocityY = velocityY;
+    }
+
+    public float top(){
+        return y + HEIGHT;
+    }
+
+    public float right(){
+        return x + WIDTH;
+    }
+
+    public Rectangle getRect(){
+        return new Rectangle(x, y, WIDTH, HEIGHT);
     }
 }

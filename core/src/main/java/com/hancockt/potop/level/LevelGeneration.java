@@ -39,8 +39,8 @@ public class LevelGeneration {
     private static final float prestigeCurrChanceMin = 0.000001f; //TUNABLE
     private static final float minCurrencyChanceOfPlacement = 0.05f; // only on 5% of platforms to start - TUNABLE
     private static final float maxCurrencyChanceOfPlacement = 0.5f; //TUNABLE
-    private static final int reachableHorizontalMax = 325; //TUNABLE - TODO check
-    private static final int reachableVerticalMax = 100; //TUNABLE - TODO check
+    private static final int reachableHorizontalMax = 400; //TUNABLE
+    private static final int reachableVerticalMax = 90; //TUNABLE
     private static int numPrestigePlaced = 0;
     public static final int maxPrestigePlaced = 5;
 
@@ -248,14 +248,14 @@ public class LevelGeneration {
                 if (!faucets.isEmpty()) {
                     Faucet f = faucets.getLast();
                     Rectangle faucetRect = new Rectangle(f.getX(), f.getY(), f.getWidth() * 2, f.getHeight() * 2);
-                    overlapsFaucet = new Rectangle(p.getX(), p.getY(), p.getWidth(), p.getHeight()).overlaps(faucetRect);
+                    overlapsFaucet = p.getRect().overlaps(faucetRect);
                 }
 
                 overlapsCheckpoint = false;
                 if (!checkpoints.isEmpty()) {
                     Checkpoint c = checkpoints.getLast();
                     Rectangle checkRect = new Rectangle(c.getX(), c.getY(), c.getWidth() * 2, c.getHeight() * 2);
-                    overlapsCheckpoint = new Rectangle(p.getX(), p.getY(), p.getWidth(), p.getHeight()).overlaps(checkRect);
+                    overlapsCheckpoint = p.getRect().overlaps(checkRect);
                 }
 
                 //check reachability - need at least one. First one added is reachable!
@@ -276,7 +276,7 @@ public class LevelGeneration {
 
         // check if new highest platform for checkpoint making and add currency!
         for(Platform p : bandPlatforms) {
-            if (p.getY() + p.getHeight() > highestPlatform.getY() + highestPlatform.getHeight()) {
+            if (p.top() > highestPlatform.top()) {
                 highestPlatform = p;
             }
 
@@ -293,8 +293,8 @@ public class LevelGeneration {
                 float chance = p.getY() < chanceDecreaseThreshold ? prestigeCurrChanceMax : prestigeCurrChanceMin;
 
                 if(rng.nextFloat() < chance){
-                    int placementX = rng.nextInt(p.getX(), p.getX() + p.getWidth() - (int)Currency.WIDTH);
-                    Currency curr = new Currency(placementX, p.getY() + p.getHeight(), true);
+                    int placementX = rng.nextInt(p.getX(), p.right() - (int)Currency.WIDTH);
+                    Currency curr = new Currency(placementX, p.top(), true);
                     if(checkNoCurrencyOverlap(curr, platforms, checkpoints, faucets)) {
                         justPlacedPrestige = true;
                         currencies.add(curr);
@@ -318,7 +318,7 @@ public class LevelGeneration {
                     Currency curr;
                     if(placeFromLeft){
                         for(int i = 0; i < numPlacements; i++){
-                            curr = new Currency(p.getX() + i * Currency.WIDTH, p.getY() + p.getHeight());
+                            curr = new Currency(p.getX() + i * Currency.WIDTH, p.top());
                             if(checkNoCurrencyOverlap(curr, platforms, checkpoints, faucets)) {
                                 currencies.add(curr);
                             }
@@ -326,7 +326,7 @@ public class LevelGeneration {
                     } else{
                         //From 1 to numPlacements so it doesn't hang over the edge
                         for(int i = 1; i <= numPlacements; i++){
-                            curr = new Currency(p.getX() + p.getWidth() - i * Currency.WIDTH, p.getY() + p.getHeight());
+                            curr = new Currency(p.right() - i * Currency.WIDTH, p.top());
                             if(checkNoCurrencyOverlap(curr, platforms, checkpoints, faucets)) {
                                 currencies.add(curr);
                             }

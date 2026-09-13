@@ -1,5 +1,7 @@
 package com.hancockt.potop.features;
 
+import com.badlogic.gdx.math.Rectangle;
+
 public class Faucet {
     private final float x;
     private final float y;
@@ -68,5 +70,17 @@ public class Faucet {
 
     public void setRotation(float rotation) {
         this.rotation = rotation;
+    }
+
+    public float top() {
+        return y + height;
+    }
+
+    public float right(){
+        return x + width;
+    }
+
+    public Rectangle getRect(){
+        return new Rectangle(x, y, width, height);
     }
 }

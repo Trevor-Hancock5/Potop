@@ -1,5 +1,7 @@
 package com.hancockt.potop.features;
 
+import com.badlogic.gdx.math.Rectangle;
+
 public class Platform {
     private final int x;
     private final int y;
@@ -40,5 +42,17 @@ public class Platform {
 
     public void setBoundaryWall(boolean boundaryWall) {
         isBoundaryWall = boundaryWall;
+    }
+
+    public int top(){
+        return y + height;
+    }
+
+    public int right(){
+        return x + width;
+    }
+
+    public Rectangle getRect(){
+        return new Rectangle(x, y, width, height);
     }
 }
