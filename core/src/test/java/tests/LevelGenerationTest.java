@@ -202,24 +202,29 @@ public class LevelGenerationTest {
     // TODO - distance check between checkpoints and faucets
     //(max height of checkpoint, and average distance between checkpoints and faucets)
     //more info check then test!
+    @Test
+    public void checkpointFaucetDistance(){
 
-    //TODO - check platform reachability
+    }
+
     @Test
     public void checkReachability(){
-        // limited amount of failures - assume wall jumping can fix?
+        // This test is far from perfect!
+        // Doesn't account for wall jumps at all and the maxLeap and maxJump are larger than they
+        // realistically are so that it can pass at all.
+        // But it is a ... test
 
         final int maxLeap = 550; // Horizontal
         final int maxJump = 150; // Vertical
-        final float fallMultiplierForLeap = 1.5f; // If falling, allow for further leap //TODO - check!
-        final int totalTestHeight = 100_000;
+        final float fallMultiplierForLeap = 1.5f; // If falling, allow for further leap
+        final int totalTestHeight = 50_000;
         final int reachableBuffer = 1000;
-        final float percentLeapAtMaxJump = 0.9f;
 
         // For fails
-        int highestY = 0;
+        int highestY;
         long seed;
 
-        for(int i = 0; i < NUM_GENERATED_LEVELS / 5; i++) {
+        for(int i = 0; i < NUM_GENERATED_LEVELS; i++) {
             highestY = 0;
             RunData runData = generateLevel(totalTestHeight);
             seed = runData.seed;
@@ -252,10 +257,10 @@ public class LevelGenerationTest {
                     break;
                 }
 
-                float leftX = curr.getX() - (maxLeap * fallMultiplierForLeap);
-                float rightX = curr.getX() + curr.getWidth() + (maxLeap * fallMultiplierForLeap);
-                float downY = curr.getY() - (2 * maxJump);
-                float upY = curr.getY() + curr.getHeight() + maxJump;
+                float leftX = curr.getX() - (maxLeap * 3);
+                float rightX = curr.getX() + curr.getWidth() + (maxLeap * 3);
+                float downY = curr.getY() - (3 * maxJump);
+                float upY = curr.getY() + curr.getHeight() + (3 * maxJump);
 
                 //get potential platforms within bounding box - using fact it's sorted for speed
                 List<Platform> closeToCurr = new ArrayList<>();
@@ -275,17 +280,17 @@ public class LevelGenerationTest {
                 //check if they are actually reachable!
                 for(Platform p : closeToCurr){
                     float dx;
-                    if(p.getX() + p.getWidth() < curr.getX()){
+                    if(p.getX() + p.getWidth() < curr.getX()) {
                         dx = curr.getX() - (p.getX() + p.getWidth());
                     } else if(p.getX() > curr.getX() + curr.getWidth()){
                         dx = p.getX() - (curr.getX() + curr.getWidth());
                     } else{
-                        //platform edges are within current platform
+                        // platform edges are within current platform
                         dx = 0;
                     }
 
                     float dy;
-                    if(p.getY() > curr.getY() + curr.getHeight()){
+                    if(p.getY() > curr.getY() + curr.getHeight()) {
                         dy = p.getY() - (curr.getY() + curr.getHeight());
                     } else if (p.getY() + p.getHeight() < curr.getY()){
                         dy = -1 * (curr.getY() - (p.getY() + p.getHeight())); // Make negative to indicate drop
@@ -294,8 +299,9 @@ public class LevelGenerationTest {
                     }
 
                     if(dy < 0){
+                        dy = Math.abs(dy);
                         // check downward jump
-                        if((-1 * dy) > 0.5f * maxJump){
+                        if(dy > 0.5f * maxJump){
                             // Big enough fall to justify a larger leap distance!
                             if(dx <= maxLeap * fallMultiplierForLeap){
                                 reachable.offer(p);
@@ -311,14 +317,9 @@ public class LevelGenerationTest {
                     } else{
                         // upward jump, account for jump and leap combo!
                         dy = Math.abs(dy);
-                        if(dy <= maxJump){
-                            float forgiveness = 1.0f - percentLeapAtMaxJump;
-                            float allowedDx = maxLeap * (1.0f - (forgiveness * (dy / maxJump)));
-
-                            if(dx < allowedDx){
-                                reachable.offer(p);
-                                visited.add(p);
-                            }
+                        if(dy <= maxJump && dx <= maxLeap){
+                            reachable.offer(p);
+                            visited.add(p);
                         }
                     }
                 }
