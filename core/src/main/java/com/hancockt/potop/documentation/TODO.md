@@ -15,10 +15,14 @@
 # Milestones:
 ## Bug/code fix
 
-- improve performance! seems slow! - Make an active platforms/collectibles that is within like 2k above and
-  enough platforms to the previous 2 checkpoints
-  - How to quantify? Test? See if it's needed?
-  - Need to speed up level generation for testing!
+- improve performance! seems slow! 
+    - Time generation up to 100k and physics engine update - test
+    - Make an active objects list (platforms, checkpoints, faucets, ...)
+      - Make it once and then store it and update it - no streams!
+      - Only update every few seconds (not every update!) and if the player has moved more than 500 px up
+      - Make sure current lists are sorted?
+      - If sorted, then clear active lists when updated and then loop through all (continue when too low, break when too high)
+      - If not sorted, then don't bother sorting, just loop through all of it with no break! (i think use continue!)
 
 ## Necessary Improvements!
 - less dense higher? more dense lower?

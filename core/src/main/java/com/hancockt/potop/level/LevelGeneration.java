@@ -31,7 +31,7 @@ public class LevelGeneration {
     private static final float minFaucetSpeedReduction = 10; //TUNABLE
     private static final float maxFaucetSpeedReduction = 60; //TUNABLE
     private static final float minNumPlatformsPerBand = 5; //TUNABLE
-    private static final int maxAttemptsPlacingPlatforms = 1000; //TUNABLE - TODO, reduce this by removing any overlapping things!
+    private static final int maxAttemptsPlacingPlatforms = 500; //TUNABLE - TODO, reduce this by removing any overlapping things!
     private static final int maxPrestigeCurrencyThreshold = 10_000; //TUNABLE
     private static final int minPrestigeCurrencyThreshold = 1_000; //TUNABLE
     private static final int chanceDecreaseThreshold = 5_000; //TUNABLE
@@ -266,9 +266,13 @@ public class LevelGeneration {
                 // until next band
             } while ((attempts < maxAttemptsPlacingPlatforms) && (needsRetry || overlapsFaucet || overlapsCheckpoint || !reachable));
 
-            attemptsList.add(attempts);
-            platforms.add(p);
-            bandPlatforms.add(p);
+
+            if(attempts < maxAttemptsPlacingPlatforms) {
+                // Only actually place if successfully placed!
+                attemptsList.add(attempts);
+                platforms.add(p);
+                bandPlatforms.add(p);
+            }
         }
 
         //by having the highest platform update outside the for loop, the do-while loop continually tries to make a

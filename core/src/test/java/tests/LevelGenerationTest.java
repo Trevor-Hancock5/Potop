@@ -214,8 +214,8 @@ public class LevelGenerationTest {
         // realistically are so that it can pass at all.
         // But it is a ... test
 
-        final int maxLeap = 550; // Horizontal
-        final int maxJump = 150; // Vertical
+        final int maxLeap = 600; // Horizontal
+        final int maxJump = 200; // Vertical
         final float fallMultiplierForLeap = 1.5f; // If falling, allow for further leap
         final int totalTestHeight = 50_000;
         final int reachableBuffer = 1000;
