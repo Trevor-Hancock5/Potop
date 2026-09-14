@@ -199,12 +199,74 @@ public class LevelGenerationTest {
         }
     }
 
-    // TODO - distance check between checkpoints and faucets
-    //(max height of checkpoint, and average distance between checkpoints and faucets)
-    //more info check then test!
     @Test
     public void checkpointFaucetDistance(){
+        ArrayList<Integer> checkpointDistances = new ArrayList<>();
+        ArrayList<Integer> faucetDistances = new ArrayList<>();
 
+        for(int i = 0; i < NUM_GENERATED_LEVELS; i++){
+            RunData runData = generateLevel(TEST_HEIGHT);
+            List<Checkpoint> checkpoints = runData.getCheckpoints();
+            List<Faucet> faucets = runData.getFaucets();
+
+            // sort both lists by y
+            checkpoints.sort(Comparator.comparing(Checkpoint::getY));
+            faucets.sort(Comparator.comparing(Faucet::getY));
+
+            // get distances between each one - save to list of distances
+            for(int j = 1; j < checkpoints.size(); j++){
+                checkpointDistances.add((int)(checkpoints.get(j).getY() - checkpoints.get(j - 1).getY()));
+            }
+
+            for(int j = 1; j < faucets.size(); j++){
+                faucetDistances.add((int)(faucets.get(j).getY() - faucets.get(j - 1).getY()));
+            }
+        }
+
+        // check min, average, and max distance
+        //min
+        int minCheckpointDist = checkpointDistances.stream()
+            .mapToInt(Integer::intValue)
+            .min()
+            .orElse(0); // fallback value if the list is empty
+        int minFaucetDist = faucetDistances.stream()
+            .mapToInt(Integer::intValue)
+            .min()
+            .orElse(0); // fallback value if the list is empty
+
+        // Average (returns an OptionalDouble)
+        double averageCheckpointDist = checkpointDistances.stream()
+            .mapToInt(Integer::intValue)
+            .average()
+            .orElse(0.0); // fallback value if the list is empty
+        double averageFaucetDist = faucetDistances.stream()
+            .mapToInt(Integer::intValue)
+            .average()
+            .orElse(0.0); // fallback value if the list is empty
+
+        //max
+        int maxCheckpointDist = checkpointDistances.stream()
+            .mapToInt(Integer::intValue)
+            .max()
+            .orElse(0); // fallback value if the list is empty
+        int maxFaucetDist = faucetDistances.stream()
+            .mapToInt(Integer::intValue)
+            .max()
+            .orElse(0); // fallback value if the list is empty
+
+        System.out.println("minCheck: " + minCheckpointDist);
+        System.out.println("minFaucet: " + minFaucetDist);
+        System.out.println("avgCheck: " + averageCheckpointDist);
+        System.out.println("avgFaucet: " + averageFaucetDist);
+        System.out.println("maxCheck: " + maxCheckpointDist);
+        System.out.println("maxFaucet: " + maxFaucetDist);
+
+        assertTrue(minCheckpointDist > 100, "Checkpoints too close: " + minCheckpointDist);
+        assertTrue(minFaucetDist > 100, "Faucets too close: " + minFaucetDist);
+        assertTrue(averageCheckpointDist > 250 && averageCheckpointDist < 750, "Checkpoints not in desired range: " + averageCheckpointDist);
+        assertTrue(averageFaucetDist > 250 && averageFaucetDist < 750, "Faucets not in desired range: " + averageFaucetDist);
+        assertTrue(maxCheckpointDist < 1000, "Checkpoints too far apart: " + maxCheckpointDist);
+        assertTrue(maxFaucetDist < 1000, "Faucets too far apart: " + maxFaucetDist);
     }
 
     @Test
@@ -415,42 +477,6 @@ public class LevelGenerationTest {
         ret += "max max: " + maxMax + "\n";
 
         return ret;
-    }
-
-
-
-    // TODO - use?
-    public class JumpMetrics {
-
-        public static double computeMaxLeap(double vx, double jumpVelocity, double gravity) {
-            double y = 0;
-            double x = 0;
-            double vy = jumpVelocity; // upward impulse
-
-            // Simulate frame-by-frame until the player lands back at y <= 0
-            while (true) {
-                x += vx;
-                y += vy;
-                vy -= gravity;
-
-                if (y <= 0 && vy < 0) {
-                    break; // Hit the ground
-                }
-            }
-            return x;
-        }
-
-        public static double computeMaxJump(double jumpVelocity, double gravity) {
-            double y = 0;
-            double vy = jumpVelocity;
-
-            // Simulate until the apex (vy <= 0)
-            while (vy > 0) {
-                y += vy;
-                vy -= gravity;
-            }
-            return y;
-        }
     }
 }
 
