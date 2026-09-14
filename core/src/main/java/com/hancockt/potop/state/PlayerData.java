@@ -47,11 +47,10 @@ public class PlayerData {
         sparkHeadY = y + playerHeight - 15;
     }
 
-    public float calculateDangerBoost(WaterSystem waterSystem){
+    public void calculateDangerBoost(WaterSystem waterSystem){
         float distanceFromWater = y - waterSystem.getWaterLevel();
         float dangerBoost = Math.max(0, 1 - (distanceFromWater / dangerBoostDistance));
-        dangerBoost = 1 + dangerBoost * (maxDangerBoost - 1);
-        return dangerBoost;
+        this.dangerBoost = 1 + dangerBoost * (maxDangerBoost - 1);
     }
 
     public float reset(LevelType currentLevel){

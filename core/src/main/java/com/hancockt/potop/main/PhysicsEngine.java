@@ -45,7 +45,7 @@ public class PhysicsEngine {
 
     /// Returns state of Spark (player) for animating
     public void updatePhysics(float delta, RunData runData, PersistentData persistentData,
-                                      PlayerData playerData, float dangerBoost){
+                                      PlayerData playerData){
         //update jump buffer
         playerData.jumpBuffer += delta;
         if(Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)
@@ -270,18 +270,18 @@ public class PhysicsEngine {
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)){
             playerData.receivedInput = true;
             if(playerData.onGround) {
-                playerData.velocityX -= accelerationX * delta * dangerBoost;
+                playerData.velocityX -= accelerationX * delta * playerData.dangerBoost;
             } else{
-                playerData.velocityX -= (accelerationX * delta * dangerBoost) / airControlDivisor;
+                playerData.velocityX -= (accelerationX * delta * playerData.dangerBoost) / airControlDivisor;
             }
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) {
             playerData.receivedInput = true;
             if(playerData.onGround) {
-                playerData.velocityX += accelerationX * delta * dangerBoost;
+                playerData.velocityX += accelerationX * delta * playerData.dangerBoost;
             } else{
-                playerData.velocityX += (accelerationX * delta * dangerBoost) / airControlDivisor;
+                playerData.velocityX += (accelerationX * delta * playerData.dangerBoost) / airControlDivisor;
             }
         }
 
@@ -298,7 +298,7 @@ public class PhysicsEngine {
             playerData.receivedInput = true;
             playerData.coyoteSeconds = 100; //reset so can't double jump
             playerData.jumpBuffer = 100; //reset so can't double jump!
-            playerData.velocityY = jumpForce * dangerBoost;
+            playerData.velocityY = jumpForce * playerData.dangerBoost;
             playerData.onGround = false;
             playerData.justLanded = false;
 

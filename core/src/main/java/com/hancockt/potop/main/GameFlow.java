@@ -60,8 +60,8 @@ public class GameFlow {
                 gameAssets.sparkAnimator.update(delta);
 
                 if(GameFlow.GAME_STATE != GameState.DEATH){
-                    physicsEngine.updatePhysics(delta, runData, persistentData, playerData,
-                                                    playerData.calculateDangerBoost(waterSystem));
+                    playerData.calculateDangerBoost(waterSystem);
+                    physicsEngine.updatePhysics(delta, runData, persistentData, playerData);
 
                     playerData.update();
                     levelSystem.updateInfinite(runData, playerData, levelGeneration);
