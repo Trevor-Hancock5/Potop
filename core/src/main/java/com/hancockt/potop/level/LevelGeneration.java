@@ -349,18 +349,32 @@ public class LevelGeneration {
         Rectangle currencyRectangle = new Rectangle(curr.getX(), curr.getY(),
                                                 Currency.WIDTH, Currency.HEIGHT);
 
-        //base check of overlap
-        boolean platformOverlap = platforms.stream()
-            .anyMatch(p ->
-                new Rectangle(p.getX(), p.getY() - PlayerData.playerHeight, p.getWidth(), p.getHeight() + PlayerData.playerHeight).overlaps(currencyRectangle));
+        boolean platformOverlap = false;
+        for(int i = 0; i < platforms.size(); i++){
+            Platform p = platforms.get(i);
+            platformOverlap = currencyRectangle.overlaps(new Rectangle(p.getX(), p.getY() - PlayerData.playerHeight, p.getWidth(), p.getHeight() + PlayerData.playerHeight));
+            if(platformOverlap){
+                break;
+            }
+        }
 
-        boolean checkpointOverlap = checkpoints.stream()
-            .anyMatch(c ->
-                new Rectangle(c.getX(), c.getY(), c.getWidth(), c.getHeight()).overlaps(currencyRectangle));
+        boolean checkpointOverlap = false;
+        for(int i = 0; i < checkpoints.size(); i++){
+            Checkpoint c = checkpoints.get(i);
+            checkpointOverlap = currencyRectangle.overlaps(new Rectangle(c.getX(), c.getY(), c.getWidth(), c.getHeight()));
+            if(checkpointOverlap){
+                break;
+            }
+        }
 
-        boolean faucetOverlap = faucets.stream()
-            .anyMatch(f ->
-                new Rectangle(f.getX(), f.getY() - faucetGapAbovePlatform, f.getWidth(), f.getHeight() + faucetGapAbovePlatform).overlaps(currencyRectangle));
+        boolean faucetOverlap = false;
+        for(int i = 0; i < faucets.size(); i++){
+            Faucet f = faucets.get(i);
+            faucetOverlap = currencyRectangle.overlaps(new Rectangle(f.getX(), f.getY() - faucetGapAbovePlatform, f.getWidth(), f.getHeight() + faucetGapAbovePlatform));
+            if(faucetOverlap){
+                break;
+            }
+        }
 
         return !platformOverlap && !checkpointOverlap && !faucetOverlap;
     }
