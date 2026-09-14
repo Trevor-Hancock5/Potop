@@ -2,6 +2,7 @@ package com.hancockt.potop.main;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.math.Rectangle;
 import com.hancockt.potop.assets.AnimationKey;
 import com.hancockt.potop.assets.GameAssets;
 import com.hancockt.potop.level.LevelGeneration;
@@ -59,11 +60,32 @@ public class GameFlow {
                 gameAssets.sparkAnimator.update(delta);
 
                 if(GameFlow.GAME_STATE != GameState.DEATH){
-                    AnimationKey sparkAnimationState = physicsEngine.updatePhysics(delta, runData, persistentData, playerData,
-                                                    cameraSystem, levelSystem, waterSystem, faucetSystem,
-                                                    currencySystem, checkpointSystem, levelGeneration);
-                    gameAssets.sparkAnimator.play(sparkAnimationState);
+                    physicsEngine.updatePhysics(delta, runData, persistentData, playerData,
+                                                    playerData.calculateDangerBoost(waterSystem));
+
+                    playerData.update();
+                    levelSystem.updateInfinite(runData, playerData, levelGeneration);
+                    checkpointSystem.update(runData, playerData.playerRect, waterSystem, currencySystem);
+                    currencySystem.update(runData, persistentData, playerData, delta, playerData.sparkHeadX,
+                        playerData.sparkHeadY, playerData.playerRect);
+                    faucetSystem.update(runData, delta, playerData.playerRect, waterSystem, currencySystem);
+
+                    if(playerData.receivedInput) {
+                        waterSystem.updateWater(runData, playerData, delta);
+                    }
+
+                    if(!playerData.onGround && playerData.velocityY > 0){
+                        cameraSystem.resetScreenShake();
+                    }
+
+                    if(GAME_STATE == GameState.DEATH){
+                        faucetSystem.reset(runData);
+                    }
+
+                    gameAssets.updateSparkAnimation(playerData);
+                    gameAssets.sparkAnimator.play(gameAssets.getCurrSparkAnimation());
                 }
+
 
                 if(GameFlow.GAME_STATE == GameState.DEATH || !runData.deathXValues.isEmpty()){
                     renderingSystem.drawDeathText(cameraSystem.getCamera(), runData.deathXValues, waterSystem);

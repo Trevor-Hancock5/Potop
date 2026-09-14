@@ -1,6 +1,9 @@
 package com.hancockt.potop.systems;
 
+import com.badlogic.gdx.math.Rectangle;
 import com.hancockt.potop.level.LevelType;
+import com.hancockt.potop.main.GameFlow;
+import com.hancockt.potop.state.GameState;
 import com.hancockt.potop.state.PlayerData;
 import com.hancockt.potop.state.RunData;
 
@@ -14,9 +17,6 @@ public class WaterSystem {
     private static final float waterRiseSpeedAlwaysAtMaxAboveY = 8000f; // TUNABLE
     private static final int waterAccelerationPixelsPerSecond = 2; // TUNABLE
 
-    private static final float dangerBoostDistance = 400f; // TUNABLE
-    private static final float maxDangerBoost = 1.25f; //TUNABLE
-
     public float getWaterLevel(){
         return waterLevel;
     }
@@ -27,14 +27,18 @@ public class WaterSystem {
         waterRiseSpeed = Math.min(maxWaterRiseSpeed, baseWaterRiseSpeed + (playerData.y / divisor));
     }
 
-    public float calculateDangerBoost(PlayerData playerData){
-        float distanceFromWater = playerData.y - waterLevel;
-        float dangerBoost = Math.max(0, 1 - (distanceFromWater / dangerBoostDistance));
-        dangerBoost = 1 + dangerBoost * (maxDangerBoost - 1);
-        return dangerBoost;
-    }
+    public void updateWater(RunData runData, PlayerData playerData, float delta){
+        //death check
+        Rectangle waterRect = new Rectangle(-50000, 0, 100000, waterLevel);
 
-    public void updateWater(RunData runData, float delta){
+        //Only dead if head hits water (because flame Afro!), so top 15 pixels of player rect
+        if(waterRect.overlaps(playerData.playerRect) && waterLevel >= playerData.sparkHeadY){
+            if(GameFlow.GAME_STATE != GameState.DEATH){
+                runData.deathXValues.add(playerData.x);
+            }
+            GameFlow.GAME_STATE = GameState.DEATH;
+        }
+
         //rising water
         if(runData.getCurrentLevel() == LevelType.INFINITE) {
             if(waterRiseSpeed <= maxWaterRiseSpeed) {

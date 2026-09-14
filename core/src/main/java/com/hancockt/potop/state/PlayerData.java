@@ -1,5 +1,6 @@
 package com.hancockt.potop.state;
 
+import com.badlogic.gdx.math.Rectangle;
 import com.hancockt.potop.features.Checkpoint;
 import com.hancockt.potop.level.LevelGeneration;
 import com.hancockt.potop.level.LevelType;
@@ -17,6 +18,7 @@ public class PlayerData {
     public float velocityX;
     public float impactVelocity; //velocity when landing! use for screen shake
     public boolean receivedInput; //Don't update water until player presses movement keys
+    public float dangerBoost;
 
     public boolean onGround = false;
     public boolean justLanded = false; //for screen shake
@@ -32,6 +34,25 @@ public class PlayerData {
 
     public static final int playerWidth = 20; //TUNABLE
     public static final int playerHeight = 50; //TUNABLE
+    private static final float dangerBoostDistance = 400f; // TUNABLE
+    private static final float maxDangerBoost = 1.25f; //TUNABLE
+
+    public Rectangle playerRect;
+    public float sparkHeadX;
+    public float sparkHeadY;
+
+    public void update(){
+        playerRect = new Rectangle(x, y, playerWidth, playerHeight);
+        sparkHeadX = x + ((float) playerWidth / 2);
+        sparkHeadY = y + playerHeight - 15;
+    }
+
+    public float calculateDangerBoost(WaterSystem waterSystem){
+        float distanceFromWater = y - waterSystem.getWaterLevel();
+        float dangerBoost = Math.max(0, 1 - (distanceFromWater / dangerBoostDistance));
+        dangerBoost = 1 + dangerBoost * (maxDangerBoost - 1);
+        return dangerBoost;
+    }
 
     public float reset(LevelType currentLevel){
         float waterLevel;

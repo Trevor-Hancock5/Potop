@@ -3,10 +3,7 @@ package com.hancockt.potop.main;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Rectangle;
-import com.hancockt.potop.assets.AnimationKey;
 import com.hancockt.potop.features.Platform;
-import com.hancockt.potop.level.LevelGeneration;
-import com.hancockt.potop.state.GameState;
 import com.hancockt.potop.state.PersistentData;
 import com.hancockt.potop.state.PlayerData;
 import com.hancockt.potop.state.RunData;
@@ -43,21 +40,12 @@ public class PhysicsEngine {
     private static final float jumpPercentWallJumpUp = 1f; //TUNABLE
     private static final float jumpPercentWallJumpSide = .85f; //TUNABLE
 
-    private static final float showRunAnimationThreshold = 50f; //TUNABLE
-    private static final float showFallAnimationThreshold = -100f; //TUNABLE
-
     private static final int framesPerSecond = 60;
 
 
     /// Returns state of Spark (player) for animating
-    public AnimationKey updatePhysics(float delta, RunData runData, PersistentData persistentData, PlayerData playerData,
-                                      CameraSystem cameraSystem,
-                                      LevelSystem levelSystem, WaterSystem waterSystem,
-                                      FaucetSystem faucetSystem, CurrencySystem currencySystem,
-                                      CheckpointSystem checkpointSystem, LevelGeneration levelGeneration){
-        //initialize animationKey variable to return - default to idle
-        AnimationKey currAnimation = AnimationKey.IDLE;
-
+    public void updatePhysics(float delta, RunData runData, PersistentData persistentData,
+                                      PlayerData playerData, float dangerBoost){
         //update jump buffer
         playerData.jumpBuffer += delta;
         if(Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)
@@ -268,7 +256,6 @@ public class PhysicsEngine {
             playerData.coyoteSeconds = 100;
             playerData.jumpBuffer = 100;
             playerData.justLanded = false;
-            cameraSystem.resetScreenShake();
             playerData.onGround = false;
         }
 
@@ -278,8 +265,6 @@ public class PhysicsEngine {
         } else{
             playerData.coyoteSeconds = 0;
         }
-
-        float dangerBoost = waterSystem.calculateDangerBoost(playerData);
 
         //horizontal movement
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)){
@@ -316,43 +301,10 @@ public class PhysicsEngine {
             playerData.velocityY = jumpForce * dangerBoost;
             playerData.onGround = false;
             playerData.justLanded = false;
-            cameraSystem.resetScreenShake();
 
             // Form of dash when you jump
             float speedRatio = Math.abs(playerData.velocityX) / maxSpeedX; // 0 to 1
             playerData.velocityX *= 1f + (speedRatio * 0.5f); // max of 1.5
-        }
-
-        // TODO - move out
-        if(playerData.receivedInput) {
-            waterSystem.updateWater(runData, delta);
-        }
-
-        Rectangle playerRectFinal = new Rectangle(playerData.x, playerData.y, PlayerData.playerWidth, PlayerData.playerHeight);
-        // TODO - move out
-        checkpointSystem.update(runData, playerRectFinal, waterSystem, currencySystem);
-
-        // Define spark's head for future operations
-        float sparkHeadX = playerData.x + ((float) PlayerData.playerWidth / 2);
-        float sparkHeadY = playerData.y + PlayerData.playerHeight - 15;
-
-        // TODO - move out
-        currencySystem.update(runData, persistentData, playerData, delta, sparkHeadX, sparkHeadY, playerRectFinal);
-
-        // Update currency first before faucets in case it's a win faucet which changes to win state!
-        // TODO - move out
-        faucetSystem.update(runData, delta, playerRectFinal, waterSystem, currencySystem);
-
-        //death check
-        Rectangle waterRect = new Rectangle(-50000, 0, 100000, waterSystem.getWaterLevel());
-
-        //Only dead if head hits water (because flame Afro!), so top 15 pixels of player rect
-        if(waterRect.overlaps(playerRectFinal) && waterSystem.getWaterLevel() >= sparkHeadY){
-            if(GameFlow.GAME_STATE != GameState.DEATH){
-                runData.deathXValues.add(playerData.x);
-            }
-            GameFlow.GAME_STATE = GameState.DEATH;
-            faucetSystem.reset(runData);
         }
 
         // reset flags for wall slide/jump
@@ -370,32 +322,5 @@ public class PhysicsEngine {
         persistentData.highScore = Math.max(persistentData.highScore, playerData.y);
 
         runData.time += delta;
-
-        //update infinite level if needed
-        // TODO - move out
-        levelSystem.updateInfinite(runData, playerData, levelGeneration);
-
-
-        // TODO - move out
-        // TODO - move out
-        // TODO - move out
-        //update animation from least to most important (to choose which animation is shown - default is idle!)
-        if(playerData.velocityX < -showRunAnimationThreshold){
-            currAnimation = AnimationKey.RUN_LEFT;
-        } else if(playerData.velocityX > showRunAnimationThreshold){
-            currAnimation = AnimationKey.RUN_RIGHT;
-        }
-
-        if(playerData.velocityY < showFallAnimationThreshold){
-            currAnimation = AnimationKey.FALL;
-        } else if(playerData.velocityY > 0){
-            currAnimation = AnimationKey.JUMP;
-        }
-
-        if(GameFlow.GAME_STATE == GameState.DEATH){
-            currAnimation = AnimationKey.DEATH;
-        }
-
-        return currAnimation;
     }
 }

@@ -5,6 +5,9 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.hancockt.potop.main.GameFlow;
+import com.hancockt.potop.state.GameState;
+import com.hancockt.potop.state.PlayerData;
 
 public class GameAssets {
     public Texture faucet;
@@ -18,6 +21,9 @@ public class GameAssets {
 
     public SpriteAnimator sparkAnimator;
     public SpriteAnimator checkpointAnimator;
+    private AnimationKey currSparkAnimation;
+    private static final float showRunAnimationThreshold = 50f; //TUNABLE
+    private static final float showFallAnimationThreshold = -100f; //TUNABLE
 
     public Music backgroundMusic;
 
@@ -42,6 +48,32 @@ public class GameAssets {
         backgroundMusic.setLooping(true);
         backgroundMusic.setVolume(backgroundMusicVolume);
         backgroundMusic.play();
+    }
+
+    public void updateSparkAnimation(PlayerData playerData){
+        //initialize animationKey variable to return - default to idle
+        currSparkAnimation = AnimationKey.IDLE;
+
+        //update animation from least to most important (to choose which animation is shown - default is idle!)
+        if(playerData.velocityX < -showRunAnimationThreshold){
+            currSparkAnimation = AnimationKey.RUN_LEFT;
+        } else if(playerData.velocityX > showRunAnimationThreshold){
+            currSparkAnimation = AnimationKey.RUN_RIGHT;
+        }
+
+        if(playerData.velocityY < showFallAnimationThreshold){
+            currSparkAnimation = AnimationKey.FALL;
+        } else if(playerData.velocityY > 0){
+            currSparkAnimation = AnimationKey.JUMP;
+        }
+
+        if(GameFlow.GAME_STATE == GameState.DEATH){
+            currSparkAnimation = AnimationKey.DEATH;
+        }
+    }
+
+    public AnimationKey getCurrSparkAnimation(){
+        return currSparkAnimation;
     }
 
     private void loadAnimations(){
