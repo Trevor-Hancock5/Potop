@@ -1,5 +1,6 @@
 package tests;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Rectangle;
 import com.hancockt.potop.features.Checkpoint;
 import com.hancockt.potop.features.Currency;
@@ -7,9 +8,13 @@ import com.hancockt.potop.features.Faucet;
 import com.hancockt.potop.features.Platform;
 import com.hancockt.potop.level.LevelGeneration;
 import com.hancockt.potop.level.LevelType;
+import com.hancockt.potop.main.PhysicsEngine;
+import com.hancockt.potop.state.PersistentData;
 import com.hancockt.potop.state.PlayerData;
 import com.hancockt.potop.state.RunData;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.*;
 
@@ -19,6 +24,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class LevelGenerationTest {
     private static final int NUM_GENERATED_LEVELS = 100;
     private static final int TEST_HEIGHT = 14_000;
+
+    // Place this in your JUnit test class inside an @BeforeEach (or @Before) setup method.
+    @BeforeEach
+    public void setupGdx() {
+        // Assigns a dummy object to the global so it doesn't crash. (Requires Mockito)
+        Gdx.input = org.mockito.Mockito.mock(com.badlogic.gdx.Input.class);
+    }
 
     @Test
     public void platformsShouldNotOverlapPlatforms(){
@@ -267,6 +279,36 @@ public class LevelGenerationTest {
         assertTrue(averageFaucetDist > 250 && averageFaucetDist < 750, "Faucets not in desired range: " + averageFaucetDist);
         assertTrue(maxCheckpointDist < 1000, "Checkpoints too far apart: " + maxCheckpointDist);
         assertTrue(maxFaucetDist < 1000, "Faucets too far apart: " + maxFaucetDist);
+    }
+
+    @Test
+    public void performanceTiming(){
+        //TODO - turn this into an average!
+
+        int testHeight = 100_000;
+        RunData runData;
+
+        //Time generation up to 100k
+        long start = System.nanoTime();
+
+        runData = generateLevel(testHeight);
+
+        long elapsed = System.nanoTime() - start;
+        System.out.println("Took " + elapsed / 1_000_000_000.0 + " seconds to generate 100k height");
+
+        //Time physics engine update
+
+        PhysicsEngine physicsEngine = new PhysicsEngine();
+        PlayerData playerData = new PlayerData();
+        PersistentData persistentData = new PersistentData();
+        start = System.nanoTime();
+
+        //TODO - add all update methods from gameFlow when game state is playing!
+
+        physicsEngine.updatePhysics(1/60f, runData, persistentData, playerData);
+
+        elapsed = System.nanoTime() - start;
+        System.out.println("Took " + elapsed / 1_000_000.0 + " ms to update physics engine");
     }
 
     @Test
