@@ -2,19 +2,21 @@ package tests;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Rectangle;
+import com.hancockt.potop.assets.GameAssets;
 import com.hancockt.potop.features.Checkpoint;
 import com.hancockt.potop.features.Currency;
 import com.hancockt.potop.features.Faucet;
 import com.hancockt.potop.features.Platform;
 import com.hancockt.potop.level.LevelGeneration;
 import com.hancockt.potop.level.LevelType;
+import com.hancockt.potop.main.GameFlow;
 import com.hancockt.potop.main.PhysicsEngine;
 import com.hancockt.potop.state.PersistentData;
 import com.hancockt.potop.state.PlayerData;
 import com.hancockt.potop.state.RunData;
+import com.hancockt.potop.systems.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.util.*;
 
@@ -22,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class LevelGenerationTest {
-    private static final int NUM_GENERATED_LEVELS = 100;
+    private static final int NUM_TESTS = 100;
     private static final int TEST_HEIGHT = 14_000;
 
     // Place this in your JUnit test class inside an @BeforeEach (or @Before) setup method.
@@ -36,7 +38,7 @@ public class LevelGenerationTest {
     public void platformsShouldNotOverlapPlatforms(){
         ArrayList<Integer> maxList = new ArrayList<>();
         ArrayList<Double> avgList = new ArrayList<>();
-        for(int i = 0; i < NUM_GENERATED_LEVELS; i ++){
+        for(int i = 0; i < NUM_TESTS; i ++){
             RunData runData = generateLevel(TEST_HEIGHT);
             //CHECK
             List<Platform> platforms = runData.getPlatforms();
@@ -69,7 +71,7 @@ public class LevelGenerationTest {
 
     @Test
     public void faucetsShouldNotOverlapFaucets(){
-        for(int i = 0; i < NUM_GENERATED_LEVELS; i ++){
+        for(int i = 0; i < NUM_TESTS; i ++){
             RunData runData = generateLevel(TEST_HEIGHT);
             //CHECK
             List<Faucet> faucets = runData.getFaucets();
@@ -87,7 +89,7 @@ public class LevelGenerationTest {
 
     @Test
     public void checkpointsShouldNotOverlapCheckpoints(){
-        for(int i = 0; i < NUM_GENERATED_LEVELS; i ++){
+        for(int i = 0; i < NUM_TESTS; i ++){
             RunData runData = generateLevel(TEST_HEIGHT);
             //CHECK
             List<Checkpoint> checkpoints = runData.getCheckpoints();
@@ -107,7 +109,7 @@ public class LevelGenerationTest {
     public void currencyShouldNotOverlapCurrency(){
         float width = Currency.WIDTH;
         float height = Currency.HEIGHT;
-        for(int i = 0; i < NUM_GENERATED_LEVELS; i ++){
+        for(int i = 0; i < NUM_TESTS; i ++){
             RunData runData = generateLevel(TEST_HEIGHT);
             //CHECK
             List<Currency> currencies = runData.getCurrencies();
@@ -127,7 +129,7 @@ public class LevelGenerationTest {
     @Test
     public void platformsShouldNotOverlapOtherObjects(){
         //faucet, checkpoint, currency
-        for(int i = 0; i < NUM_GENERATED_LEVELS; i ++){
+        for(int i = 0; i < NUM_TESTS; i ++){
             RunData runData = generateLevel(TEST_HEIGHT);
             //CHECK
             List<Platform> platforms = runData.getPlatforms();
@@ -157,7 +159,7 @@ public class LevelGenerationTest {
     @Test
     public void faucetsShouldNotOverlapOtherObjects(){
         //checkpoints and currency
-        for(int i = 0; i < NUM_GENERATED_LEVELS; i ++){
+        for(int i = 0; i < NUM_TESTS; i ++){
             RunData runData = generateLevel(TEST_HEIGHT);
             //CHECK
             for(Faucet f : runData.getFaucets()){
@@ -178,7 +180,7 @@ public class LevelGenerationTest {
 
     @Test
     public void checkpointsShouldNotOverlapCurrency(){
-        for(int i = 0; i < NUM_GENERATED_LEVELS; i ++){
+        for(int i = 0; i < NUM_TESTS; i ++){
             RunData runData = generateLevel(TEST_HEIGHT);
             //CHECK
             for(Checkpoint c : runData.getCheckpoints()){
@@ -192,10 +194,9 @@ public class LevelGenerationTest {
         }
     }
 
-    // TODO - currency reachable!
     @Test
     public void isCurrencyReachable(){
-        for(int i = 0; i < NUM_GENERATED_LEVELS; i++){
+        for(int i = 0; i < NUM_TESTS; i++){
             RunData runData = generateLevel(TEST_HEIGHT);
             for(Currency c : runData.getCurrencies()){
                 //adjust dimensions to check reachability
@@ -216,7 +217,7 @@ public class LevelGenerationTest {
         ArrayList<Integer> checkpointDistances = new ArrayList<>();
         ArrayList<Integer> faucetDistances = new ArrayList<>();
 
-        for(int i = 0; i < NUM_GENERATED_LEVELS; i++){
+        for(int i = 0; i < NUM_TESTS; i++){
             RunData runData = generateLevel(TEST_HEIGHT);
             List<Checkpoint> checkpoints = runData.getCheckpoints();
             List<Faucet> faucets = runData.getFaucets();
@@ -283,32 +284,55 @@ public class LevelGenerationTest {
 
     @Test
     public void performanceTiming(){
-        //TODO - turn this into an average!
+        // benchmark:
+        // average generation (100k): 12.22s
+        // average generation (10k): 0.0363s
+        // average physics update: 1.565ms
+        List<Double> timeGeneration = new ArrayList<>();
+        List<Double> timeUpdate = new ArrayList<>();
+        double secondsConversion = 1_000_000_000.0;
+        double millisecondsConversion = 1_000_000.0;
+        int testHeight = 10_000;
 
-        int testHeight = 100_000;
+        // TODO - define the test values for asserts!
+
         RunData runData;
+        for(int i = 0; i < NUM_TESTS; i++) {
 
-        //Time generation up to 100k
-        long start = System.nanoTime();
+            //Time generation up to 100k
+            long start = System.nanoTime();
 
-        runData = generateLevel(testHeight);
+            runData = generateLevel(testHeight);
 
-        long elapsed = System.nanoTime() - start;
-        System.out.println("Took " + elapsed / 1_000_000_000.0 + " seconds to generate 100k height");
+            long elapsed = System.nanoTime() - start;
+            timeGeneration.add((double) (elapsed / secondsConversion));
 
-        //Time physics engine update
+            //Time physics engine update
 
-        PhysicsEngine physicsEngine = new PhysicsEngine();
-        PlayerData playerData = new PlayerData();
-        PersistentData persistentData = new PersistentData();
-        start = System.nanoTime();
+            PersistentData persistentData = new PersistentData();
+            PlayerData playerData = new PlayerData();
+            PhysicsEngine physicsEngine = new PhysicsEngine();
 
-        //TODO - add all update methods from gameFlow when game state is playing!
+            start = System.nanoTime();
 
-        physicsEngine.updatePhysics(1/60f, runData, persistentData, playerData);
+            physicsEngine.updatePhysics(1/60f, runData, persistentData, playerData);
 
-        elapsed = System.nanoTime() - start;
-        System.out.println("Took " + elapsed / 1_000_000.0 + " ms to update physics engine");
+            elapsed = System.nanoTime() - start;
+            timeUpdate.add((double) (elapsed / millisecondsConversion));
+        }
+
+        // Average (returns an OptionalDouble)
+        double averageGenerationTiming = timeGeneration.stream()
+            .mapToDouble(Double::doubleValue)
+            .average()
+            .orElse(0.0); // fallback value if the list is empty
+        double averageUpdateTiming = timeUpdate.stream()
+            .mapToDouble(Double::doubleValue)
+            .average()
+            .orElse(0.0); // fallback value if the list is empty
+
+        System.out.println("average generation timing: " + averageGenerationTiming + "s");
+        System.out.println("average update timing: " + averageUpdateTiming + "ms");
     }
 
     @Test
@@ -328,7 +352,7 @@ public class LevelGenerationTest {
         int highestY;
         long seed;
 
-        for(int i = 0; i < NUM_GENERATED_LEVELS; i++) {
+        for(int i = 0; i < NUM_TESTS; i++) {
             highestY = 0;
             RunData runData = generateLevel(totalTestHeight);
             seed = runData.seed;
@@ -451,7 +475,7 @@ public class LevelGenerationTest {
 
     @Test
     public void checkPrestigeCurrency(){
-        int numRuns = NUM_GENERATED_LEVELS * 25; //This is quick and easy test but need more samples!
+        int numRuns = NUM_TESTS * 25; //This is quick and easy test but need more samples!
         float goalAveragePrestigePerLevel = 0.05f; //1 in 20 runs has a prestige
 
         ArrayList<Integer> numPrestigePerLevel = new ArrayList<>();
@@ -478,7 +502,6 @@ public class LevelGenerationTest {
 
     private RunData generateLevel(int height){
         long seed = System.currentTimeMillis();
-        PlayerData playerData = new PlayerData();
         LevelGeneration levelGeneration = new LevelGeneration(seed);
         RunData runData = LevelGeneration.getAllLevels().get(LevelType.INFINITE); // at 10_000
 
