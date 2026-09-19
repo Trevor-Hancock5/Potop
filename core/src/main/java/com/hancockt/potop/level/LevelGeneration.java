@@ -16,6 +16,7 @@ public class LevelGeneration {
     private static final Map<LevelType, RunData> ALL_LEVELS = new HashMap<>();
     private int highestInfiniteY = 0;
     private Platform highestPlatform;
+    private int checkedCurrencyUpToHere; //used for checking currency overlap
 
     private static final int BAND_HEIGHT = 250; //TUNABLE
     private static final float LEVEL_WIDTH = 3000; //TUNABLE
@@ -31,7 +32,7 @@ public class LevelGeneration {
     private static final float minFaucetSpeedReduction = 10; //TUNABLE
     private static final float maxFaucetSpeedReduction = 60; //TUNABLE
     private static final float minNumPlatformsPerBand = 5; //TUNABLE
-    private static final int maxAttemptsPlacingPlatforms = 500; //TUNABLE - TODO, reduce this by removing any overlapping things!
+    private static final int maxAttemptsPlacingPlatforms = 250; //TUNABLE - TODO, reduce this by removing any overlapping things!
     private static final int maxPrestigeCurrencyThreshold = 10_000; //TUNABLE
     private static final int minPrestigeCurrencyThreshold = 1_000; //TUNABLE
     private static final int chanceDecreaseThreshold = 5_000; //TUNABLE
@@ -48,6 +49,7 @@ public class LevelGeneration {
 
     public LevelGeneration(long seed){
         numPrestigePlaced = 0; //reset
+        checkedCurrencyUpToHere = 0;
         ALL_LEVELS.put(LevelType.LEARNING_MODE, buildTutorialLevel());
         ALL_LEVELS.put(LevelType.INFINITE, buildInfiniteLevel(seed));
     }
@@ -100,7 +102,7 @@ public class LevelGeneration {
         );
     }
 
-    private RunData buildInfiniteLevel(long seed){
+    public RunData buildInfiniteLevel(long seed){
         List<Checkpoint> checkpoints = new ArrayList<>();
         List<Platform> platforms = new ArrayList<>();
         List<Faucet> faucets = new ArrayList<>();
@@ -209,7 +211,16 @@ public class LevelGeneration {
         boolean reachable = false; //reachable from previous band
 
         //for overlapping, since only platforms in this band can overlap other ones
-        List<Platform> bandPlatforms = new ArrayList<>();
+        List<Platform> previousBandPlatforms = new ArrayList<>();
+        for(Platform p : platforms){
+            // add platforms to band platforms from previous band to check for overlap
+            // this is also a performance improvement so not all platforms are checked for overlap
+            if(p.getY() > bandY - BAND_HEIGHT){
+                previousBandPlatforms.add(p);
+            }
+        }
+        List<Platform> bandPlatforms = new ArrayList<>(previousBandPlatforms); //start with previous band platforms!
+
         for(int i = 0; i < numPlatforms; i++) {
             Platform p;
             int attempts = 0;
@@ -229,7 +240,12 @@ public class LevelGeneration {
                 p = new Platform(xVal, yVal, width, height);
 
                 //check overlap and checkpoints (check last checkpoint only)
-                for(Platform allP : platforms){
+                for(Platform allP : bandPlatforms){
+                    if(allP.getY() > p.getY() + p.getHeight()
+                            || allP.getY() + allP.getHeight() < p.getY()){
+                        continue;
+                    }
+
                     // All gaps between platforms horizontally should be playerWidth wide
                     Rectangle currP = new Rectangle(p.getX() - ((float) PlayerData.playerWidth), p.getY(),
                         p.getWidth() + ((float) PlayerData.playerWidth), p.getHeight());
@@ -277,6 +293,9 @@ public class LevelGeneration {
 
         //by having the highest platform update outside the for loop, the do-while loop continually tries to make a
         // platform that the previous band's highest platform can reach
+
+        //remove previous band platforms before adding currency
+        bandPlatforms.removeAll(previousBandPlatforms);
 
         // check if new highest platform for checkpoint making and add currency!
         for(Platform p : bandPlatforms) {
@@ -350,8 +369,11 @@ public class LevelGeneration {
                                                 Currency.WIDTH, Currency.HEIGHT);
 
         boolean platformOverlap = false;
-        for(int i = 0; i < platforms.size(); i++){
-            Platform p = platforms.get(i);
+        for(Platform p : platforms){
+            if (p.getY() - PlayerData.playerHeight > curr.getY() + Currency.HEIGHT || p.getY() + p.getHeight() < curr.getY()){
+                continue;
+            }
+
             platformOverlap = currencyRectangle.overlaps(new Rectangle(p.getX(), p.getY() - PlayerData.playerHeight, p.getWidth(), p.getHeight() + PlayerData.playerHeight));
             if(platformOverlap){
                 break;
@@ -359,8 +381,11 @@ public class LevelGeneration {
         }
 
         boolean checkpointOverlap = false;
-        for(int i = 0; i < checkpoints.size(); i++){
-            Checkpoint c = checkpoints.get(i);
+        for(Checkpoint c : checkpoints){
+            if (c.getY() > curr.getY() + Currency.HEIGHT || c.getY() + c.getHeight() < curr.getY()){
+                continue;
+            }
+
             checkpointOverlap = currencyRectangle.overlaps(new Rectangle(c.getX(), c.getY(), c.getWidth(), c.getHeight()));
             if(checkpointOverlap){
                 break;
@@ -368,8 +393,11 @@ public class LevelGeneration {
         }
 
         boolean faucetOverlap = false;
-        for(int i = 0; i < faucets.size(); i++){
-            Faucet f = faucets.get(i);
+        for(Faucet f : faucets){
+            if (f.getY() > curr.getY() + Currency.HEIGHT || f.getY() + f.getHeight() < curr.getY()){
+                continue;
+            }
+
             faucetOverlap = currencyRectangle.overlaps(new Rectangle(f.getX(), f.getY() - faucetGapAbovePlatform, f.getWidth(), f.getHeight() + faucetGapAbovePlatform));
             if(faucetOverlap){
                 break;
@@ -382,12 +410,19 @@ public class LevelGeneration {
     private void removeOverlappingCurrency(List<Currency> currencies, List<Platform> platforms,
                                            List<Checkpoint> checkpoints, List<Faucet> faucets){
         ArrayList<Currency> toRemove = new ArrayList<>();
+        int highestNewCurrY = checkedCurrencyUpToHere;
         for(Currency c : currencies){
+            if(c.getY() < checkedCurrencyUpToHere - BAND_HEIGHT){
+                continue;
+            }
+
             if(!checkNoCurrencyOverlap(c, platforms, checkpoints, faucets)){
                 toRemove.add(c);
             }
+            highestNewCurrY = Math.max(checkedCurrencyUpToHere, (int) c.getY());
         }
 
+        checkedCurrencyUpToHere = highestNewCurrY;
         currencies.removeAll(toRemove);
     }
 

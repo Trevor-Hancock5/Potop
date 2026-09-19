@@ -91,7 +91,7 @@ public class PhysicsEngine {
         playerData.x += playerData.velocityX * delta;
 
         //Edge Nudging
-        for(Platform p : runData.getPlatforms()) {
+        for(Platform p : runData.getActivePlatforms()) {
             if (playerData.y + PlayerData.playerHeight > p.getY() && playerData.velocityY > 0 && playerData.y < p.getY() + p.getHeight()){
                 if(playerData.x + PlayerData.playerWidth > p.getX() && playerData.x + PlayerData.playerWidth < p.getX() + nudgeThreshold){
                     playerData.velocityX += delta * nudgeSpeed;
@@ -118,7 +118,7 @@ public class PhysicsEngine {
         }
 
         //platform collision
-        for (Platform p : runData.getPlatforms()) {
+        for (Platform p : runData.getActivePlatforms()) {
             Rectangle playerRect = new Rectangle(playerData.x, playerData.y, PlayerData.playerWidth, PlayerData.playerHeight);
             Rectangle platformRect = new Rectangle(p.getX(), p.getY(), p.getWidth(), p.getHeight());
 
@@ -169,7 +169,7 @@ public class PhysicsEngine {
 
         //check if on wall
         boolean onBoundingWall = false;
-        for (Platform p : runData.getPlatforms()){
+        for (Platform p : runData.getActivePlatforms()){
             if (playerData.y + PlayerData.playerHeight < p.getY() || playerData.y > p.getY() + p.getHeight()) {
                 continue; //not same height, skip!
             }

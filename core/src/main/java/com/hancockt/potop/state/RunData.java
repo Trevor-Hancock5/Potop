@@ -29,6 +29,18 @@ public class RunData {
     private final List<Faucet> faucets;
     private final List<Currency> currencies;
     private final List<Platform> platforms; // already built, not modules
+
+    private List<Checkpoint> activeCheckpoints;
+    private List<Faucet> activeFaucets;
+    private List<Currency> activeCurrency;
+    private List<Platform> activePlatforms;
+
+    private float currentActiveTimeAmount;
+    private final float checkUpdateActive = 1.0f; //seconds - TUNABLE
+    private final int yDifferentialToTriggerActiveListsUpdate = 500; // update acitve lists when player moves by 500
+    private final int activeListsRange = 1000; // active lists are 1000 above and below player
+    private float lastUpdatedYForActive;
+
     private final Vector2 startPoint;
     private LevelType currentLevel;
     private final LevelType nextLevel;
@@ -46,6 +58,15 @@ public class RunData {
         this.faucets = faucets;
         this.currencies = currencies;
         this.platforms = platforms;
+
+        activeCheckpoints = new ArrayList<>();
+        activeFaucets = new ArrayList<>();
+        activeCurrency = new ArrayList<>();
+        activePlatforms = new ArrayList<>();
+
+        currentActiveTimeAmount = 5;
+        lastUpdatedYForActive = -1000;
+        updateActiveLists(0, 0);
         this.startPoint = startPoint;
         runMatches = 0;
         this.currentLevel = currLevel;
@@ -63,8 +84,67 @@ public class RunData {
         this(checkpoints, platforms, startPoint, faucets, currencies,  currLevel, nextLevel, System.currentTimeMillis());
     }
 
-    public List<Checkpoint> getCheckpoints() {
+    public void updateActiveLists(float playerY, float delta){
+        currentActiveTimeAmount += delta;
+        if(currentActiveTimeAmount < checkUpdateActive) {
+            return;
+        }
+        if(Math.abs(playerY - lastUpdatedYForActive) > yDifferentialToTriggerActiveListsUpdate){
+            // Update the lists
+            float lowYThreshold = playerY - activeListsRange;
+            float upperYThreshold = playerY + activeListsRange;
 
+            for(Platform p : platforms){
+                float platY = p.getY();
+                if(platY > lowYThreshold && platY < upperYThreshold){
+                    activePlatforms.add(p);
+                }
+            }
+
+            for(Checkpoint c : checkpoints){
+                float checkY = c.getY();
+                if(checkY > lowYThreshold && checkY < upperYThreshold){
+                    activeCheckpoints.add(c);
+                }
+            }
+
+            for(Currency curr : currencies){
+                float currencyY = curr.getY();
+                if(currencyY > lowYThreshold && currencyY < upperYThreshold){
+                    activeCurrency.add(curr);
+                }
+            }
+
+
+            for(Faucet f : faucets){
+                float faucetY = f.getY();
+                if(faucetY > lowYThreshold && faucetY < upperYThreshold){
+                    activeFaucets.add(f);
+                }
+            }
+
+            lastUpdatedYForActive = playerY;
+            currentActiveTimeAmount = 0;
+        }
+    }
+
+    public List<Checkpoint> getActiveCheckpoints() {
+        return activeCheckpoints;
+    }
+
+    public List<Faucet> getActiveFaucets(){
+        return activeFaucets;
+    }
+
+    public List<Currency> getActiveCurrency(){
+        return activeCurrency;
+    }
+
+    public List<Platform> getActivePlatforms(){
+        return activePlatforms;
+    }
+
+    public List<Checkpoint> getCheckpoints() {
         return checkpoints == null ? new ArrayList<>() : checkpoints;
     }
 

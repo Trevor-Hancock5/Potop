@@ -15,14 +15,10 @@
 # Milestones:
 ## Bug/code fix
 
-- improve performance! seems slow! 
-    - Make an active objects list (platforms, checkpoints, faucets, ...)
-      - Make it once and then store it and update it - no streams!
-      - Only update every few seconds (not every update!) and if the player has moved more than 500 px up
-      - Make sure current lists are sorted?
-      - If sorted, then clear active lists when updated and then loop through all (continue when too low, break when too high)
-      - If not sorted, then don't bother sorting, just loop through all of it with no break! (i think use continue!)
--  don't use streams or for each loops!
+- improve performance! 
+
+need to get tests passing! As well as add more performance improvements 
+(using active lists, check the things in game flow update)
 
 ## Necessary Improvements!
 - less dense higher? more dense lower?

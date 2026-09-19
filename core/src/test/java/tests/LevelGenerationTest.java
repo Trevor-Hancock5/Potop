@@ -2,14 +2,12 @@ package tests;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Rectangle;
-import com.hancockt.potop.assets.GameAssets;
 import com.hancockt.potop.features.Checkpoint;
 import com.hancockt.potop.features.Currency;
 import com.hancockt.potop.features.Faucet;
 import com.hancockt.potop.features.Platform;
 import com.hancockt.potop.level.LevelGeneration;
 import com.hancockt.potop.level.LevelType;
-import com.hancockt.potop.main.GameFlow;
 import com.hancockt.potop.main.PhysicsEngine;
 import com.hancockt.potop.state.PersistentData;
 import com.hancockt.potop.state.PlayerData;
@@ -286,26 +284,40 @@ public class LevelGenerationTest {
     public void performanceTiming(){
         // benchmark:
         // average generation (100k): 12.22s
-        // average generation (10k): 0.0363s
-        // average physics update: 1.565ms
-        List<Double> timeGeneration = new ArrayList<>();
-        List<Double> timeUpdate = new ArrayList<>();
-        double secondsConversion = 1_000_000_000.0;
-        double millisecondsConversion = 1_000_000.0;
-        int testHeight = 10_000;
 
-        // TODO - define the test values for asserts!
+        // average generation (10k): 17.0055 ms
+        // average physics update: 1.565ms
+        // average add to generation : 8.726 ms
+        List<Double> timeGeneration = new ArrayList<>();
+        List<Double> timePhysicsUpdate = new ArrayList<>();
+        List<Double> timeAddToGeneration = new ArrayList<>();
+        double millisecondsConversion = 1_000_000.0;
+
+        final int initGenerationThreshold = 50; //ms
+        final int physicsThreshold = 2; //ms
+        final int addGenerationThreshold = 2; //ms
 
         RunData runData;
         for(int i = 0; i < NUM_TESTS; i++) {
+            long seed = System.nanoTime();
+            LevelGeneration levelGeneration = new LevelGeneration(seed);
 
-            //Time generation up to 100k
+            //Time generation up to 10k - initial
             long start = System.nanoTime();
 
-            runData = generateLevel(testHeight);
+            runData = levelGeneration.buildInfiniteLevel(seed);
 
             long elapsed = System.nanoTime() - start;
-            timeGeneration.add((double) (elapsed / secondsConversion));
+            timeGeneration.add(elapsed / millisecondsConversion);
+
+            // Time adding to generation
+            start = System.nanoTime();
+
+            levelGeneration.addToInfiniteLevel(runData.getPlatforms(), runData.getCheckpoints(), runData.getFaucets(),
+                runData.getCurrencies(), runData.rng);
+
+            elapsed = System.nanoTime() - start;
+            timeAddToGeneration.add(elapsed / millisecondsConversion);
 
             //Time physics engine update
 
@@ -318,21 +330,30 @@ public class LevelGenerationTest {
             physicsEngine.updatePhysics(1/60f, runData, persistentData, playerData);
 
             elapsed = System.nanoTime() - start;
-            timeUpdate.add((double) (elapsed / millisecondsConversion));
+            timePhysicsUpdate.add(elapsed / millisecondsConversion);
         }
 
         // Average (returns an OptionalDouble)
-        double averageGenerationTiming = timeGeneration.stream()
+        double averageInitGenerationTiming = timeGeneration.stream()
             .mapToDouble(Double::doubleValue)
             .average()
             .orElse(0.0); // fallback value if the list is empty
-        double averageUpdateTiming = timeUpdate.stream()
+        double averagePhysicsUpdateTiming = timePhysicsUpdate.stream()
             .mapToDouble(Double::doubleValue)
             .average()
             .orElse(0.0); // fallback value if the list is empty
+        double averageAddGenerationTiming = timeAddToGeneration.stream()
+            .mapToDouble(Double::doubleValue)
+            .average()
+            .orElse(0.0);
 
-        System.out.println("average generation timing: " + averageGenerationTiming + "s");
-        System.out.println("average update timing: " + averageUpdateTiming + "ms");
+        System.out.println("average generation timing: " + averageInitGenerationTiming + "ms");
+        System.out.println("average physics update timing: " + averagePhysicsUpdateTiming + "ms");
+        System.out.println("average add generation timing " + averageAddGenerationTiming + "ms");
+
+        assertTrue(averageInitGenerationTiming <= initGenerationThreshold);
+        assertTrue(averagePhysicsUpdateTiming <= physicsThreshold);
+        assertTrue(averageAddGenerationTiming <= addGenerationThreshold);
     }
 
     @Test
