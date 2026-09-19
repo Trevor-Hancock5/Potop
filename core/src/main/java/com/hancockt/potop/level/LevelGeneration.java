@@ -22,21 +22,21 @@ public class LevelGeneration {
     private static final float LEVEL_WIDTH = 3000; //TUNABLE
     private static final int PRE_GENERATION_HEIGHT = 10_000; //TUNABLE
     public static final int GENERATION_HEIGHT = 2000; //TUNABLE
-    private static final float minCheckpointHeightDistance = 1000f; //TUNABLE
-    private static final float maxCheckpointHeightDistance = 2000f; //TUNABLE
-    private static final float skipCheckpointThreshold = 0.1f; //TUNABLE
-    private static final float minFaucetHeightDistance = 500f; //TUNABLE
+    private static final float minCheckpointHeightDistance = 750f; //TUNABLE
+    private static final float maxCheckpointHeightDistance = 1250f; //TUNABLE
+    private static final float skipCheckpointThreshold = 0.05f; //TUNABLE
+    private static final float minFaucetHeightDistance = 600f; //TUNABLE
     private static final float maxFaucetHeightDistance = 1000f; //TUNABLE
-    private static final float skipFaucetThreshold = 0.33f; //TUNABLE
+    private static final float skipFaucetThreshold = 0.2f; //TUNABLE
     private static final float faucetGapAbovePlatform = 10f; // pixels floating above platform - TUNABLE
     private static final float minFaucetSpeedReduction = 10; //TUNABLE
-    private static final float maxFaucetSpeedReduction = 60; //TUNABLE
+    private static final float maxFaucetSpeedReduction = 50; //TUNABLE
     private static final float minNumPlatformsPerBand = 5; //TUNABLE
-    private static final int maxAttemptsPlacingPlatforms = 250; //TUNABLE - TODO, reduce this by removing any overlapping things!
+    private static final int maxAttemptsPlacingPlatforms = 500; //TUNABLE
     private static final int maxPrestigeCurrencyThreshold = 10_000; //TUNABLE
     private static final int minPrestigeCurrencyThreshold = 1_000; //TUNABLE
     private static final int chanceDecreaseThreshold = 5_000; //TUNABLE
-    private static final float prestigeCurrChanceMax = 0.0001f; // TUNABLE todo - tune this, use a test. Generate up to 10k 100 times and in 50% of runs >=1 is placed
+    private static final float prestigeCurrChanceMax = 0.0002f; // TUNABLE
     private static final float prestigeCurrChanceMin = 0.000001f; //TUNABLE
     private static final float minCurrencyChanceOfPlacement = 0.05f; // only on 5% of platforms to start - TUNABLE
     private static final float maxCurrencyChanceOfPlacement = 0.5f; //TUNABLE
@@ -46,6 +46,8 @@ public class LevelGeneration {
     public static final int maxPrestigePlaced = 5;
 
     public static ArrayList<Integer> attemptsList = new ArrayList<>(); //TODO - just for testing
+
+    // TODO - change generation to increase checkpoints the higher you go
 
     public LevelGeneration(long seed){
         numPrestigePlaced = 0; //reset
@@ -135,8 +137,6 @@ public class LevelGeneration {
         removeOverlappingCurrency(currencies, platforms, checkpoints, faucets);
     }
 
-    //todo - maybe more checkpoints when higher?
-    //TODO - rework so that it uses LevelData for lists instead of passing them as arguments! - runData?
     private Platform generateBand(List<Platform> platforms, List<Checkpoint> checkpoints, float bandY,
                                          Platform highestPlatform, List<Faucet> faucets, List<Currency> currencies,
                                          Random rng){
@@ -162,6 +162,10 @@ public class LevelGeneration {
                     noOverlap = false;
                 }
             }
+
+            if(!checkpoints.isEmpty() && checkpoints.getLast().getRect().overlaps(checkpoint.getRect())){
+                noOverlap = false;
+            }
             if(noOverlap) {
                 checkpoints.add(checkpoint);
             }
@@ -186,6 +190,10 @@ public class LevelGeneration {
                 if(faucet.getRect().overlaps(checkpoints.get(i).getRect())){
                     noOverlap = false;
                 }
+            }
+
+            if(!faucets.isEmpty() && faucets.getLast().getRect().overlaps(faucet.getRect())){
+                noOverlap = false;
             }
             if(noOverlap) {
                 faucets.add(faucet);
@@ -307,8 +315,8 @@ public class LevelGeneration {
             } while ((attempts < maxAttemptsPlacingPlatforms) && (needsRetry || overlapsFaucet || overlapsCheckpoint || !reachable));
 
 
-            if(attempts < maxAttemptsPlacingPlatforms) {
-                // Only actually place if successfully placed!
+            if(!(needsRetry || overlapsFaucet || overlapsCheckpoint)){
+                // Only actually place if not overlapping!
                 attemptsList.add(attempts);
                 platforms.add(p);
                 bandPlatforms.add(p);

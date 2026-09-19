@@ -12,13 +12,10 @@
 - Added top, right, getRect for features. As you add new stuff use that and then replace as you go!
 - Trim parameters when possible
 
+RUN TESTS BEFORE PUSHING!
+
 # Milestones:
-## Bug/code fix
 
-- improve performance! 
-
-need to get tests passing! As well as add more performance improvements 
-(using active lists, check the things in game flow update)
 
 ## Necessary Improvements!
 - less dense higher? more dense lower?

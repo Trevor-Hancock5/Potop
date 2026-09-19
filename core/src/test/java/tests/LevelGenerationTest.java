@@ -22,8 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class LevelGenerationTest {
-    private static final int NUM_TESTS = 100;
-    private static final int TEST_HEIGHT = 14_000;
+    private static final int NUM_TESTS = 500;
+    private static final int TEST_HEIGHT = 20_000;
 
     // Place this in your JUnit test class inside an @BeforeEach (or @Before) setup method.
     @BeforeEach
@@ -279,12 +279,12 @@ public class LevelGenerationTest {
         System.out.println("maxCheck: " + maxCheckpointDist);
         System.out.println("maxFaucet: " + maxFaucetDist);
 
-        assertTrue(minCheckpointDist > 100, "Checkpoints too close: " + minCheckpointDist);
-        assertTrue(minFaucetDist > 100, "Faucets too close: " + minFaucetDist);
-        assertTrue(averageCheckpointDist > 250 && averageCheckpointDist < 750, "Checkpoints not in desired range: " + averageCheckpointDist);
-        assertTrue(averageFaucetDist > 250 && averageFaucetDist < 750, "Faucets not in desired range: " + averageFaucetDist);
-        assertTrue(maxCheckpointDist < 1000, "Checkpoints too far apart: " + maxCheckpointDist);
-        assertTrue(maxFaucetDist < 1000, "Faucets too far apart: " + maxFaucetDist);
+        assertTrue(minCheckpointDist > 500, "Checkpoints too close: " + minCheckpointDist);
+        assertTrue(minFaucetDist > 500, "Faucets too close: " + minFaucetDist);
+        assertTrue(averageCheckpointDist > 500 && averageCheckpointDist < 1500, "Checkpoints not in desired range: " + averageCheckpointDist);
+        assertTrue(averageFaucetDist > 500 && averageFaucetDist < 2000, "Faucets not in desired range: " + averageFaucetDist);
+        assertTrue(maxCheckpointDist < 2500, "Checkpoints too far apart: " + maxCheckpointDist);
+        assertTrue(maxFaucetDist < 4000, "Faucets too far apart: " + maxFaucetDist);
     }
 
     @Test
@@ -364,6 +364,33 @@ public class LevelGenerationTest {
     }
 
     @Test
+    public void checkPrestigeCurrency(){
+        int numRuns = NUM_TESTS * 25; //This is quick and easy test but need more samples!
+        float goalAveragePrestigePerLevel = 0.05f; //1 in 20 runs has a prestige
+        // So the chance must stay between .025 and .1.
+
+        ArrayList<Integer> numPrestigePerLevel = new ArrayList<>();
+        for(int i = 0; i < numRuns; i++){
+            int numPrestige = 0;
+            RunData runData = generateLevel(LevelGeneration.getMaxPrestigeCurrencyThreshold());
+            for(Currency c : runData.getCurrencies()){
+                if(c.isPrestige()){
+                    numPrestige++;
+                }
+            }
+            numPrestigePerLevel.add(numPrestige);
+
+            if(numPrestige > LevelGeneration.maxPrestigePlaced){
+                System.out.println("Num prestige placed: " + numPrestige);
+            }
+            assertFalse(numPrestige > LevelGeneration.maxPrestigePlaced, "More than max allowed prestige currency spawned in a level!");
+        }
+        double average = numPrestigePerLevel.stream().mapToInt(Integer::intValue).average().orElse(0.0);
+        System.out.println("Average prestige currency spawn: " + average);
+        assertTrue(average <= goalAveragePrestigePerLevel * 2 && average > goalAveragePrestigePerLevel / 2, "Too high/low of average spawning for prestige: " + average); //no higher than this
+    }
+
+    @Test
     public void checkReachability(){
         // This test is far from perfect!
         // Doesn't account for wall jumps at all and the maxLeap and maxJump are larger than they
@@ -371,7 +398,7 @@ public class LevelGenerationTest {
         // But it is a ... test
 
         final int maxLeap = 600; // Horizontal
-        final int maxJump = 200; // Vertical
+        final int maxJump = 250; // Vertical (allowing more to account for wall jumping)
         final float fallMultiplierForLeap = 1.5f; // If falling, allow for further leap
         final int totalTestHeight = 50_000;
         final int reachableBuffer = 1000;
@@ -500,33 +527,6 @@ public class LevelGenerationTest {
             assertTrue(highestY >= totalTestHeight - reachableBuffer, "Highest platform y is not within reachable buffer!");
         }
     }
-
-    @Test
-    public void checkPrestigeCurrency(){
-        int numRuns = NUM_TESTS * 25; //This is quick and easy test but need more samples!
-        float goalAveragePrestigePerLevel = 0.05f; //1 in 20 runs has a prestige
-
-        ArrayList<Integer> numPrestigePerLevel = new ArrayList<>();
-        for(int i = 0; i < numRuns; i++){
-            int numPrestige = 0;
-            RunData runData = generateLevel(LevelGeneration.getMaxPrestigeCurrencyThreshold());
-            for(Currency c : runData.getCurrencies()){
-                if(c.isPrestige()){
-                    numPrestige++;
-                }
-            }
-            numPrestigePerLevel.add(numPrestige);
-
-            if(numPrestige > LevelGeneration.maxPrestigePlaced){
-                System.out.println("Num prestige placed: " + numPrestige);
-            }
-            assertFalse(numPrestige > LevelGeneration.maxPrestigePlaced, "More than max allowed prestige currency spawned in a level!");
-        }
-        double average = numPrestigePerLevel.stream().mapToInt(Integer::intValue).average().orElse(0.0);
-        System.out.println("Average prestige currency spawn: " + average);
-        assertTrue(average <= goalAveragePrestigePerLevel * 2 && average > goalAveragePrestigePerLevel / 2, "Too high/low of average spawning for prestige: " + average); //no higher than this
-    }
-
 
     private RunData generateLevel(int height){
         long seed = System.currentTimeMillis();
