@@ -27,7 +27,7 @@ public class FaucetSystem {
                         CurrencySystem currencySystem){
         //Faucets
         Faucet nearFaucet = null;
-        for(Faucet f : runData.getFaucets()) {
+        for(Faucet f : runData.getActiveFaucets()) {
             if(!f.isTurnedOff()){
                 Rectangle faucet = new Rectangle(f.getX() - faucetRange, f.getY() - faucetRange, f.getWidth() + 2*faucetRange,
                     f.getHeight() + 2*faucetRange);

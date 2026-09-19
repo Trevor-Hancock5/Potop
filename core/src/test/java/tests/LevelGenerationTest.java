@@ -165,6 +165,13 @@ public class LevelGenerationTest {
 
                 for(Checkpoint c : runData.getCheckpoints()){
                     Rectangle cRect = new Rectangle(c.getX(), c.getY(), c.getWidth(), c.getHeight());
+
+                    if(fRect.overlaps(cRect)) {
+                        System.out.println("checkpoint: (" + c.getX() + ", " + c.getY() + ")");
+                        System.out.println("faucet: (" + f.getX() + ", " + f.getY() + ")");
+                        System.out.println("seed: " + runData.seed);
+                    }
+
                     assertFalse(fRect.overlaps(cRect), "Checkpoint overlaps faucet");
                 }
 

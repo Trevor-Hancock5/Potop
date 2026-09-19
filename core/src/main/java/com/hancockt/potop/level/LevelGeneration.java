@@ -151,8 +151,20 @@ public class LevelGeneration {
             float checkpointHeight = 75;
             float checkpointX = platformMidpoint - (checkpointWidth / 2);
             float checkpointY = highestPlatform.getY() + highestPlatform.getHeight();
-            checkpoints.add(new Checkpoint(checkpointX, checkpointY, checkpointWidth, checkpointHeight,
-                            checkpoints.size()));
+
+            Checkpoint checkpoint = new Checkpoint(checkpointX, checkpointY, checkpointWidth, checkpointHeight,
+                checkpoints.size());
+
+            // check last 3 faucets
+            boolean noOverlap = true;
+            for(int i = Math.max(0, faucets.size() - 3); i < faucets.size(); i++){
+                if(checkpoint.getRect().overlaps(faucets.get(i).getRect())){
+                    noOverlap = false;
+                }
+            }
+            if(noOverlap) {
+                checkpoints.add(checkpoint);
+            }
         }
 
         //add faucets
@@ -165,7 +177,19 @@ public class LevelGeneration {
             float faucetX = platformMidpoint - faucetDimensions / 2;
             float faucetY = highestPlatform.getY() + highestPlatform.getHeight() + faucetGapAbovePlatform; //float in air
             float speedReduction = rng.nextFloat(minFaucetSpeedReduction, maxFaucetSpeedReduction); //how much to slow the water_rise_speed
-            faucets.add(new Faucet(faucetX, faucetY, faucetDimensions, faucetDimensions, speedReduction, false));
+
+            Faucet faucet = new Faucet(faucetX, faucetY, faucetDimensions, faucetDimensions, speedReduction, false);
+
+            // check last 3 checkpoints
+            boolean noOverlap = true;
+            for(int i = Math.max(0, checkpoints.size() - 3); i < checkpoints.size(); i++){
+                if(faucet.getRect().overlaps(checkpoints.get(i).getRect())){
+                    noOverlap = false;
+                }
+            }
+            if(noOverlap) {
+                faucets.add(faucet);
+            }
         }
 
         //Add boundary walls

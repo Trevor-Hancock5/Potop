@@ -15,7 +15,7 @@ public class CheckpointSystem {
 
     public void update(RunData runData, Rectangle playerRect, WaterSystem waterSystem, CurrencySystem currencySystem){
         //Checkpoints
-        for(Checkpoint c : runData.getCheckpoints()){
+        for(Checkpoint c : runData.getActiveCheckpoints()){
             Rectangle checkpoint = new Rectangle(c.getX(), c.getY(), c.getWidth(), c.getHeight());
             if(!c.isActivated() && checkpoint.overlaps(playerRect)){
                 c.setActivated(true);

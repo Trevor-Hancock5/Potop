@@ -63,8 +63,8 @@ public class CurrencySystem {
         }
 
         //check if overlapping currency
-        Rectangle sparkHead = new Rectangle(playerData.x + ((float) playerData.playerWidth / 4),
-            playerData.y + playerData.playerHeight - 10, (float) playerData.playerWidth / 2, 10);
+        Rectangle sparkHead = new Rectangle(playerData.x + ((float) PlayerData.playerWidth / 4),
+            playerData.y + PlayerData.playerHeight - 10, (float) PlayerData.playerWidth / 2, 10);
         List<Currency> toRemove = new ArrayList<>();
         for(Currency c : runData.getCurrencies()){
             Rectangle curr = new Rectangle(c.getX() - currencyRange, c.getY() - currencyRange,
@@ -86,6 +86,7 @@ public class CurrencySystem {
         }
 
         runData.getCurrencies().removeAll(toRemove);
+        runData.getActiveCurrency().removeAll(toRemove);
     }
 
     public void spawnCurrency(RunData runData, int numOfCurrency, float xRef, float yRef, float width, float height){
@@ -95,8 +96,10 @@ public class CurrencySystem {
             float explodeTime = runData.rng.nextFloat(minExplodeTime, maxExplodeTime);
 
             // This spawns currency in the middle of a checkpoint/faucet with explode velocity/time
-            runData.getCurrencies().add(new Currency(xRef + width / 2, yRef + height / 2,false,
-                explodeXVelocity, explodeYVelocity, explodeTime));
+            Currency curr = new Currency(xRef + width / 2, yRef + height / 2,false,
+                explodeXVelocity, explodeYVelocity, explodeTime);
+            runData.getCurrencies().add(curr);
+            runData.getActiveCurrency().add(curr);
         }
     }
 }
