@@ -16,8 +16,11 @@ RUN TESTS BEFORE PUSHING!
 
 # Milestones:
 
-
 ## Necessary Improvements!
+faster water or worse faucets? Faucets are too good, water is almost never putting pressure on you!
+understand level generation and add constants and comments
+
+
 - less dense higher? more dense lower?
 - less platforms by bounding walls?
 - improve wall buffer (when you jump up through a tiny platform, don't nudge them onto the edge of the wall if they have
@@ -56,6 +59,8 @@ RUN TESTS BEFORE PUSHING!
     - More clear how to use checkpoints
 - better tutorial or how to better do it? maybe just a set seed for tutorial and then overlay instructions
     - maybe just note that all controls are found in pause menu!
+- update generation to have more checkpoints and faucets the higher you go! Have a base amount lower and then a strict 
+  limit for higher scores/values
 
 
 

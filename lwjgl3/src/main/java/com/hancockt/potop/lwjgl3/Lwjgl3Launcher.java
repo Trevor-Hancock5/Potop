@@ -40,11 +40,6 @@ public class Lwjgl3Launcher {
         //// They can also be loaded from the root of assets/ .
         configuration.setWindowIcon("taskbar_icon.png");
 
-//TODO - something to do with not blurry pixel art
-//        texture.setFilter(
-//            Texture.TextureFilter.Nearest,
-//            Texture.TextureFilter.Nearest
-//        );
 
         //// This could improve compatibility with Windows machines with buggy OpenGL drivers, Macs
         //// with Apple Silicon that have to emulate compatibility with OpenGL anyway, and more.

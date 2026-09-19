@@ -2,7 +2,6 @@ package com.hancockt.potop.main;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.math.Rectangle;
 import com.hancockt.potop.assets.AnimationKey;
 import com.hancockt.potop.assets.GameAssets;
 import com.hancockt.potop.level.LevelGeneration;
@@ -43,8 +42,8 @@ public class GameFlow {
                 renderingSystem.drawShapes(runData, playerData, gameAssets, cameraSystem.getCamera(), waterSystem, faucetSystem);
                 renderingSystem.drawHUD(runData, persistentData, playerData, cameraSystem.getHudCam(), runData.time);
                 renderingSystem.drawDeathText(cameraSystem.getCamera(), runData.deathXValues, waterSystem);
-                renderingSystem.drawDeathOverlay(cameraSystem.getHudCam(), playerData);
-                tempRunData = handleDeathInput(runData, playerData, levelGeneration, levelSystem, waterSystem,
+                renderingSystem.drawDeathOverlay(cameraSystem.getHudCam(), playerData, persistentData);
+                tempRunData = handleDeathInput(runData, playerData, persistentData, levelGeneration, levelSystem, waterSystem,
                     faucetSystem, checkpointSystem);
                 break;
             case WIN:
@@ -106,7 +105,7 @@ public class GameFlow {
                 }
 
                 renderingSystem.drawShapes(runData, playerData, gameAssets, cameraSystem.getCamera(), waterSystem, faucetSystem);
-                cameraSystem.updateCamera(delta, playerData, waterSystem, physicsEngine);
+                cameraSystem.updateCamera(delta, playerData, waterSystem);
                 renderingSystem.drawHUD(runData, persistentData, playerData, cameraSystem.getHudCam(), runData.time);
 
                 renderingSystem.instructions(runData, cameraSystem.getCamera());
@@ -132,7 +131,7 @@ public class GameFlow {
                 levelSystem.restart(runData, playerData, waterSystem, faucetSystem);
                 GAME_STATE = GameState.PLAYING;
             } else if(Gdx.input.isKeyJustPressed(Input.Keys.I)){
-                //TODO - remove, just for testing!
+                //TODO - remove, just for testing! in future this only works if they beat learning mode!
                 tempRunData = levelSystem.loadLevel(LevelType.INFINITE);
                 levelSystem.restart(runData, playerData, waterSystem, faucetSystem);
                 GAME_STATE = GameState.PLAYING;
@@ -163,10 +162,13 @@ public class GameFlow {
         return tempRunData;
     }
 
-    private RunData handleDeathInput(RunData runData, PlayerData playerData, LevelGeneration levelGeneration, LevelSystem levelSystem, WaterSystem waterSystem,
+    private RunData handleDeathInput(RunData runData, PlayerData playerData, PersistentData persistentData, LevelGeneration levelGeneration, LevelSystem levelSystem, WaterSystem waterSystem,
                                      FaucetSystem faucetSystem, CheckpointSystem checkpointSystem){
         RunData tempRunData = null;
         if(Gdx.input.isKeyJustPressed(Input.Keys.R)){
+            //update previous high score
+            persistentData.previousHighScore = persistentData.highScore;
+
             levelSystem.restart(runData, playerData, waterSystem, faucetSystem);
             GAME_STATE = GameState.PLAYING;
         }

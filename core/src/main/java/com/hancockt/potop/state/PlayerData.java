@@ -1,12 +1,9 @@
 package com.hancockt.potop.state;
 
 import com.badlogic.gdx.math.Rectangle;
-import com.hancockt.potop.features.Checkpoint;
 import com.hancockt.potop.level.LevelGeneration;
 import com.hancockt.potop.level.LevelType;
 import com.hancockt.potop.systems.WaterSystem;
-
-import java.util.List;
 
 public class PlayerData {
     // Everything belonging to the current state of the game in relation to the player

@@ -50,7 +50,7 @@ public class GameScreen implements Screen {
         checkpointSystem = new CheckpointSystem();
         physicsEngine = new PhysicsEngine();
 
-        persistentData = new PersistentData(); //TODO - long term save/loading save
+        persistentData = new PersistentData();
 
 
         levelSystem.restart(runData, playerData, waterSystem, faucetSystem);

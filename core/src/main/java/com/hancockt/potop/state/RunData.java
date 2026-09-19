@@ -30,10 +30,10 @@ public class RunData {
     private final List<Currency> currencies;
     private final List<Platform> platforms; // already built, not modules
 
-    private List<Checkpoint> activeCheckpoints;
-    private List<Faucet> activeFaucets;
-    private List<Currency> activeCurrency;
-    private List<Platform> activePlatforms;
+    private final List<Checkpoint> activeCheckpoints;
+    private final List<Faucet> activeFaucets;
+    private final List<Currency> activeCurrency;
+    private final List<Platform> activePlatforms;
 
     private float currentActiveTimeAmount;
     private final float checkUpdateActive = 1.0f; //seconds - TUNABLE

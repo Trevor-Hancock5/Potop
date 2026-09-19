@@ -77,14 +77,16 @@ public class RenderingSystem {
         batch.end();
     }
 
-    public void drawDeathOverlay(OrthographicCamera hudCam, PlayerData playerData){
+    public void drawDeathOverlay(OrthographicCamera hudCam, PlayerData playerData, PersistentData persistentData){
         batch.setProjectionMatrix(hudCam.combined);
         batch.begin();
 
+        if(persistentData.highScore > persistentData.previousHighScore){
+            drawCenteredText("NEW HIGH SCORE: " + Math.round(persistentData.highScore), 75, 2f);
+        }
+
         drawCenteredText("You drowned. Score: " + Math.round(playerData.y), 30, 1.5f);
         drawCenteredText("Press R to retry!", 0, 1);
-
-        // TODO - if new high score, display !
 
         batch.end();
     }
@@ -182,7 +184,7 @@ public class RenderingSystem {
         }
 
         //SPARK
-        batch.draw(gameAssets.sparkAnimator.getCurrentFrame(), playerData.x, playerData.y, playerData.playerWidth, playerData.playerHeight);
+        batch.draw(gameAssets.sparkAnimator.getCurrentFrame(), playerData.x, playerData.y, PlayerData.playerWidth, PlayerData.playerHeight);
 
         batch.end();
     }
@@ -201,7 +203,6 @@ public class RenderingSystem {
     public void drawCenteredText(String text, float yOffset, float scale) {
         font.getData().setScale(scale);
 
-        //batch.draw(); - TODO: surround text with black box, so white on black, or some other contrast
         layout.setText(font, text);
         float x = (CameraSystem.VIEWPORT_WIDTH - layout.width) / 2;
         float y = (CameraSystem.VIEWPORT_HEIGHT - layout.height) / 2 + yOffset;

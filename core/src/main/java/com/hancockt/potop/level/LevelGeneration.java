@@ -45,9 +45,7 @@ public class LevelGeneration {
     private static int numPrestigePlaced = 0;
     public static final int maxPrestigePlaced = 5;
 
-    public static ArrayList<Integer> attemptsList = new ArrayList<>(); //TODO - just for testing
-
-    // TODO - change generation to increase checkpoints the higher you go
+    public static ArrayList<Integer> attemptsList = new ArrayList<>(); //For testing class //TODO - remove for release
 
     public LevelGeneration(long seed){
         numPrestigePlaced = 0; //reset
@@ -208,8 +206,6 @@ public class LevelGeneration {
         platforms.add(leftWall);
         platforms.add(rightWall);
 
-
-        //TODO - understand this and add constants and comments
         float bandArea = LEVEL_WIDTH * BAND_HEIGHT;
         float decayMultiplier = bandY / 1000;
 
