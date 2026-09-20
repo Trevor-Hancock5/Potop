@@ -22,17 +22,21 @@ public class LevelGeneration {
     private static final float LEVEL_WIDTH = 3000; //TUNABLE
     private static final int PRE_GENERATION_HEIGHT = 10_000; //TUNABLE
     public static final int GENERATION_HEIGHT = 2000; //TUNABLE
-    private static final float minCheckpointHeightDistance = 750f; //TUNABLE
-    private static final float maxCheckpointHeightDistance = 1250f; //TUNABLE
-    private static final float skipCheckpointThreshold = 0.05f; //TUNABLE
-    private static final float minFaucetHeightDistance = 600f; //TUNABLE
-    private static final float maxFaucetHeightDistance = 1000f; //TUNABLE
-    private static final float skipFaucetThreshold = 0.2f; //TUNABLE
+
+    private static final float minCheckpointHeightDistance = 800f; //TUNABLE
+    private static final float maxCheckpointHeightDistance = 1600f; //TUNABLE
+    private static final float skipCheckpointThreshold = 0.08f; //TUNABLE
+
+    private static final float minFaucetHeightDistance = 750f; //TUNABLE
+    private static final float maxFaucetHeightDistance = 1500f; //TUNABLE
+    private static final float skipFaucetThreshold = 0.25f; //TUNABLE
     private static final float faucetGapAbovePlatform = 10f; // pixels floating above platform - TUNABLE
     private static final float minFaucetSpeedReduction = 10; //TUNABLE
     private static final float maxFaucetSpeedReduction = 50; //TUNABLE
+
     private static final float minNumPlatformsPerBand = 5; //TUNABLE
     private static final int maxAttemptsPlacingPlatforms = 500; //TUNABLE
+
     private static final int maxPrestigeCurrencyThreshold = 10_000; //TUNABLE
     private static final int minPrestigeCurrencyThreshold = 1_000; //TUNABLE
     private static final int chanceDecreaseThreshold = 5_000; //TUNABLE
@@ -40,10 +44,12 @@ public class LevelGeneration {
     private static final float prestigeCurrChanceMin = 0.000001f; //TUNABLE
     private static final float minCurrencyChanceOfPlacement = 0.05f; // only on 5% of platforms to start - TUNABLE
     private static final float maxCurrencyChanceOfPlacement = 0.5f; //TUNABLE
-    private static final int reachableHorizontalMax = 400; //TUNABLE
-    private static final int reachableVerticalMax = 90; //TUNABLE
     private static int numPrestigePlaced = 0;
     public static final int maxPrestigePlaced = 5;
+
+    private static final int reachableHorizontalMax = 400; //TUNABLE
+    private static final int reachableVerticalMax = 90; //TUNABLE
+
 
     public static ArrayList<Integer> attemptsList = new ArrayList<>(); //For testing class //TODO - remove for release
 

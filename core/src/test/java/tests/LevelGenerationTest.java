@@ -283,7 +283,7 @@ public class LevelGenerationTest {
         assertTrue(minFaucetDist > 500, "Faucets too close: " + minFaucetDist);
         assertTrue(averageCheckpointDist > 500 && averageCheckpointDist < 1500, "Checkpoints not in desired range: " + averageCheckpointDist);
         assertTrue(averageFaucetDist > 500 && averageFaucetDist < 2000, "Faucets not in desired range: " + averageFaucetDist);
-        assertTrue(maxCheckpointDist < 2500, "Checkpoints too far apart: " + maxCheckpointDist);
+        assertTrue(maxCheckpointDist < 3000, "Checkpoints too far apart: " + maxCheckpointDist);
         assertTrue(maxFaucetDist < 4000, "Faucets too far apart: " + maxFaucetDist);
     }
 

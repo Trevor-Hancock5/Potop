@@ -12,8 +12,8 @@ public class WaterSystem {
     private float waterRiseSpeed;
 
     public static final float defaultWaterLevelOnStart = -50f; // TUNABLE
-    private static final float maxWaterRiseSpeed = 50; // TUNABLE
-    private static final float baseWaterRiseSpeed = 8f; // TUNABLE
+    private static final float maxWaterRiseSpeed = 80; // TUNABLE
+    private static final float baseWaterRiseSpeed = 15f; // TUNABLE
     private static final float waterRiseSpeedAlwaysAtMaxAboveY = 8000f; // TUNABLE
     private static final int waterAccelerationPixelsPerSecond = 2; // TUNABLE
 

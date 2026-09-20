@@ -126,13 +126,13 @@ public class RenderingSystem {
         batch.begin();
 
         //platforms
-        for(Platform p : runData.getPlatforms()){
+        for(Platform p : runData.getActivePlatforms()){
             Texture asset = p.isBoundaryWall() ? gameAssets.boundaryWall : gameAssets.platform;
             batch.draw(asset, p.getX(), p.getY(), p.getWidth(), p.getHeight());
         }
 
         //checkpoints
-        for(Checkpoint c : runData.getCheckpoints()){
+        for(Checkpoint c : runData.getActiveCheckpoints()){
             if(c.isActivated()){
                 gameAssets.checkpointAnimator.play(AnimationKey.CHECKPOINT_ACTIVE);
                 TextureRegion asset = gameAssets.checkpointAnimator.getCurrentFrame();
@@ -144,7 +144,7 @@ public class RenderingSystem {
         }
 
         // faucets
-        for (Faucet f : runData.getFaucets()) {
+        for (Faucet f : runData.getActiveFaucets()) {
             Texture texture = f.isWinFaucet() ? gameAssets.winFaucet : gameAssets.faucet;
 
             float width = f.getWidth();
@@ -178,7 +178,7 @@ public class RenderingSystem {
         }
 
         //Currency
-        for(Currency c : runData.getCurrencies()){
+        for(Currency c : runData.getActiveCurrency()){
             Texture asset = c.isPrestige() ? gameAssets.prestigeCurrency : gameAssets.currency;
             batch.draw(asset, c.getX(), c.getY(), Currency.WIDTH, Currency.HEIGHT);
         }
@@ -251,9 +251,14 @@ public class RenderingSystem {
             yValues.add(50f);
             scaleValues.add(0.75f);
 
-            text.add("WASD / Arrow Keys to move\nW / UP /SPACE to jump\nP to PAUSE\nQ to COMPLETELY " +
-                "RESTART\nESC " +
-                "to EXIT game");
+            text.add("""
+                WASD / Arrow Keys to move
+                W / UP /SPACE to jump
+                P to PAUSE
+                Q to COMPLETELY \
+                RESTART
+                ESC \
+                to EXIT game""");
             xValues.add(50f);
             yValues.add(145f);
             scaleValues.add(0.75f);
@@ -273,8 +278,12 @@ public class RenderingSystem {
             yValues.add(1875f);
             scaleValues.add(1f);
 
-            text.add("You can WALL JUMP in 3 ways:\n- Just JUMP to go diagonal\n- Hold INTO the wall " +
-                "and jump to climb\n- Hold AWAY from the wall and jump to fling sideways");
+            text.add("""
+                You can WALL JUMP in 3 ways:
+                - Just JUMP to go diagonal
+                - Hold INTO the wall \
+                and jump to climb
+                - Hold AWAY from the wall and jump to fling sideways""");
             xValues.add(5925f);
             yValues.add(1275f);
             scaleValues.add(0.75f);

@@ -17,9 +17,8 @@ RUN TESTS BEFORE PUSHING!
 # Milestones:
 
 ## Necessary Improvements!
-faster water or worse faucets? Faucets are too good, water is almost never putting pressure on you!
-understand level generation and add constants and comments
 
+- update level generation (increased chance of checkpoints and faucets higher up, less so lower)
 
 - less dense higher? more dense lower?
 - less platforms by bounding walls?
@@ -139,6 +138,7 @@ understand level generation and add constants and comments
 
 
 ## Dream features
+- make interface for features (platform, checkpoint, currency, faucet, etc. ) then lists are simpler! 
 - add functionality to see random seed, and be able to add random seed to use (surround in try/catch)
     - It is the same every time (could make test!)
 - Look further in front???

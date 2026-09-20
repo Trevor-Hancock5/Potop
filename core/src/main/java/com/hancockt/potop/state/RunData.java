@@ -36,9 +36,9 @@ public class RunData {
     private final List<Platform> activePlatforms;
 
     private float currentActiveTimeAmount;
-    private final float checkUpdateActive = 1.0f; //seconds - TUNABLE
-    private final int yDifferentialToTriggerActiveListsUpdate = 500; // update acitve lists when player moves by 500
-    private final int activeListsRange = 1000; // active lists are 1000 above and below player
+    private static final float checkUpdateActive = 1.0f; //TUNABLE - seconds
+    private static final int yDifferentialToTriggerActiveListsUpdate = 500; // TUNABLE - update acitve lists when player moves by 500
+    private final static int activeListsRange = 1000; // TUNABLE - active lists are 1000 above and below player
     private float lastUpdatedYForActive;
 
     private final Vector2 startPoint;
@@ -66,7 +66,7 @@ public class RunData {
 
         currentActiveTimeAmount = 5;
         lastUpdatedYForActive = -1000;
-        updateActiveLists(0, 0);
+        updateActiveLists(0, 0, checkpointWaterLevel); //default values
         this.startPoint = startPoint;
         runMatches = 0;
         this.currentLevel = currLevel;
@@ -84,12 +84,15 @@ public class RunData {
         this(checkpoints, platforms, startPoint, faucets, currencies,  currLevel, nextLevel, System.currentTimeMillis());
     }
 
-    public void updateActiveLists(float playerY, float delta){
+    public void updateActiveLists(float playerY, float delta, float waterLevel){
         currentActiveTimeAmount += delta;
         if(currentActiveTimeAmount < checkUpdateActive) {
             return;
         }
         if(Math.abs(playerY - lastUpdatedYForActive) > yDifferentialToTriggerActiveListsUpdate){
+            // update base lists to remove outdated objects
+            removeOutdatedObjects(waterLevel);
+
             // Update the lists
             float lowYThreshold = playerY - activeListsRange;
             float upperYThreshold = playerY + activeListsRange;
@@ -126,6 +129,52 @@ public class RunData {
             lastUpdatedYForActive = playerY;
             currentActiveTimeAmount = 0;
         }
+    }
+
+    private void removeOutdatedObjects(float waterLevel){
+        //Update the lists as well to remove any outdated features
+        // Anything that is under the water, but also below the current checkpoint by 1000,
+        // then below the checkpoint water level!
+
+        //since we don't want to remove anything the player might interact with, be safe and do the lowest y value
+        float removeBelow;
+        if(currCheckpoint == null){
+            removeBelow = -1000;
+        } else {
+            removeBelow = Math.min(currCheckpoint.getY() - 1000, Math.min(waterLevel - 250, checkpointWaterLevel));
+        }
+
+        List<Platform> toRemoveP = new ArrayList<>();
+        for(Platform p : platforms){
+            if (p.top() < removeBelow){
+                toRemoveP.add(p);
+            }
+        }
+        platforms.removeAll(toRemoveP);
+
+        List<Checkpoint> toRemoveCheck = new ArrayList<>();
+        for(Checkpoint check : checkpoints){
+            if (check.getY() < removeBelow){
+                toRemoveCheck.add(check);
+            }
+        }
+        checkpoints.removeAll(toRemoveCheck);
+
+        List<Faucet> toRemoveF = new ArrayList<>();
+        for(Faucet f : faucets){
+            if (f.getY() < removeBelow){
+                toRemoveF.add(f);
+            }
+        }
+        faucets.removeAll(toRemoveF);
+
+        List<Currency> toRemoveCurr = new ArrayList<>();
+        for(Currency curr : currencies){
+            if (curr.getY() < removeBelow){
+                toRemoveCurr.add(curr);
+            }
+        }
+        currencies.removeAll(toRemoveCurr);
     }
 
     public List<Checkpoint> getActiveCheckpoints() {
