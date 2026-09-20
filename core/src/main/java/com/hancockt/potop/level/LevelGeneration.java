@@ -230,10 +230,12 @@ public class LevelGeneration {
         float bandArea = LEVEL_WIDTH * BAND_HEIGHT;
         float decayMultiplier = bandY / 1000;
 
+        // TODO - dynamically get coverageDecay and width/height decay to be at smallest by 12k height
+
         //Density
-        float baseCoverageRatio = 0.25f;
-        float minCoverageRatio = 0.02f;
-        float coverageDecay = 0.02f;
+        float baseCoverageRatio = 0.3f;
+        float minCoverageRatio = 0.025f;
+        float coverageDecay = 0.023f; //solve for this so that it is minCoverageRatio at 12k
         float coverageRatio = Math.max(minCoverageRatio, baseCoverageRatio - (decayMultiplier * coverageDecay));
 
         //width and height

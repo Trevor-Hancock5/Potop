@@ -18,7 +18,7 @@ RUN TESTS BEFORE PUSHING!
 
 ## Necessary Improvements!
 
-- less dense higher? more dense lower?
+ - dynamically get decay values (density/width/height) in levelGeneration
 - less platforms by bounding walls?
 - improve infinite mode generation: guarenteed way up in each half of the playing width!
 
