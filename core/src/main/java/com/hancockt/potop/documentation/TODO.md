@@ -18,25 +18,16 @@ RUN TESTS BEFORE PUSHING!
 
 ## Necessary Improvements!
 
-- update level generation (increased chance of checkpoints and faucets higher up, less so lower)
-
 - less dense higher? more dense lower?
 - less platforms by bounding walls?
-- improve wall buffer (when you jump up through a tiny platform, don't nudge them onto the edge of the wall if they have
-  - big veloY and low veloX (absolute value). Kinda sketchy and annoying!
-- setting to turn off screen shake!
-- nerf faucets? (probably less of them as you go higher!) 
-- Denser level generation
 - improve infinite mode generation: guarenteed way up in each half of the playing width!
-- fix regular jump animation
-- update platform art so good for wide blocks!
-- make wall jump animations (climb/jump away)
-- add logic for mirroring animations/art to match which way it's facing!
+
 - add a very very secret easter egg, for only the most devout players that says I'm single lol
     - like bought all upgrades, and like beat thresholds for PR and height.
     - do it: basically add a chance for the golden faucet in infinite mode. After 20k or whatever is super high, you add
       a .0001% chance for the faucet to be gold. And then increase up to a max of 1%. "Spark has discovered the most important
       secret, His developer is single lol"
+
 - Make a learning mode: infinite mode with adjusted settings.
     - limited currency (no prestige), none after set height
     - reset high score after beating learning mode
@@ -47,19 +38,25 @@ RUN TESTS BEFORE PUSHING!
     - higher density platforms but also higher variety!
     - more checkpoints and faucets (less currency from these though!)
     - Remove tutorial? and thus remove 'INF' or space for tutorial on starter page. Also water fix zone and stuff
-      - Make it so that beginner mode is the default and once you reach a set y, you earn standard mode and beginner mode 
-        is disabled on the next run and just auto standard. You should earn lots of currency for that gap! 
-      - Once set y is reached, it notifies them and tells them to start a new run to start on standard mode! (and to earn more matches)
-      - speed up water to influence them into standard (no option to re-enter beginner)
-      - And the end of beginner mode should feel similar to the start/middle of standard mode! 
-      - No option to skip beginner mode, make players prove they are ready for standard mode
-        - Must be able to complete in under 1 minute for me?
+        - Make it so that beginner mode is the default and once you reach a set y, you earn standard mode and beginner mode
+          is disabled on the next run and just auto standard. You should earn lots of currency for that gap!
+        - Once set y is reached, it notifies them and tells them to start a new run to start on standard mode! (and to earn more matches)
+        - speed up water to influence them into standard (no option to re-enter beginner)
+        - And the end of beginner mode should feel similar to the start/middle of standard mode!
+        - No option to skip beginner mode, make players prove they are ready for standard mode
+            - Must be able to complete in under 1 minute for me?
 - How to teach controls b/c people don't read!
     - More clear how to use checkpoints
 - better tutorial or how to better do it? maybe just a set seed for tutorial and then overlay instructions
     - maybe just note that all controls are found in pause menu!
-- update generation to have more checkpoints and faucets the higher you go! Have a base amount lower and then a strict 
-  limit for higher scores/values
+
+- improve wall buffer (when you jump up through a tiny platform, don't nudge them onto the edge of the wall if they have
+    - big veloY and low veloX (absolute value). Kinda sketchy and annoying!
+- setting to turn off screen shake!
+- fix regular jump animation
+- update platform art so good for wide blocks!
+- make wall jump animations (climb/jump away)
+- add logic for mirroring animations/art to match which way it's facing!
 
 
 

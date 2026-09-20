@@ -39,6 +39,8 @@ public class LevelSystem {
             tempRunData.time = 0f;
             checkpointSystem.reset(tempRunData);
             restart(tempRunData, playerData, waterSystem, faucetSystem);
+            playerData.x = 0;
+            playerData.y = 8000;
             return tempRunData;
         } else {
             runData.seed = seed;

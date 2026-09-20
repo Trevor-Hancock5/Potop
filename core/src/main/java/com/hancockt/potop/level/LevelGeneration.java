@@ -27,6 +27,11 @@ public class LevelGeneration {
     private static final float maxCheckpointHeightDistance = 1600f; //TUNABLE
     private static final float skipCheckpointThreshold = 0.08f; //TUNABLE
 
+    //means to divide all 3 above and below by this and then subtract their values by that
+    // thus increasing # of checkpoints and faucets!
+    private static final float increasedDivisorUpHigh = 4f; //TUNABLE
+    private static final float increasedChanceHeight = 8_000f; //TUNABLE
+
     private static final float minFaucetHeightDistance = 750f; //TUNABLE
     private static final float maxFaucetHeightDistance = 1500f; //TUNABLE
     private static final float skipFaucetThreshold = 0.25f; //TUNABLE
@@ -144,10 +149,16 @@ public class LevelGeneration {
     private Platform generateBand(List<Platform> platforms, List<Checkpoint> checkpoints, float bandY,
                                          Platform highestPlatform, List<Faucet> faucets, List<Currency> currencies,
                                          Random rng){
+
+        float minimumDistance = increaseChanceCheck(bandY, minCheckpointHeightDistance);
+        float maximumDistance = increaseChanceCheck(bandY, maxCheckpointHeightDistance);
+        float chanceToSkip = increaseChanceCheck(bandY, skipCheckpointThreshold);
+
         //add checkpoint
-        float checkpointHeightDistance = rng.nextFloat(minCheckpointHeightDistance, maxCheckpointHeightDistance); //add some randomness for kicks and giggles!
+        float checkpointHeightDistance = rng.nextFloat(minimumDistance, maximumDistance); //add some randomness for kicks and giggles!
         boolean checkpointAdded = false;
-        if(checkpoints.isEmpty() || (bandY - checkpoints.getLast().getY() > checkpointHeightDistance && rng.nextFloat() > skipCheckpointThreshold)){
+        if(checkpoints.isEmpty() || (bandY - checkpoints.getLast().getY() > checkpointHeightDistance && rng.nextFloat()
+                > chanceToSkip)){
             //add a checkpoint to the highest platform since it shouldn't overlap any other platform!
             checkpointAdded = true;
             float platformMidpoint = highestPlatform.getX() + (float)(highestPlatform.getWidth() / 2);
@@ -175,10 +186,14 @@ public class LevelGeneration {
             }
         }
 
+        minimumDistance = increaseChanceCheck(bandY, minFaucetHeightDistance);
+        maximumDistance = increaseChanceCheck(bandY, maxFaucetHeightDistance);
+        chanceToSkip = increaseChanceCheck(bandY, skipFaucetThreshold);
+
         //add faucets
-        float faucetHeightDistance = rng.nextFloat(minFaucetHeightDistance,maxFaucetHeightDistance);
+        float faucetHeightDistance = rng.nextFloat(minimumDistance, maximumDistance);
         if(!checkpointAdded && (faucets.isEmpty() || (bandY - faucets.getLast().getY() > faucetHeightDistance
-                && rng.nextFloat() > skipFaucetThreshold))){
+                && rng.nextFloat() > chanceToSkip))){
             //add a faucet to highest platform
             float platformMidpoint = highestPlatform.getX() + (float)(highestPlatform.getWidth() / 2);
             float faucetDimensions = 25; //width/height
@@ -395,6 +410,12 @@ public class LevelGeneration {
 
         highestInfiniteY = (int) (bandY + BAND_HEIGHT);
         return highestPlatform;
+    }
+
+    private float increaseChanceCheck(float bandY, float val){
+        return bandY > increasedChanceHeight ?
+            val - val / increasedDivisorUpHigh :
+            val;
     }
 
     private boolean checkNoCurrencyOverlap(Currency curr, List<Platform> platforms, List<Checkpoint> checkpoints,
