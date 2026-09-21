@@ -163,7 +163,7 @@ public class LevelGeneration {
             checkpointAdded = true;
             float platformMidpoint = highestPlatform.getX() + (float)(highestPlatform.getWidth() / 2);
             float checkpointWidth = Math.min(25, highestPlatform.getWidth());
-            float checkpointHeight = 75;
+            float checkpointHeight = 75; //TODO - default value?
             float checkpointX = platformMidpoint - (checkpointWidth / 2);
             float checkpointY = highestPlatform.getY() + highestPlatform.getHeight();
 
@@ -196,7 +196,7 @@ public class LevelGeneration {
                 && rng.nextFloat() > chanceToSkip))){
             //add a faucet to highest platform
             float platformMidpoint = highestPlatform.getX() + (float)(highestPlatform.getWidth() / 2);
-            float faucetDimensions = 25; //width/height
+            float faucetDimensions = 25; //width/height - TODO default value?
             float faucetX = platformMidpoint - faucetDimensions / 2;
             float faucetY = highestPlatform.getY() + highestPlatform.getHeight() + faucetGapAbovePlatform; //float in air
             float speedReduction = rng.nextFloat(minFaucetSpeedReduction, maxFaucetSpeedReduction); //how much to slow the water_rise_speed
@@ -228,25 +228,25 @@ public class LevelGeneration {
         platforms.add(rightWall);
 
         float bandArea = LEVEL_WIDTH * BAND_HEIGHT;
-        float decayMultiplier = bandY / 1000;
 
-        // TODO - dynamically get coverageDecay and width/height decay to be at smallest by 12k height
+        // TODO - MOVE CONSTANTS UP
 
         //Density
         float baseCoverageRatio = 0.3f;
         float minCoverageRatio = 0.025f;
-        float coverageDecay = 0.023f; //solve for this so that it is minCoverageRatio at 12k
-        float coverageRatio = Math.max(minCoverageRatio, baseCoverageRatio - (decayMultiplier * coverageDecay));
+        final float maxDifficultyHeight = 12_000;
+        float coverageDecay = (baseCoverageRatio - minCoverageRatio) / (maxDifficultyHeight);
+        float coverageRatio = Math.max(minCoverageRatio, baseCoverageRatio - (bandY * coverageDecay));
 
         //width and height
         float baseMaxWidth = 300;
         float baseMaxHeight = 150;
         float minMaxWidth = 50;
         float minMaxHeight = 30;
-        float widthDecay = 20;
-        float heightDecay = 10;
-        float maxWidth = Math.max(baseMaxWidth - (decayMultiplier * widthDecay), minMaxWidth);
-        float maxHeight = Math.max(baseMaxHeight - (decayMultiplier * heightDecay), minMaxHeight);
+        float widthDecay = (baseMaxWidth - minMaxWidth) / (maxDifficultyHeight);
+        float heightDecay = (baseMaxHeight - minMaxHeight) / (maxDifficultyHeight);
+        float maxWidth = Math.max(baseMaxWidth - (bandY * widthDecay), minMaxWidth);
+        float maxHeight = Math.max(baseMaxHeight - (bandY * heightDecay), minMaxHeight);
         float minWidth = 20;
         float minHeight = 10;
 
@@ -284,9 +284,19 @@ public class LevelGeneration {
                 attempts++;
                 float width = rng.nextFloat(minWidth, maxWidth); //20 and max width!
                 float height = rng.nextFloat(minHeight, maxHeight); // 10 and max height!
-                float xVal = rng.nextFloat(LEVEL_WIDTH - width); //btwn 0 and (LEVEL_WIDTH - width)
-                float yVal = rng.nextFloat(bandY, Math.max(bandY, bandY + BAND_HEIGHT - height)); //btwn bandY and
-                // (bandY + BAND_HEIGHT - height)
+
+                //btwn 0 and (LEVEL_WIDTH - width), but higher likelihood to spawn in center!
+                float usableWidth = LEVEL_WIDTH - width;
+
+                float uniformGeneration = rng.nextFloat();
+                float triangleGeneration = (rng.nextFloat() + rng.nextFloat()) * 0.5f; // focus on more platforms in middle
+                float centerBias = 0.15f; //bias towards platforms in center instead of by walls
+
+                float finalRatio = (float) (uniformGeneration * (1.0 - centerBias) + triangleGeneration * centerBias);
+                float xVal = finalRatio * usableWidth;
+
+                // btwn bandY and (bandY + BAND_HEIGHT - height)
+                float yVal = rng.nextFloat(bandY, Math.max(bandY, bandY + BAND_HEIGHT - height));
 
                 p = new Platform(xVal, yVal, width, height);
 

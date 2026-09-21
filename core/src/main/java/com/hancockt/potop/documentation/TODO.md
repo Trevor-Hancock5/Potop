@@ -18,15 +18,10 @@ RUN TESTS BEFORE PUSHING!
 
 ## Necessary Improvements!
 
- - dynamically get decay values (density/width/height) in levelGeneration
-- less platforms by bounding walls?
-- improve infinite mode generation: guarenteed way up in each half of the playing width!
+- fix currency overlapping other stuff!
 
-- add a very very secret easter egg, for only the most devout players that says I'm single lol
-    - like bought all upgrades, and like beat thresholds for PR and height.
-    - do it: basically add a chance for the golden faucet in infinite mode. After 20k or whatever is super high, you add
-      a .0001% chance for the faucet to be gold. And then increase up to a max of 1%. "Spark has discovered the most important
-      secret, His developer is single lol"
+- improve infinite mode generation: guarenteed way up in each half of the playing width!
+- constants in level generation!
 
 - Make a learning mode: infinite mode with adjusted settings.
     - limited currency (no prestige), none after set height
@@ -57,6 +52,12 @@ RUN TESTS BEFORE PUSHING!
 - update platform art so good for wide blocks!
 - make wall jump animations (climb/jump away)
 - add logic for mirroring animations/art to match which way it's facing!
+
+- add a very very secret easter egg, for only the most devout players that says I'm single lol
+    - like bought all upgrades, and like beat thresholds for PR and height.
+    - do it: basically add a chance for the golden faucet in infinite mode. After 20k or whatever is super high, you add
+      a .0001% chance for the faucet to be gold. And then increase up to a max of 1%. "Spark has discovered the most important
+      secret, His developer is single lol"
 
 
 
