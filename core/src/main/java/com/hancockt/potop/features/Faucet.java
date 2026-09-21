@@ -12,12 +12,13 @@ public class Faucet {
     private float progress;
     private final boolean winFaucet;
     private float rotation = 0f;
+    public static final float defaultDimensions = 25f;
 
-    public Faucet(float x, float y, float width, float height, float speedReduction, boolean winFaucet){
+    public Faucet(float x, float y, float speedReduction, boolean winFaucet){
         this.x = x;
         this.y = y;
-        this.width = width;
-        this.height = height;
+        this.width = defaultDimensions;
+        this.height = defaultDimensions;
         turnedOff = false;
         this.speedReduction = speedReduction;
         progress = 0;

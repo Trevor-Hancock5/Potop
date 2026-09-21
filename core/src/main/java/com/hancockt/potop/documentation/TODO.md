@@ -18,8 +18,6 @@ RUN TESTS BEFORE PUSHING!
 
 ## Necessary Improvements!
 
-- constants in level generation!
-
 - Make a learning mode: infinite mode with adjusted settings.
     - limited currency (no prestige), none after set height
     - reset high score after beating learning mode
