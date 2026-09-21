@@ -135,20 +135,16 @@ public class LevelGenerationTest {
             List<Checkpoint> checkpoints = runData.getCheckpoints();
             List<Currency> currencies = runData.getCurrencies();
             for(Platform p : platforms){
-                Rectangle platRect = new Rectangle(p.getX(), p.getY(), p.getWidth(), p.getHeight());
                 for(Faucet f : faucets){
-                    Rectangle fRect = new Rectangle(f.getX(), f.getY(), f.getWidth(), f.getHeight());
-                    assertFalse(platRect.overlaps(fRect), "Faucet overlaps a platform");
+                    assertFalse(p.getRect().overlaps(f.getRect()), "Faucet overlaps a platform");
                 }
 
                 for(Checkpoint c : checkpoints){
-                    Rectangle checkRect = new Rectangle(c.getX(), c.getY(), c.getWidth(), c.getHeight());
-                    assertFalse(platRect.overlaps(checkRect), "Checkpoint overlaps platform");
+                    assertFalse(p.getRect().overlaps(c.getRect()), "Checkpoint overlaps platform");
                 }
 
                 for(Currency curr : currencies){
-                    Rectangle currRect = new Rectangle(curr.getX(), curr.getY(), Currency.WIDTH, Currency.HEIGHT);
-                    assertFalse(platRect.overlaps(currRect), "Currency overlaps platform");
+                    assertFalse(p.getRect().overlaps(curr.getRect()), "Currency overlaps platform");
                 }
             }
         }
@@ -189,11 +185,8 @@ public class LevelGenerationTest {
             RunData runData = generateLevel(TEST_HEIGHT);
             //CHECK
             for(Checkpoint c : runData.getCheckpoints()){
-                Rectangle checkRect = new Rectangle(c.getX(), c.getY(), c.getWidth(), c.getHeight());
-
                 for(Currency curr : runData.getCurrencies()){
-                    Rectangle currRect = new Rectangle(curr.getX(), curr.getY(), Currency.WIDTH, Currency.HEIGHT);
-                    assertFalse(checkRect.overlaps(currRect), "Currency overlaps checkpoint");
+                    assertFalse(c.getRect().overlaps(curr.getRect()), "Currency overlaps checkpoint");
                 }
             }
         }

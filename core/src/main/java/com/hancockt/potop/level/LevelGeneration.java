@@ -479,14 +479,14 @@ public class LevelGeneration {
         ArrayList<Currency> toRemove = new ArrayList<>();
         int highestNewCurrY = checkedCurrencyUpToHere;
         for(Currency c : currencies){
-            if(c.getY() < checkedCurrencyUpToHere - BAND_HEIGHT){
+            if(c.getY() < checkedCurrencyUpToHere - (2 * BAND_HEIGHT)){
                 continue;
             }
 
             if(!checkNoCurrencyOverlap(c, platforms, checkpoints, faucets)){
                 toRemove.add(c);
             }
-            highestNewCurrY = Math.max(checkedCurrencyUpToHere, (int) c.getY());
+            highestNewCurrY = Math.max(highestNewCurrY, (int) c.getY());
         }
 
         checkedCurrencyUpToHere = highestNewCurrY;

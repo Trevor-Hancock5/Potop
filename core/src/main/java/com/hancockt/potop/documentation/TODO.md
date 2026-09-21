@@ -18,9 +18,6 @@ RUN TESTS BEFORE PUSHING!
 
 ## Necessary Improvements!
 
-- fix currency overlapping other stuff!
-
-- improve infinite mode generation: guarenteed way up in each half of the playing width!
 - constants in level generation!
 
 - Make a learning mode: infinite mode with adjusted settings.
