@@ -31,6 +31,7 @@ public class LevelGeneration {
         checkedCurrencyUpToHere = 0;
         ALL_LEVELS.put(LevelType.LEARNING_MODE, buildInfiniteLevel(seed, LevelType.LEARNING_MODE));
         ALL_LEVELS.put(LevelType.INFINITE, buildInfiniteLevel(seed, LevelType.INFINITE));
+        checkedCurrencyUpToHere = 0; //reset AFTER building each level
     }
 
     public static Map<LevelType, RunData> getAllLevels(){
@@ -71,7 +72,6 @@ public class LevelGeneration {
     public void addToInfiniteLevel(List<Platform> platforms, List<Checkpoint> checkpoints,
                                                List<Faucet> faucets, List<Currency> currencies, Random rng,
                                                LevelType levelType){
-        checkedCurrencyUpToHere = 0; //Reset check! TODO - why needed and fix currency generation
         //Add another 2000 height to the infinite level
         int maxAdditionY = highestInfiniteY + GENERATION_HEIGHT;
         LevelConfig lvCon = levelType == LevelType.LEARNING_MODE ? LevelConfig.beginnerMode() :
@@ -407,7 +407,8 @@ public class LevelGeneration {
         ArrayList<Currency> toRemove = new ArrayList<>();
         int highestNewCurrY = checkedCurrencyUpToHere;
         for(Currency c : currencies){
-            if(c.getY() < checkedCurrencyUpToHere - (2 * BAND_HEIGHT)){
+            // If currency is less than up to check - band height: to catch weird interband overlaps
+            if(c.getY() < checkedCurrencyUpToHere - BAND_HEIGHT){
                 continue;
             }
 
@@ -443,5 +444,6 @@ public class LevelGeneration {
 
     public void regenerateInfinite(long seed){
         ALL_LEVELS.put(LevelType.INFINITE, buildInfiniteLevel(seed, LevelType.INFINITE));
+        checkedCurrencyUpToHere = 0; //reset after building
     }
 }

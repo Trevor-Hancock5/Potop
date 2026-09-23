@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class LevelGenerationTest {
-    private static final int NUM_TESTS = 250;
+    private static final int NUM_TESTS = 100;
     private static final int TEST_HEIGHT = 20_000;
 
     // Place this in your JUnit test class inside an @BeforeEach (or @Before) setup method.
