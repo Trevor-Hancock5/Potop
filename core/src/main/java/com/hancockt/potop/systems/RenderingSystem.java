@@ -211,7 +211,7 @@ public class RenderingSystem {
         font.getData().setScale(1f); //reset
     }
 
-    public void drawHUD(RunData runData, PersistentData persistentData, PlayerData playerData, OrthographicCamera hudCam, float time){
+    public void drawHUD(RunData runData, PersistentData persistentData, PlayerData playerData, OrthographicCamera hudCam){
         batch.setProjectionMatrix(hudCam.combined);
         batch.begin();
         try {
@@ -221,13 +221,9 @@ public class RenderingSystem {
             }
 
             font.getData().setScale(1.25f);
-            if (runData.getCurrentLevel() == LevelType.INFINITE) {
-                font.draw(batch, "Score: " + Math.round(playerData.y), CameraSystem.VIEWPORT_WIDTH - 175, CameraSystem.VIEWPORT_HEIGHT - 50);
-                font.draw(batch, "High Score: " + Math.round(persistentData.highScore), CameraSystem.VIEWPORT_WIDTH - 175, CameraSystem.VIEWPORT_HEIGHT - 30);
-                font.draw(batch, "Matches: " + runData.runMatches, CameraSystem.VIEWPORT_WIDTH - 175, CameraSystem.VIEWPORT_HEIGHT - 10);
-            } else {
-                font.draw(batch, "Time: " + String.format("%.1f", time), CameraSystem.VIEWPORT_WIDTH - 125, CameraSystem.VIEWPORT_HEIGHT - 10);
-            }
+            font.draw(batch, "Score: " + Math.round(playerData.y), CameraSystem.VIEWPORT_WIDTH - 175, CameraSystem.VIEWPORT_HEIGHT - 50);
+            font.draw(batch, "High Score: " + Math.round(persistentData.highScore), CameraSystem.VIEWPORT_WIDTH - 175, CameraSystem.VIEWPORT_HEIGHT - 30);
+            font.draw(batch, "Matches: " + runData.runMatches, CameraSystem.VIEWPORT_WIDTH - 175, CameraSystem.VIEWPORT_HEIGHT - 10);
 
             font.setColor(Color.WHITE);
 

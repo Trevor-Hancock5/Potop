@@ -19,8 +19,6 @@ public class RunData {
 
     public Checkpoint currCheckpoint; //current checkpoint player has made it to
     public float checkpointWaterLevel; //water level when user hit current checkpoint
-    public float time;
-    public float timeAtDeath;
     public List<Float> deathXValues;
 
     public static final float checkpointMinWaterBuffer = 200f; //TUNABLE
@@ -71,8 +69,6 @@ public class RunData {
         runMatches = 0;
         this.currentLevel = currLevel;
         this.nextLevel = nextLevel;
-        time = 0f;
-        timeAtDeath = 0f;
         deathXValues = new ArrayList<>();
         this.seed = seed;
         this.rng = new Random(seed);

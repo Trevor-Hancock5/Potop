@@ -320,7 +320,5 @@ public class PhysicsEngine {
 
         //update score LAST
         persistentData.highScore = Math.max(persistentData.highScore, playerData.y);
-
-        runData.time += delta;
     }
 }

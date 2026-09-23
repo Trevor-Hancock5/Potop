@@ -30,7 +30,7 @@ public class GameFlow {
                 tempRunData = handlePauseInput(runData, playerData, levelSystem, waterSystem,
                     faucetSystem, checkpointSystem, levelGeneration);
                 renderingSystem.drawShapes(runData, playerData, gameAssets, cameraSystem.getCamera(), waterSystem, faucetSystem); //still draw game in background
-                renderingSystem.drawHUD(runData, persistentData, playerData, cameraSystem.getHudCam(), runData.time);
+                renderingSystem.drawHUD(runData, persistentData, playerData, cameraSystem.getHudCam());
                 renderingSystem.drawPauseOverlay(cameraSystem.getHudCam());
                 break;
             case DEATH:
@@ -40,7 +40,7 @@ public class GameFlow {
 
                 gameAssets.sparkAnimator.play(AnimationKey.DEATH);
                 renderingSystem.drawShapes(runData, playerData, gameAssets, cameraSystem.getCamera(), waterSystem, faucetSystem);
-                renderingSystem.drawHUD(runData, persistentData, playerData, cameraSystem.getHudCam(), runData.time);
+                renderingSystem.drawHUD(runData, persistentData, playerData, cameraSystem.getHudCam());
                 renderingSystem.drawDeathText(cameraSystem.getCamera(), runData.deathXValues, waterSystem);
                 renderingSystem.drawDeathOverlay(cameraSystem.getHudCam(), playerData, persistentData);
                 tempRunData = handleDeathInput(runData, playerData, persistentData, levelGeneration, levelSystem, waterSystem,
@@ -50,7 +50,7 @@ public class GameFlow {
                 tempRunData = handleWinInput(runData, persistentData, playerData, levelSystem, waterSystem, faucetSystem,
                     checkpointSystem, levelGeneration);
                 renderingSystem.drawShapes(runData, playerData, gameAssets, cameraSystem.getCamera(), waterSystem, faucetSystem);
-                renderingSystem.drawHUD(runData, persistentData, playerData, cameraSystem.getHudCam(), runData.time);
+                renderingSystem.drawHUD(runData, persistentData, playerData, cameraSystem.getHudCam());
                 renderingSystem.drawWinOverlay(cameraSystem.getHudCam());
                 break;
             case PLAYING:
@@ -106,7 +106,7 @@ public class GameFlow {
 
                 renderingSystem.drawShapes(runData, playerData, gameAssets, cameraSystem.getCamera(), waterSystem, faucetSystem);
                 cameraSystem.updateCamera(delta, playerData, waterSystem);
-                renderingSystem.drawHUD(runData, persistentData, playerData, cameraSystem.getHudCam(), runData.time);
+                renderingSystem.drawHUD(runData, persistentData, playerData, cameraSystem.getHudCam());
 
                 renderingSystem.instructions(runData, cameraSystem.getCamera());
                 break;
@@ -187,8 +187,6 @@ public class GameFlow {
                                    LevelGeneration levelGeneration){
         RunData tempRunData = null;
         if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER)){
-            runData.time = 0f;
-            runData.timeAtDeath = 0f;
             RunData data = LevelGeneration.getAllLevels().get(runData.getCurrentLevel());
             LevelType next = data.getNextLevel();
             if(next != null){

@@ -12,9 +12,6 @@ public class LevelSystem {
 
     public void restart(RunData runData, PlayerData playerData, WaterSystem waterSystem, FaucetSystem faucetSystem) {
         waterSystem.restart(runData, playerData);
-
-        runData.time = runData.timeAtDeath;
-
         faucetSystem.reset(runData);
     }
 
@@ -35,15 +32,11 @@ public class LevelSystem {
         }
         if(tempRunData != null){
             tempRunData.seed = seed;
-            tempRunData.timeAtDeath = 0f;
-            tempRunData.time = 0f;
             checkpointSystem.reset(tempRunData);
             restart(tempRunData, playerData, waterSystem, faucetSystem);
             return tempRunData;
         } else {
             runData.seed = seed;
-            runData.timeAtDeath = 0f;
-            runData.time = 0f;
             checkpointSystem.reset(runData);
             restart(runData, playerData, waterSystem, faucetSystem);
             return runData;
@@ -54,7 +47,7 @@ public class LevelSystem {
         if(runData.getCurrentLevel() == LevelType.INFINITE) {
             if (playerData.y > levelGeneration.getHighestYInInfinite() - LevelGeneration.GENERATION_HEIGHT) {
                 levelGeneration.addToInfiniteLevel(runData.getPlatforms(), runData.getCheckpoints(),
-                    runData.getFaucets(), runData.getCurrencies(), runData.rng);
+                    runData.getFaucets(), runData.getCurrencies(), runData.rng, runData.getCurrentLevel());
             }
         }
     }

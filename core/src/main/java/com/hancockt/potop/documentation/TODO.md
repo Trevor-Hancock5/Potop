@@ -18,6 +18,10 @@ RUN TESTS BEFORE PUSHING!
 
 ## Necessary Improvements!
 
+remove tutorial!
+
+reset camera on death or restart!
+
 - Make a learning mode: infinite mode with adjusted settings.
     - limited currency (no prestige), none after set height
     - reset high score after beating learning mode

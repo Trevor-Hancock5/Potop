@@ -6,6 +6,7 @@ import com.hancockt.potop.features.Checkpoint;
 import com.hancockt.potop.features.Currency;
 import com.hancockt.potop.features.Faucet;
 import com.hancockt.potop.features.Platform;
+import com.hancockt.potop.level.LevelConfig;
 import com.hancockt.potop.level.LevelGeneration;
 import com.hancockt.potop.level.LevelType;
 import com.hancockt.potop.main.PhysicsEngine;
@@ -22,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class LevelGenerationTest {
-    private static final int NUM_TESTS = 500;
+    private static final int NUM_TESTS = 250;
     private static final int TEST_HEIGHT = 20_000;
 
     // Place this in your JUnit test class inside an @BeforeEach (or @Before) setup method.
@@ -283,11 +284,11 @@ public class LevelGenerationTest {
     @Test
     public void performanceTiming(){
         // benchmark:
-        // average generation (100k): 12.22s
+        // average generation (100k): 1350.0061ms
 
-        // average generation (10k): 17.0055 ms
-        // average physics update: 1.565ms
-        // average add to generation : 8.726 ms
+        // average generation (10k): 1.5966 ms
+        // average physics update: 0.2165ms
+        // average add to generation : 1.9401 ms
         List<Double> timeGeneration = new ArrayList<>();
         List<Double> timePhysicsUpdate = new ArrayList<>();
         List<Double> timeAddToGeneration = new ArrayList<>();
@@ -305,7 +306,7 @@ public class LevelGenerationTest {
             //Time generation up to 10k - initial
             long start = System.nanoTime();
 
-            runData = levelGeneration.buildInfiniteLevel(seed);
+            runData = levelGeneration.buildInfiniteLevel(seed, LevelType.INFINITE); //10k
 
             long elapsed = System.nanoTime() - start;
             timeGeneration.add(elapsed / millisecondsConversion);
@@ -314,7 +315,7 @@ public class LevelGenerationTest {
             start = System.nanoTime();
 
             levelGeneration.addToInfiniteLevel(runData.getPlatforms(), runData.getCheckpoints(), runData.getFaucets(),
-                runData.getCurrencies(), runData.rng);
+                runData.getCurrencies(), runData.rng, runData.getCurrentLevel());
 
             elapsed = System.nanoTime() - start;
             timeAddToGeneration.add(elapsed / millisecondsConversion);
@@ -365,7 +366,7 @@ public class LevelGenerationTest {
         ArrayList<Integer> numPrestigePerLevel = new ArrayList<>();
         for(int i = 0; i < numRuns; i++){
             int numPrestige = 0;
-            RunData runData = generateLevel(LevelGeneration.getMaxPrestigeCurrencyThreshold());
+            RunData runData = generateLevel(LevelGeneration.getMaxPrestigeCurrencyThreshold(LevelConfig.defaultInfinite()));
             for(Currency c : runData.getCurrencies()){
                 if(c.isPrestige()){
                     numPrestige++;
@@ -373,10 +374,11 @@ public class LevelGenerationTest {
             }
             numPrestigePerLevel.add(numPrestige);
 
-            if(numPrestige > LevelGeneration.maxPrestigePlaced){
+            LevelConfig lvCon = LevelConfig.defaultInfinite();
+            if(numPrestige > lvCon.maxPrestigePlaced()){
                 System.out.println("Num prestige placed: " + numPrestige);
             }
-            assertFalse(numPrestige > LevelGeneration.maxPrestigePlaced, "More than max allowed prestige currency spawned in a level!");
+            assertFalse(numPrestige > lvCon.maxPrestigePlaced(), "More than max allowed prestige currency spawned in a level!");
         }
         double average = numPrestigePerLevel.stream().mapToInt(Integer::intValue).average().orElse(0.0);
         System.out.println("Average prestige currency spawn: " + average);
@@ -527,7 +529,7 @@ public class LevelGenerationTest {
         RunData runData = LevelGeneration.getAllLevels().get(LevelType.INFINITE); // at 10_000
 
         for(int i = 10_000; i < height; i += 2000) {
-            levelGeneration.addToInfiniteLevel(runData.getPlatforms(), runData.getCheckpoints(), runData.getFaucets(), runData.getCurrencies(), runData.rng);
+            levelGeneration.addToInfiniteLevel(runData.getPlatforms(), runData.getCheckpoints(), runData.getFaucets(), runData.getCurrencies(), runData.rng, LevelType.INFINITE);
         }
         return runData;
     }

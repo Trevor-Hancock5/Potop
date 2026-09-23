@@ -20,26 +20,16 @@ public class CheckpointSystem {
             if(!c.isActivated() && checkpoint.overlaps(playerRect)){
                 c.setActivated(true);
                 if(runData.currCheckpoint != null) {
-                    if(runData.getCurrentLevel() == LevelType.INFINITE){
-                        if (c.getY() > runData.currCheckpoint.getY()){
-                            runData.currCheckpoint = c;
-                            waterSystem.updateCheckpointWaterLevel(runData, false);
-                            runData.timeAtDeath = runData.time;
+                    if (c.getY() > runData.currCheckpoint.getY()){
+                        runData.currCheckpoint = c;
+                        waterSystem.updateCheckpointWaterLevel(runData, false);
 
-                            int numCurrency = runData.rng.nextInt(checkpointCurrencyMin, checkpointCurrencyMax);
-                            currencySystem.spawnCurrency(runData, numCurrency, c.getX(), c.getY(), c.getWidth(), c.getHeight());
-                        }
-                    } else {
-                        if (c.getOrder() > runData.currCheckpoint.getOrder()) {
-                            runData.currCheckpoint = c;
-                            waterSystem.updateCheckpointWaterLevel(runData, false);
-                            runData.timeAtDeath = runData.time;
-                        }
+                        int numCurrency = runData.rng.nextInt(checkpointCurrencyMin, checkpointCurrencyMax);
+                        currencySystem.spawnCurrency(runData, numCurrency, c.getX(), c.getY(), c.getWidth(), c.getHeight());
                     }
                 } else{
                     runData.currCheckpoint = c;
                     waterSystem.updateCheckpointWaterLevel(runData, false);
-                    runData.timeAtDeath = runData.time;
                 }
             }
         }
