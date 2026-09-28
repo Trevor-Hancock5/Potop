@@ -12,7 +12,8 @@ public class WaterSystem {
     private float waterRiseSpeed;
 
     public static final float defaultWaterLevelOnStart = -50f; // TUNABLE
-    private static final float maxWaterRiseSpeed = 80; // TUNABLE
+    private static final float maxWaterRiseSpeedNormal = 80; // TUNABLE
+    private static final float maxWaterRiseSpeedLearningMode = 40; // TUNABLE
     private static final float baseWaterRiseSpeed = 15f; // TUNABLE
     private static final float waterRiseSpeedAlwaysAtMaxAboveY = 8000f; // TUNABLE
     private static final int waterAccelerationPixelsPerSecond = 2; // TUNABLE
@@ -23,8 +24,13 @@ public class WaterSystem {
 
     public void restart(RunData runData, PlayerData playerData){
         waterLevel = playerData.reset(runData.getCurrentLevel());
-        float divisor = waterRiseSpeedAlwaysAtMaxAboveY / (maxWaterRiseSpeed - baseWaterRiseSpeed);
-        waterRiseSpeed = Math.min(maxWaterRiseSpeed, baseWaterRiseSpeed + (playerData.y / divisor));
+
+        float divisor = waterRiseSpeedAlwaysAtMaxAboveY / (getMaxSpeed(runData) - baseWaterRiseSpeed);
+        waterRiseSpeed = Math.min(getMaxSpeed(runData), baseWaterRiseSpeed + (playerData.y / divisor));
+    }
+
+    private float getMaxSpeed(RunData runData){
+        return runData.getCurrentLevel() == LevelType.LEARNING_MODE ? maxWaterRiseSpeedLearningMode : maxWaterRiseSpeedNormal;
     }
 
     public void updateWater(RunData runData, PlayerData playerData, float delta){
@@ -40,11 +46,10 @@ public class WaterSystem {
         }
 
         //rising water
-        if(runData.getCurrentLevel() == LevelType.INFINITE) {
-            if(waterRiseSpeed <= maxWaterRiseSpeed) {
-                waterRiseSpeed += waterAccelerationPixelsPerSecond * delta; // increase water speed by 2 pixels every second (as delta accumulates)
-            }
+        if(waterRiseSpeed <= getMaxSpeed(runData)) {
+            waterRiseSpeed += waterAccelerationPixelsPerSecond * delta; // increase water speed by 2 pixels every second (as delta accumulates)
         }
+
         waterLevel += waterRiseSpeed * delta;
     }
 

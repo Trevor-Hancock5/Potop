@@ -48,7 +48,7 @@ public class RenderingSystem {
         layout = new GlyphLayout();
     }
 
-    public void drawMenu(OrthographicCamera hudCam, GameAssets gameAssets){
+    public void drawMenu(boolean learningModeBeat, OrthographicCamera hudCam, GameAssets gameAssets){
         batch.setProjectionMatrix(hudCam.combined);
         batch.begin();
 
@@ -59,8 +59,10 @@ public class RenderingSystem {
             logoW, logoH);
 
         // existing text below
-        drawCenteredText("Press SPACE to start tutorial", -35, 1.5f);
-        drawCenteredText("\nType INF for Infinite Mode", -55, 1.5f);
+        if(!learningModeBeat) {
+            drawCenteredText("Press SPACE to start learning mode", -35, 1.5f);
+        }
+        drawCenteredText("\nType I for Infinite Mode", -55, 1.5f);
 
         batch.end();
     }
@@ -234,6 +236,7 @@ public class RenderingSystem {
         }
     }
 
+    //TODO
     public void instructions(RunData runData, OrthographicCamera camera){
         //Instructions
         List<String> text = new ArrayList<>();
@@ -242,61 +245,19 @@ public class RenderingSystem {
         List<Float> scaleValues = new ArrayList<>();
 
         if (runData.getCurrentLevel() == LevelType.LEARNING_MODE) {
-            text.add("Watch out for the water\nOr you DROWN");
-            xValues.add(-125f);
-            yValues.add(50f);
-            scaleValues.add(0.75f);
-
-            text.add("""
-                WASD / Arrow Keys to move
-                W / UP /SPACE to jump
-                P to PAUSE
-                Q to COMPLETELY \
-                RESTART
-                ESC \
-                to EXIT game""");
-            xValues.add(50f);
-            yValues.add(145f);
-            scaleValues.add(0.75f);
-
-            text.add("Hold UP / W / SPACE\njump higher");
-            xValues.add(800f);
-            yValues.add(225f);
-            scaleValues.add(0.75f);
-
-            text.add("CHECKPOINT\n\nHold DOWN / S\nslow down or fall faster");
-            xValues.add(1900f);
-            yValues.add(425f);
-            scaleValues.add(0.75f);
-
-            text.add("JUUUUMMMMPPPPPP");
-            xValues.add(4925f);
-            yValues.add(1875f);
+            text.add("LEARNING MODE");
+            xValues.add(45f);
+            yValues.add(175f);
             scaleValues.add(1f);
 
-            text.add("""
-                You can WALL JUMP in 3 ways:
-                - Just JUMP to go diagonal
-                - Hold INTO the wall \
-                and jump to climb
-                - Hold AWAY from the wall and jump to fling sideways""");
-            xValues.add(5925f);
-            yValues.add(1275f);
+            text.add("Get to 10,000 height to beat LEARNING MODE!");
+            xValues.add(5f);
+            yValues.add(160f);
             scaleValues.add(0.75f);
 
-            text.add("As the water gets closer to you\nyou jump higher and move faster!");
-            xValues.add(6225f);
-            yValues.add(1900f);
-            scaleValues.add(0.75f);
-
-            text.add("Hold E or SHIFT to turn the faucet\n to slow down the water!");
-            xValues.add(6740f);
-            yValues.add(2090f);
-            scaleValues.add(0.75f);
-
-            text.add("Finish the faucet to WIN!");
-            xValues.add(8085f);
-            yValues.add(2245f);
+            text.add("Press R to restart on death\nP to pause");
+            xValues.add(5f);
+            yValues.add(140f);
             scaleValues.add(0.75f);
 
             drawText(text, xValues, yValues, scaleValues, camera);

@@ -24,12 +24,12 @@ public class LevelSystem {
         // Called when user hits 'Q'
         long seed = System.currentTimeMillis();
         RunData tempRunData = null;
-        if (runData.getCurrentLevel() == LevelType.INFINITE) {
-            waterSystem.updateCheckpointWaterLevel(runData, true);
-            runData.deathXValues = new ArrayList<>(); //reset
-            levelGeneration.regenerateInfinite(seed);
-            tempRunData = loadLevel(LevelType.INFINITE); //regenerate!
-        }
+
+        waterSystem.updateCheckpointWaterLevel(runData, true);
+        runData.deathXValues = new ArrayList<>(); //reset
+        levelGeneration.regenerateInfinite(seed, runData.getCurrentLevel());
+        tempRunData = loadLevel(runData.getCurrentLevel()); //regenerate!
+
         if(tempRunData != null){
             tempRunData.seed = seed;
             checkpointSystem.reset(tempRunData);

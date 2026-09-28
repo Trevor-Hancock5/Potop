@@ -14,6 +14,7 @@ import com.hancockt.potop.systems.*;
 
 public class GameFlow {
     public static GameState GAME_STATE = GameState.MENU; //start with menu
+    private static final int scoreToBeatLearningMode = 10_000;
 
     public RunData update(float delta, RunData runData, PersistentData persistentData, PlayerData playerData,
                           GameAssets gameAssets,
@@ -24,7 +25,7 @@ public class GameFlow {
         switch(GAME_STATE) {
             case MENU:
                 tempRunData = handleMenuInput(runData, playerData, persistentData, levelSystem, waterSystem, faucetSystem);
-                renderingSystem.drawMenu(cameraSystem.getHudCam(), gameAssets);
+                renderingSystem.drawMenu(persistentData.learningModeBeat, cameraSystem.getHudCam(), gameAssets);
                 break;
             case PAUSE:
                 tempRunData = handlePauseInput(runData, playerData, levelSystem, waterSystem,
@@ -48,7 +49,7 @@ public class GameFlow {
                 break;
             case WIN:
                 tempRunData = handleWinInput(runData, persistentData, playerData, levelSystem, waterSystem, faucetSystem,
-                    checkpointSystem, levelGeneration);
+                    checkpointSystem, levelGeneration, currencySystem);
                 renderingSystem.drawShapes(runData, playerData, gameAssets, cameraSystem.getCamera(), waterSystem, faucetSystem);
                 renderingSystem.drawHUD(runData, persistentData, playerData, cameraSystem.getHudCam());
                 renderingSystem.drawWinOverlay(cameraSystem.getHudCam());
@@ -109,6 +110,17 @@ public class GameFlow {
                 renderingSystem.drawHUD(runData, persistentData, playerData, cameraSystem.getHudCam());
 
                 renderingSystem.instructions(runData, cameraSystem.getCamera());
+
+                //TODO - move when win learning mode!
+                if(Gdx.input.isKeyJustPressed(Input.Keys.Y)){
+                    currencySystem.spawnCurrency(runData, 500, playerData.x, playerData.y,
+                        PlayerData.playerWidth, PlayerData.playerHeight);
+                }
+
+                //Check if beat learning mode
+                if(runData.getCurrentLevel() == LevelType.LEARNING_MODE && playerData.y > scoreToBeatLearningMode){
+                    GAME_STATE = GameState.WIN;
+                }
                 break;
         }
 
@@ -118,7 +130,8 @@ public class GameFlow {
     private RunData handleMenuInput(RunData runData, PlayerData playerData, PersistentData persistentData, LevelSystem levelSystem,
                                     WaterSystem waterSystem, FaucetSystem faucetSystem){
         RunData tempRunData = null;
-        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
+        // Don't let player do learning mode after beating it
+        if(!persistentData.learningModeBeat && Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
             tempRunData = levelSystem.loadLevel(LevelType.LEARNING_MODE);
             levelSystem.restart(runData, playerData, waterSystem, faucetSystem);
             GAME_STATE = GameState.PLAYING;
@@ -184,14 +197,18 @@ public class GameFlow {
 
     private RunData handleWinInput(RunData runData, PersistentData persistentData, PlayerData playerData, LevelSystem levelSystem,
                                    WaterSystem waterSystem, FaucetSystem faucetSystem, CheckpointSystem checkpointSystem,
-                                   LevelGeneration levelGeneration){
+                                   LevelGeneration levelGeneration, CurrencySystem currencySystem){
         RunData tempRunData = null;
         if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER)){
             RunData data = LevelGeneration.getAllLevels().get(runData.getCurrentLevel());
             LevelType next = data.getNextLevel();
             if(next != null){
+                //TODO
                 if(runData.getCurrentLevel() == LevelType.LEARNING_MODE){
                     persistentData.learningModeBeat = true;
+
+                    //reset high score!
+                    persistentData.highScore = 0;
                 }
                 waterSystem.updateCheckpointWaterLevel(runData, true);
                 checkpointSystem.reset(runData);

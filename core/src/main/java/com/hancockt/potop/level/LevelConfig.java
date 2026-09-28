@@ -22,7 +22,7 @@ public record LevelConfig(
     float minNumPlatformsPerBand, //(5,8)
     int maxAttemptsPlacingPlatforms, //(500,600)
     float baseCoverageRatio, //(0.3f,0.4f)
-    float minCoverageRatio, //(0.025f,0.05)
+    float minCoverageRatio, //(0.025f,0.125)
     float maxDifficultyHeight, //(12_000,8_000)
     float basePlatformMaxWidth, //(300,300)
     float basePlatformMaxHeight, //(150,150)
@@ -98,7 +98,7 @@ public record LevelConfig(
             8,
             600,
             0.4f,
-            0.05f,
+            0.125f,
             8_000,
             300,
             150,

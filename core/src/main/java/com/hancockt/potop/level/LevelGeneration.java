@@ -65,7 +65,7 @@ public class LevelGeneration {
         removeOverlappingCurrency(currencies, platforms, checkpoints, faucets);
 
         return new RunData(
-            checkpoints, platforms, new Vector2(0,0), faucets, currencies, LevelType.INFINITE, null, seed
+            checkpoints, platforms, new Vector2(0,0), faucets, currencies, levelType, null, seed
         );
     }
 
@@ -442,8 +442,8 @@ public class LevelGeneration {
         //none failed, reachable!
     }
 
-    public void regenerateInfinite(long seed){
-        ALL_LEVELS.put(LevelType.INFINITE, buildInfiniteLevel(seed, LevelType.INFINITE));
+    public void regenerateInfinite(long seed, LevelType currLevel){
+        ALL_LEVELS.put(currLevel, buildInfiniteLevel(seed, currLevel));
         checkedCurrencyUpToHere = 0; //reset after building
     }
 }

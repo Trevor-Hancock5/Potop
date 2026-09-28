@@ -91,8 +91,8 @@ public class CurrencySystem {
 
     public void spawnCurrency(RunData runData, int numOfCurrency, float xRef, float yRef, float width, float height){
         for(int i = 0; i < numOfCurrency; i++){
-            float explodeXVelocity = runData.rng.nextFloat(0, explodeVelocityMax) * Math.signum(runData.rng.nextFloat(-1, 1));
-            float explodeYVelocity = runData.rng.nextFloat(0, explodeVelocityMax) * Math.signum(runData.rng.nextFloat(-1, 1));
+            float explodeXVelocity = runData.rng.nextFloat(-explodeVelocityMax, explodeVelocityMax);
+            float explodeYVelocity = runData.rng.nextFloat(-explodeVelocityMax, explodeVelocityMax);
             float explodeTime = runData.rng.nextFloat(minExplodeTime, maxExplodeTime);
 
             // This spawns currency in the middle of a checkpoint/faucet with explode velocity/time

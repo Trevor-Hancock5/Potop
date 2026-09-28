@@ -19,30 +19,35 @@ RUN TESTS BEFORE PUSHING!
 ## Necessary Improvements!
 
 remove tutorial!
+- go through all files
 
-reset camera on death or restart!
 
-- Make a learning mode: infinite mode with adjusted settings.
-    - limited currency (no prestige), none after set height
-    - reset high score after beating learning mode
-    - Add brief prompt with minimal settings (just left right and jump, and a note about settings)
+- reset camera on death or restart!
+- remove edge nudging?
+- currency check works, the rendering wrong? Maybe using active currency and not updated properly? Check check check!
+  - Anywhere adding/removing from the standard lists should also from the active lists too
+
+- Make a LEARNING MODE: infinite mode with adjusted settings.
+    -x limited currency (no prestige), none after set height
+    -x reset high score after beating learning mode
+    -x Add brief prompt with minimal settings (just left right and jump, and a note about settings)
     - when within range of wall jump, add a prompt for that (pause and prompt the user)
     - prompt for flare/restart/checkpoint/faucet. Basically prompt on first interaction
-    - slower water
-    - higher density platforms but also higher variety!
-    - more checkpoints and faucets (less currency from these though!)
+    -x slower water
+    -x higher density platforms but also higher variety!
+    -x more checkpoints and faucets (less currency from these though!)
+    - Make pop up rendering for cleaner stuff
     - Remove tutorial? and thus remove 'INF' or space for tutorial on starter page. Also water fix zone and stuff
-        - Make it so that beginner mode is the default and once you reach a set y, you earn standard mode and beginner mode
-          is disabled on the next run and just auto standard. You should earn lots of currency for that gap!
-        - Once set y is reached, it notifies them and tells them to start a new run to start on standard mode! (and to earn more matches)
-        - speed up water to influence them into standard (no option to re-enter beginner)
-        - And the end of beginner mode should feel similar to the start/middle of standard mode!
-        - No option to skip beginner mode, make players prove they are ready for standard mode
-            - Must be able to complete in under 1 minute for me?
-- How to teach controls b/c people don't read!
-    - More clear how to use checkpoints
+        - Make it so that learning mode is the default and once you reach a set y, you earn standard mode and learning mode
+          is disabled on the next run and just auto standard. You should earn lots of currency for that gap! - satisfying spawn!!!
 - better tutorial or how to better do it? maybe just a set seed for tutorial and then overlay instructions
     - maybe just note that all controls are found in pause menu!
+  - Give controls via pop ups when in certain situations for the first time - wall jump, water close, faucet, checkpoint, ...
+  - update menu, sits there and then fades to level? - jump scare of Spark lol?
+  - Notify player once reached 10k, don't force to go to infinite mode. Just encourage with fast water and force on death
+  - More clear how to use checkpoints
+  - How to teach controls b/c people don't read!
+  - Must be able to complete in under 1 minute for me? Can't skip learning mode
 
 - improve wall buffer (when you jump up through a tiny platform, don't nudge them onto the edge of the wall if they have
     - big veloY and low veloX (absolute value). Kinda sketchy and annoying!
